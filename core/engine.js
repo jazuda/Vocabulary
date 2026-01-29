@@ -219,7 +219,17 @@ function initPresentation(userConfig) {
             setTimeout(run, 100);
             return;
         }
-        showRoleSelection();
+
+        // NUEVO: Comprobar sesión antes de mostrar nada
+        const savedName = sessionStorage.getItem('studentName');
+        const savedClass = sessionStorage.getItem('studentClass');
+
+        if (savedName && savedClass) {
+            // Si hay sesión, mostramos la confirmación directamente
+            showRoleSelection(true); // true indica que saltamos a la confirmación
+        } else {
+            showRoleSelection(false);
+        }
     };
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', run);
@@ -233,21 +243,29 @@ function initPresentation(userConfig) {
     });
 }
 
-function showRoleSelection() {
+function showRoleSelection(hasSession) {
     if (!document.getElementById('roleOverlay')) {
         const overlay = document.createElement('div');
         overlay.className = 'role-overlay';
         overlay.id = 'roleOverlay';
-        overlay.innerHTML = `
-            <div class="role-card">
+        overlay.innerHTML = `<div class="role-card"></div>`;
+        document.body.appendChild(overlay);
+
+        const card = overlay.querySelector('.role-card');
+
+        if (hasSession) {
+            const name = sessionStorage.getItem('studentName');
+            const className = sessionStorage.getItem('studentClass');
+            showNameConfirmation(name, className);
+        } else {
+            card.innerHTML = `
                 <h2>¿Quién está aprendiendo hoy?</h2>
                 <div class="role-options">
                     <button class="role-btn" id="teacherBtn" onclick="window.selectRole('teacher')">👨‍🏫 Soy Maestro/a</button>
                     <button class="role-btn" id="studentBtn" onclick="window.selectRole('student')">🎓 Soy Estudiante</button>
                 </div>
-            </div>
-        `;
-        document.body.appendChild(overlay);
+            `;
+        }
     }
 }
 
