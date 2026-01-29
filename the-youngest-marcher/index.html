@@ -1,946 +1,104 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vocabulary: The youngest marcher</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700&family=Quicksand:wght@500;700&display=swap"
+    <title>Vocabulary: The Youngest Marcher</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;800&family=Quicksand:wght@500;700&display=swap"
         rel="stylesheet">
-    <style>
-        :root {
-            --primary: #4f46e5;
-            --bg: #f8fafc;
-            --text: #1e293b;
-            --accent: #f59e0b;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Outfit', sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            overflow: hidden;
-        }
-
-        .slide-container {
-            width: 100vw;
-            height: 100vh;
-            display: flex;
-            transition: transform 0.8s cubic-bezier(0.65, 0, 0.35, 1);
-        }
-
-        .slide {
-            min-width: 100vw;
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 4rem;
-            position: relative;
-        }
-
-        .content {
-            display: flex;
-            width: 100%;
-            max-width: 1200px;
-            gap: 4rem;
-            align-items: center;
-        }
-
-        .slide:nth-child(even) .content {
-            flex-direction: row-reverse;
-        }
-
-        .image-box {
-            flex: 1;
-            height: 500px;
-            background: #fff;
-            border-radius: 24px;
-            overflow: hidden;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-            transform: translateY(20px);
-            opacity: 0;
-            transition: all 0.8s ease-out 0.2s;
-        }
-
-        .image-box img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .text-box {
-            flex: 1;
-            transform: translateY(-20px);
-            opacity: 0;
-            transition: all 0.8s ease-out 0.4s;
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-
-        .active .image-box,
-        .active .text-box {
-            transform: translateY(0);
-            opacity: 1;
-        }
-
-        h1 {
-            font-size: 5rem;
-            font-weight: 800;
-            color: var(--primary);
-            margin-bottom: 1.5rem;
-            text-transform: capitalize;
-            font-family: 'Quicksand', sans-serif;
-            display: flex;
-            align-items: center;
-        }
-
-        .speaker-btn {
-            background: none;
-            border: none;
-            font-size: 2.5rem;
-            cursor: pointer;
-            margin-left: 1rem;
-            color: var(--accent);
-            transition: transform 0.2s;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .speaker-btn:hover {
-            transform: scale(1.2);
-        }
-
-        p {
-            font-size: 2.2rem;
-            line-height: 1.4;
-            color: #64748b;
-            font-weight: 500;
-            display: flex;
-            align-items: flex-start;
-        }
-
-        .sentence-speaker-btn {
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            margin-left: 1rem;
-            margin-top: 0.5rem;
-            color: var(--primary);
-            opacity: 0.6;
-            transition: all 0.2s;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .sentence-speaker-btn:hover {
-            transform: scale(1.2);
-            opacity: 1;
-        }
-
-        .controls {
-            position: fixed;
-            bottom: 2rem;
-            right: 2rem;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            gap: 1rem;
-            z-index: 100;
-        }
-
-        .nav-buttons {
-            display: flex;
-            gap: 1rem;
-        }
-
-        button.nav-btn {
-            background: #fff;
-            border: none;
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            cursor: pointer;
-            font-size: 1.5rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s;
-        }
-
-        button.nav-btn:hover {
-            background: var(--primary);
-            color: white;
-            transform: scale(1.1);
-        }
-
-        .progress-bar {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            height: 6px;
-            background: var(--primary);
-            transition: width 0.3s;
-            z-index: 101;
-        }
-
-        .intro {
-            font-weight: bold;
-            color: var(--primary);
-            font-size: 1.1rem;
-            background: #fff;
-            padding: 0.5rem 1rem;
-            border-radius: 12px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-            white-space: nowrap;
-        }
-
-        .hidden-text h1,
-        .hidden-text p {
-            visibility: hidden;
-            opacity: 0 !important;
-            transform: translateY(20px) !important;
-        }
-
-        .reveal-btn {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) scale(1);
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            border: none;
-            background: var(--accent);
-            color: white;
-            font-size: 2rem;
-            font-weight: bold;
-            cursor: pointer;
-            box-shadow: 0 10px 20px rgba(245, 158, 11, 0.3);
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            animation: pulse 2s infinite;
-            z-index: 10;
-        }
-
-        .reveal-btn:hover {
-            transform: translate(-50%, -50%) scale(1.1);
-            background: #d97706;
-        }
-
-        @keyframes pulse {
-            0% {
-                box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7);
-            }
-
-            70% {
-                box-shadow: 0 0 0 20px rgba(245, 158, 11, 0);
-            }
-
-            100% {
-                box-shadow: 0 0 0 0 rgba(245, 158, 11, 0);
-            }
-        }
-
-        .title-slide h1 {
-            font-size: 7rem;
-            text-align: center;
-        }
-
-        .title-slide p {
-            font-size: 3rem;
-            text-align: center;
-            color: var(--accent);
-        }
-
-        /* Menu Styles */
-        .menu-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: rgba(30, 41, 59, 0.9);
-            backdrop-filter: blur(8px);
-            z-index: 1000;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s;
-        }
-
-        .menu-overlay.active {
-            display: flex;
-        }
-
-        .menu-content {
-            background: white;
-            padding: 3rem;
-            border-radius: 2rem;
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-            min-width: 300px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-        }
-
-        .menu-title {
-            font-size: 2rem;
-            font-weight: 800;
-            color: var(--primary);
-            text-align: center;
-            margin-bottom: 1rem;
-        }
-
-        .menu-item {
-            background: var(--bg);
-            padding: 1rem 2rem;
-            border-radius: 1rem;
-            text-align: center;
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: var(--text);
-            cursor: pointer;
-            transition: all 0.2s;
-            border: 2px solid transparent;
-        }
-
-        .menu-item:hover {
-            border-color: var(--primary);
-            background: white;
-            color: var(--primary);
-            transform: translateY(-2px);
-        }
-
-        .close-menu {
-            position: absolute;
-            top: 2rem;
-            right: 2rem;
-            background: white;
-            border: none;
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            font-size: 2rem;
-            cursor: pointer;
-        }
-
-        .menu-divider {
-            width: 100%;
-            height: 1px;
-            background: #e2e8f0;
-            margin: 1rem 0;
-        }
-
-        .menu-item.home-link {
-            color: var(--accent) !important;
-            border: 2px solid var(--accent);
-            margin-top: 1rem;
-        }
-
-        .menu-item.home-link:hover {
-            background: var(--accent);
-            color: white !important;
-        }
-
-        /* Fill in the Blanks Styles */
-        .blank-container {
-            display: flex;
-            gap: 0.5rem;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin-top: 2rem;
-        }
-
-        .letter-input {
-            width: 3rem;
-            height: 4rem;
-            border: 3px solid var(--primary);
-            border-radius: 0.5rem;
-            text-align: center;
-            font-size: 2rem;
-            font-weight: bold;
-            text-transform: uppercase;
-            color: var(--primary);
-        }
-
-        .letter-input.correct {
-            border-color: #22c55e;
-            background-color: #f0fdf4;
-        }
-
-        .letter-input.incorrect {
-            border-color: #ef4444;
-            background-color: #fef2f2;
-        }
-
-        /* Score Styles */
-        .score-display {
-            position: fixed;
-            top: 2rem;
-            right: 2rem;
-            background: white;
-            padding: 1rem 2rem;
-            border-radius: 1rem;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            font-size: 1.5rem;
-            font-weight: 800;
-            color: var(--primary);
-            z-index: 1000;
-            display: none;
-            border: 3px solid var(--primary);
-        }
-
-        .results-box {
-            text-align: center;
-            background: white;
-            padding: 4rem;
-            border-radius: 3rem;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-        }
-
-        .results-score {
-            font-size: 6rem;
-            font-weight: 800;
-            color: var(--accent);
-            margin: 2rem 0;
-        }
-
-        .restart-btn {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 1.5rem 3rem;
-            font-size: 1.5rem;
-            font-weight: bold;
-            border-radius: 1rem;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .restart-btn:hover {
-            transform: scale(1.05);
-            filter: brightness(1.1);
-        }
-    </style>
+    <link rel="stylesheet" href="../core/styles.css">
+    <script src="../core/engine.js" defer></script>
 </head>
 
 <body>
     <div class="progress-bar" id="progress"></div>
     <div class="score-display" id="scoreDisplay">Score: 100</div>
+    <div class="timer-display" id="timerDisplay">Time: 00:00</div>
 
     <div class="slide-container" id="container">
-        <!-- Title Slide -->
-        <div class="slide active title-slide">
-            <div class="content" style="flex-direction: column;">
-                <h1>Vocabulary</h1>
-                <p>The Youngest Marcher</p>
-            </div>
-        </div>
+        <!-- Contenido inyectado por engine.js -->
+    </div>
 
-        <!-- Word: Marcher -->
-        <div class="slide">
-            <div class="content">
-                <div class="image-box">
-                    <img src="https://phantom-elmundo.unidadeditorial.es/04c70807066f99298894dd6d4af6f8e8/crop/0x0/3000x2000/resize/600/assets/multimedia/imagenes/2022/03/20/16477815965282.jpg"
-                        alt="Marcher">
-                </div>
-                <div class="text-box">
-                    <h1>Marcher <button class="speaker-btn" onclick="speak('Marcher')">🔊</button></h1>
-                    <p>A marcher is someone who walks with a group to show they care about something. <button
-                            class="sentence-speaker-btn"
-                            onclick="speak('A marcher is someone who walks with a group to show they care about something.')">🔊</button>
-                    </p>
-                </div>
-            </div>
+    <!-- Navigation Overlay -->
+    <div class="menu-overlay" id="menuOverlay">
+        <button class="close-menu" onclick="toggleMenu()">✕</button>
+        <div class="menu-content">
+            <div class="menu-title">Menu</div>
+            <div class="menu-item" onclick="goToSlide(0)">Vocabulary</div>
+            <div class="menu-item" onclick="goToSlide(10)">Guess the word</div>
+            <div class="menu-item" onclick="goToSlide(20)">Fill in the blanks</div>
+            <div class="menu-divider"></div>
+            <div class="menu-item home-link" onclick="window.location.href='../index.html'">🏠 Volver al Inicio</div>
         </div>
+    </div>
 
-        <!-- Word: Activist -->
-        <div class="slide">
-            <div class="content">
-                <div class="image-box">
-                    <img src="https://images.unsplash.com/photo-1582213782179-e0d53f98f2ca?q=80&w=1000&auto=format&fit=crop"
-                        alt="Activist">
-                </div>
-                <div class="text-box">
-                    <h1>Activist <button class="speaker-btn" onclick="speak('Activist')">🔊</button></h1>
-                    <p>An activist works hard to change things and make the world better. <button
-                            class="sentence-speaker-btn"
-                            onclick="speak('An activist works hard to change things and make the world better.')">🔊</button>
-                    </p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Word: Right -->
-        <div class="slide">
-            <div class="content">
-                <div class="image-box">
-                    <img src="https://images.unsplash.com/photo-1481627834876-b7833e8f5570?q=80&w=1000&auto=format&fit=crop"
-                        alt="Right">
-                </div>
-                <div class="text-box">
-                    <h1>Right <button class="speaker-btn" onclick="speak('Right')">🔊</button></h1>
-                    <p>A right is something that everyone should be allowed to have or do. <button
-                            class="sentence-speaker-btn"
-                            onclick="speak('A right is something that everyone should be allowed to have or do.')">🔊</button>
-                    </p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Word: Protest -->
-        <div class="slide">
-            <div class="content">
-                <div class="image-box">
-                    <img src="https://www.freedomforum.org/wp-content/uploads/2023/11/1000x564_column_111423.jpg"
-                        alt="Protest">
-                </div>
-                <div class="text-box">
-                    <h1>Protest <button class="speaker-btn" onclick="speak('Protest')">🔊</button></h1>
-                    <p>A protest is when people gather to say they do not like something and want it to change. <button
-                            class="sentence-speaker-btn"
-                            onclick="speak('A protest is when people gather to say they do not like something and want it to change.')">🔊</button>
-                    </p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Word: Segregation -->
-        <div class="slide">
-            <div class="content">
-                <div class="image-box">
-                    <img src="https://www.publicbooks.org/wp-content/uploads/2017/12/15318358437_6b025280c7_b.jpg"
-                        alt="Segregation">
-                </div>
-                <div class="text-box">
-                    <h1>Segregation <button class="speaker-btn" onclick="speak('Segregation')">🔊</button></h1>
-                    <p>Segregation means keeping people apart because of how they look. <button
-                            class="sentence-speaker-btn"
-                            onclick="speak('Segregation means keeping people apart because of how they look.')">🔊</button>
-                    </p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Word: Freedom -->
-        <div class="slide">
-            <div class="content">
-                <div class="image-box">
-                    <img src="https://images.unsplash.com/photo-1490730141103-6cac27aaab94?q=80&w=1000&auto=format&fit=crop"
-                        alt="Freedom">
-                </div>
-                <div class="text-box">
-                    <h1>Freedom <button class="speaker-btn" onclick="speak('Freedom')">🔊</button></h1>
-                    <p>Freedom is the power to do, say, or think what you want. <button class="sentence-speaker-btn"
-                            onclick="speak('Freedom is the power to do, say, or think what you want.')">🔊</button></p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Word: Justice -->
-        <div class="slide">
-            <div class="content">
-                <div class="image-box">
-                    <img src="https://images.unsplash.com/photo-1589829545856-d10d557cf95f?q=80&w=1000&auto=format&fit=crop"
-                        alt="Justice">
-                </div>
-                <div class="text-box">
-                    <h1>Justice <button class="speaker-btn" onclick="speak('Justice')">🔊</button></h1>
-                    <p>Justice means being fair to everyone. <button class="sentence-speaker-btn"
-                            onclick="speak('Justice means being fair to everyone.')">🔊</button></p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Word: Jail -->
-        <div class="slide">
-            <div class="content">
-                <div class="image-box">
-                    <img src="https://cdn.chamberslawfirmca.com/wp-content/uploads/2024/05/02135828/Understanding-the-Differences-Between-Jail-and-Prison-in-the-Criminal-Justice-System.jpg"
-                        alt="Jail">
-                </div>
-                <div class="text-box">
-                    <h1>Jail <button class="speaker-btn" onclick="speak('Jail')">🔊</button></h1>
-                    <p>A jail is a place where people are kept when they break the law. <button
-                            class="sentence-speaker-btn"
-                            onclick="speak('A jail is a place where people are kept when they break the law.')">🔊</button>
-                    </p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Game Intro Slide -->
-        <div class="slide">
-            <div class="content" style="flex-direction: column; text-align: center;">
-                <h1 style="font-size: 6rem; margin-bottom: 2rem;">Let's Play! 🎮</h1>
-                <p style="font-size: 3rem;">Guess the word!</p>
-            </div>
-        </div>
-
-        <!-- Game Slides -->
-        <div class="slide game-slide">
-            <div class="content">
-                <div class="image-box"><img
-                        src="https://phantom-elmundo.unidadeditorial.es/04c70807066f99298894dd6d4af6f8e8/crop/0x0/3000x2000/resize/600/assets/multimedia/imagenes/2022/03/20/16477815965282.jpg"
-                        alt="Marcher"></div>
-                <div class="text-box hidden-text">
-                    <h1>Marcher <button class="speaker-btn" onclick="speak('Marcher')">🔊</button></h1>
-                    <p>A marcher is someone who walks with a group to show they care about something. <button
-                            class="sentence-speaker-btn"
-                            onclick="speak('A marcher is someone who walks with a group to show they care about something.')">🔊</button>
-                    </p>
-                    <button class="reveal-btn" onclick="revealText(this)">Word</button>
-                </div>
-            </div>
-        </div>
-        <div class="slide game-slide">
-            <div class="content">
-                <div class="image-box"><img
-                        src="https://images.unsplash.com/photo-1582213782179-e0d53f98f2ca?q=80&w=1000&auto=format&fit=crop"
-                        alt="Activist"></div>
-                <div class="text-box hidden-text">
-                    <h1>Activist <button class="speaker-btn" onclick="speak('Activist')">🔊</button></h1>
-                    <p>An activist works hard to change things and make the world better. <button
-                            class="sentence-speaker-btn"
-                            onclick="speak('An activist works hard to change things and make the world better.')">🔊</button>
-                    </p>
-                    <button class="reveal-btn" onclick="revealText(this)">Word</button>
-                </div>
-            </div>
-        </div>
-        <div class="slide game-slide">
-            <div class="content">
-                <div class="image-box"><img
-                        src="https://images.unsplash.com/photo-1481627834876-b7833e8f5570?q=80&w=1000&auto=format&fit=crop"
-                        alt="Right"></div>
-                <div class="text-box hidden-text">
-                    <h1>Right <button class="speaker-btn" onclick="speak('Right')">🔊</button></h1>
-                    <p>A right is something that everyone should be allowed to have or do. <button
-                            class="sentence-speaker-btn"
-                            onclick="speak('A right is something that everyone should be allowed to have or do.')">🔊</button>
-                    </p>
-                    <button class="reveal-btn" onclick="revealText(this)">Word</button>
-                </div>
-            </div>
-        </div>
-        <div class="slide game-slide">
-            <div class="content">
-                <div class="image-box"><img
-                        src="https://www.freedomforum.org/wp-content/uploads/2023/11/1000x564_column_111423.jpg"
-                        alt="Protest"></div>
-                <div class="text-box hidden-text">
-                    <h1>Protest <button class="speaker-btn" onclick="speak('Protest')">🔊</button></h1>
-                    <p>A protest is when people gather to say they do not like something and want it to change. <button
-                            class="sentence-speaker-btn"
-                            onclick="speak('A protest is when people gather to say they do not like something and want it to change.')">🔊</button>
-                    </p>
-                    <button class="reveal-btn" onclick="revealText(this)">Word</button>
-                </div>
-            </div>
-        </div>
-        <div class="slide game-slide">
-            <div class="content">
-                <div class="image-box"><img
-                        src="https://www.publicbooks.org/wp-content/uploads/2017/12/15318358437_6b025280c7_b.jpg"
-                        alt="Segregation"></div>
-                <div class="text-box hidden-text">
-                    <h1>Segregation <button class="speaker-btn" onclick="speak('Segregation')">🔊</button></h1>
-                    <p>Segregation means keeping people apart because of how they look. <button
-                            class="sentence-speaker-btn"
-                            onclick="speak('Segregation means keeping people apart because of how they look.')">🔊</button>
-                    </p>
-                    <button class="reveal-btn" onclick="revealText(this)">Word</button>
-                </div>
-            </div>
-        </div>
-        <div class="slide game-slide">
-            <div class="content">
-                <div class="image-box"><img
-                        src="https://images.unsplash.com/photo-1490730141103-6cac27aaab94?q=80&w=1000&auto=format&fit=crop"
-                        alt="Freedom"></div>
-                <div class="text-box hidden-text">
-                    <h1>Freedom <button class="speaker-btn" onclick="speak('Freedom')">🔊</button></h1>
-                    <p>Freedom is the power to do, say, or think what you want. <button class="sentence-speaker-btn"
-                            onclick="speak('Freedom is the power to do, say, or think what you want.')">🔊</button></p>
-                    <button class="reveal-btn" onclick="revealText(this)">Word</button>
-                </div>
-            </div>
-        </div>
-        <div class="slide game-slide">
-            <div class="content">
-                <div class="image-box"><img
-                        src="https://images.unsplash.com/photo-1589829545856-d10d557cf95f?q=80&w=1000&auto=format&fit=crop"
-                        alt="Justice"></div>
-                <div class="text-box hidden-text">
-                    <h1>Justice <button class="speaker-btn" onclick="speak('Justice')">🔊</button></h1>
-                    <p>Justice means being fair to everyone. <button class="sentence-speaker-btn"
-                            onclick="speak('Justice means being fair to everyone.')">🔊</button></p>
-                    <button class="reveal-btn" onclick="revealText(this)">Word</button>
-                </div>
-            </div>
-        </div>
-        <div class="slide game-slide">
-            <div class="content">
-                <div class="image-box"><img
-                        src="https://cdn.chamberslawfirmca.com/wp-content/uploads/2024/05/02135828/Understanding-the-Differences-Between-Jail-and-Prison-in-the-Criminal-Justice-System.jpg"
-                        alt="Jail"></div>
-                <div class="text-box hidden-text">
-                    <h1>Jail <button class="speaker-btn" onclick="speak('Jail')">🔊</button></h1>
-                    <p>A jail is a place where people are kept when they break the law. <button
-                            class="sentence-speaker-btn"
-                            onclick="speak('A jail is a place where people are kept when they break the law.')">🔊</button>
-                    </p>
-                    <button class="reveal-btn" onclick="revealText(this)">Word</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Fill in Blanks Intro -->
-        <div class="slide">
-            <div class="content" style="flex-direction: column; text-align: center;">
-                <h1 style="font-size: 6rem; margin-bottom: 2rem;">Fill in the Blanks! ✏️</h1>
-                <p style="font-size: 3rem;">Complete the word based on the image!</p>
-            </div>
-        </div>
-
-        <div id="blank-slides-placeholder"></div>
-    </div> <!-- End slide-container -->
-
+    <!-- Controls -->
     <div class="controls">
         <div class="nav-buttons">
             <button class="nav-btn" onclick="toggleMenu()">☰</button>
             <button class="nav-btn" onclick="prevSlide()">←</button>
             <button class="nav-btn" onclick="nextSlide()">→</button>
         </div>
-        <div class="intro">The Youngest Marcher</div>
-    </div>
-
-    <!-- Navigation Menu -->
-    <div class="menu-overlay" id="menuOverlay">
-        <button class="close-menu" onclick="toggleMenu()">✕</button>
-        <div class="menu-content">
-            <div class="menu-title">Menu</div>
-            <div class="menu-item" onclick="goToSlide(0)">Vocabulary</div>
-            <div class="menu-item" onclick="goToSlide(9)">Guess the word</div>
-            <div class="menu-item" onclick="goToSlide(18)">Fill in the blanks</div>
-            <div class="menu-divider"></div>
-            <div class="menu-item home-link" onclick="window.location.href='../index.html'">🏠 Volver al Inicio</div>
-        </div>
+        <div class="topic-label">The Youngest Marcher</div>
     </div>
 
     <script>
-        let currentSlide = 0;
-        const container = document.getElementById('container');
-        const progress = document.getElementById('progress');
-        let slides = document.querySelectorAll('.slide');
-        let totalSlides = slides.length;
-
-        function updateSlide() {
-            container.style.transform = `translateX(-${currentSlide * 100}vw)`;
-            progress.style.width = `${((currentSlide + 1) / totalSlides) * 100}%`;
-
-            // Show score only in Fill in Blanks section (starting from slide 18)
-            const scoreDisplay = document.getElementById('scoreDisplay');
-            if (currentSlide >= 18) {
-                scoreDisplay.style.display = 'block';
-            } else {
-                scoreDisplay.style.display = 'none';
-            }
-
-            slides.forEach((slide, index) => {
-                if (index === currentSlide) {
-                    slide.classList.add('active');
-                } else {
-                    slide.classList.remove('active');
+        const config = {
+            title: "The Youngest Marcher 🚶",
+            vocab: [
+                {
+                    word: "marcher",
+                    sentence: "A marcher is someone who walks with a group to show they care about something.",
+                    image: "https://phantom-elmundo.unidadeditorial.es/04c70807066f99298894dd6d4af6f8e8/crop/0x0/3000x2000/resize/600/assets/multimedia/imagenes/2022/03/20/16477815965282.jpg"
+                },
+                {
+                    word: "activist",
+                    sentence: "An activist works hard to change things and make the world better.",
+                    image: "https://images.unsplash.com/photo-1582213782179-e0d53f98f2ca?q=80&w=1000&auto=format&fit=crop"
+                },
+                {
+                    word: "right",
+                    sentence: "A right is something that everyone should be allowed to have or do.",
+                    image: "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?q=80&w=1000&auto=format&fit=crop"
+                },
+                {
+                    word: "protest",
+                    sentence: "A protest is when people gather to say they do not like something and want it to change.",
+                    image: "https://www.freedomforum.org/wp-content/uploads/2023/11/1000x564_column_111423.jpg"
+                },
+                {
+                    word: "segregation",
+                    sentence: "Segregation means keeping people apart because of how they look.",
+                    image: "https://www.publicbooks.org/wp-content/uploads/2017/12/15318358437_6b025280c7_b.jpg"
+                },
+                {
+                    word: "freedom",
+                    sentence: "Freedom is the power to do, say, or think what you want.",
+                    image: "https://images.unsplash.com/photo-1490730141103-6cac27aaab94?q=80&w=1000&auto=format&fit=crop"
+                },
+                {
+                    word: "justice",
+                    sentence: "Justice means being fair to everyone.",
+                    image: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?q=80&w=1000&auto=format&fit=crop"
+                },
+                {
+                    word: "jail",
+                    sentence: "A jail is a place where people are kept when they break the law.",
+                    image: "https://cdn.chamberslawfirmca.com/wp-content/uploads/2024/05/02135828/Understanding-the-Differences-Between-Jail-and-Prison-in-the-Criminal-Justice-System.jpg"
                 }
-            });
-        }
+            ]
+        };
 
-        function nextSlide() {
-            if (currentSlide < totalSlides - 1) {
-                currentSlide++;
-                updateSlide();
-            }
-        }
-
-        function prevSlide() {
-            if (currentSlide > 0) {
-                currentSlide--;
-                updateSlide();
-            }
-        }
-
-        function speak(text) {
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.lang = 'en-US';
-            window.speechSynthesis.speak(utterance);
-        }
-
-        function revealText(btn) {
-            const slide = btn.closest('.slide');
-            const textBox = slide.querySelector('.text-box');
-            textBox.classList.remove('hidden-text');
-            textBox.style.opacity = '1';
-            textBox.style.transform = 'translateY(0)';
-            btn.style.opacity = '0';
-            setTimeout(() => {
-                btn.style.display = 'none';
-            }, 300);
-        }
-
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowRight') nextSlide();
-            if (e.key === 'ArrowLeft') prevSlide();
-        });
-
-        function goToSlide(index) {
-            currentSlide = index;
-            updateSlide();
-            toggleMenu();
-        }
-
-        function toggleMenu() {
-            const menu = document.getElementById('menuOverlay');
-            if (menu.style.display === 'flex') {
-                menu.style.display = 'none';
+        const init = () => {
+            if (typeof initPresentation === 'function') {
+                initPresentation(config);
             } else {
-                menu.style.display = 'flex';
+                setTimeout(init, 50);
             }
-        }
-
-        const vocabData = [
-            { word: 'Marcher', image: 'https://phantom-elmundo.unidadeditorial.es/04c70807066f99298894dd6d4af6f8e8/crop/0x0/3000x2000/resize/600/assets/multimedia/imagenes/2022/03/20/16477815965282.jpg' },
-            { word: 'Activist', image: 'https://images.unsplash.com/photo-1582213782179-e0d53f98f2ca?q=80&w=1000&auto=format&fit=crop' },
-            { word: 'Right', image: 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?q=80&w=1000&auto=format&fit=crop' },
-            { word: 'Protest', image: 'https://www.freedomforum.org/wp-content/uploads/2023/11/1000x564_column_111423.jpg' },
-            { word: 'Segregation', image: 'https://www.publicbooks.org/wp-content/uploads/2017/12/15318358437_6b025280c7_b.jpg' },
-            { word: 'Freedom', image: 'https://images.unsplash.com/photo-1490730141103-6cac27aaab94?q=80&w=1000&auto=format&fit=crop' },
-            { word: 'Justice', image: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?q=80&w=1000&auto=format&fit=crop' },
-            { word: 'Jail', image: 'https://cdn.chamberslawfirmca.com/wp-content/uploads/2024/05/02135828/Understanding-the-Differences-Between-Jail-and-Prison-in-the-Criminal-Justice-System.jpg' }
-        ];
-
-        let score = 100;
-        let wordsCompleted = 0;
-
-        function initFillInBlanks() {
-            const container = document.getElementById('container');
-            const placeholder = document.getElementById('blank-slides-placeholder');
-
-            // Clear existing dynamic slides if restarting
-            const oldSlides = container.querySelectorAll('.slide-dynamic');
-            oldSlides.forEach(s => s.remove());
-
-            // Shuffle data
-            const shuffled = [...vocabData].sort(() => Math.random() - 0.5);
-
-            shuffled.forEach(item => {
-                const slide = document.createElement('div');
-                slide.className = 'slide slide-dynamic';
-
-                const blanks = item.word.split('').map((char, i) => {
-                    return `<input type="text" class="letter-input" maxlength="1" data-char="${char.toUpperCase()}" oninput="checkLetter(this)">`;
-                }).join('');
-
-                slide.innerHTML = `
-                    <div class="content">
-                        <div class="image-box">
-                            <img src="${item.image}" alt="${item.word}">
-                        </div>
-                        <div class="text-box">
-                            <h1 style="text-align: center; margin-bottom: 2rem;">What word is it?</h1>
-                            <div class="blank-container">${blanks}</div>
-                        </div>
-                    </div>
-                `;
-                container.appendChild(slide);
-            });
-
-            // Final Results Slide
-            const resultsSlide = document.createElement('div');
-            resultsSlide.className = 'slide slide-dynamic';
-            resultsSlide.innerHTML = `
-                <div class="content" style="justify-content: center;">
-                    <div class="results-box">
-                        <h1>Game Over!</h1>
-                        <p>Your final score is:</p>
-                        <div class="results-score" id="finalScoreText">${score}</div>
-                        <button class="restart-btn" onclick="restartGame()">Try Again</button>
-                    </div>
-                </div>
-            `;
-            container.appendChild(resultsSlide);
-
-            // Refresh slides selection and total count
-            slides = document.querySelectorAll('.slide');
-            totalSlides = slides.length;
-            if (placeholder) {
-                placeholder.remove();
-                // Ensure placeholder is gone even if function called twice
-                placeholder.id = "removed-placeholder";
-            }
-        }
-
-        function restartGame() {
-            score = 100;
-            wordsCompleted = 0;
-            document.getElementById('scoreDisplay').innerText = `Score: ${score}`;
-            initFillInBlanks();
-            currentSlide = 18; // Index of the 'Fill in Blanks' intro slide
-            updateSlide();
-        }
-
-        function checkLetter(input) {
-            const val = input.value.toUpperCase();
-            const correct = input.getAttribute('data-char');
-
-            if (val === correct) {
-                input.classList.remove('incorrect');
-                input.classList.add('correct');
-                input.disabled = true;
-
-                // Check if word complete
-                const container = input.closest('.blank-container');
-                const allInputs = container.querySelectorAll('.letter-input');
-                const completed = Array.from(allInputs).every(i => i.value.toUpperCase() === i.getAttribute('data-char'));
-
-                if (completed) {
-                    wordsCompleted++;
-                    setTimeout(() => {
-                        nextSlide();
-                        // Update final score text on results slide
-                        const finalScoreEl = document.getElementById('finalScoreText');
-                        if (finalScoreEl) finalScoreEl.innerText = score;
-                    }, 500);
-                } else {
-                    // Focus next
-                    const inputs = Array.from(allInputs);
-                    const idx = inputs.indexOf(input);
-                    if (idx < inputs.length - 1) inputs[idx + 1].focus();
-                }
-            } else if (val !== "") {
-                input.classList.remove('correct');
-                input.classList.add('incorrect');
-                score = Math.max(0, score - 1);
-                document.getElementById('scoreDisplay').innerText = `Score: ${score}`;
-            } else {
-                input.classList.remove('correct', 'incorrect');
-            }
-        }
-
-        initFillInBlanks();
-        updateSlide();
+        };
+        init();
     </script>
 </body>
 

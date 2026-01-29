@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vocabulary Lab | Registro General</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #ffffff;
+            --text-main: #37352f;
+            --text-muted: #787774;
+            --border-color: #e9e9e8;
+            --hover-bg: #f5f5f4;
+            --accent: #2383e2;
+            --max-width: 1000px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.5;
+            padding: 4rem 2rem;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: var(--max-width);
+        }
+
+        header {
+            margin-bottom: 3rem;
+            position: relative;
+        }
+
+        .back-link {
+            text-decoration: none;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover {
+            color: var(--text-main);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.02em;
+        }
+
+        .sync-btn {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 0.6rem 1rem;
+            border-radius: 0.5rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+        }
+
+        .sync-btn:hover {
+            background: #1a73e8;
+            transform: translateY(-1px);
+        }
+
+        .sync-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        /* Stats Panel */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .stat-card {
+            padding: 1.5rem;
+            background: var(--hover-bg);
+            border-radius: 0.75rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        /* Filters */
+        .filters-section {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-input {
+            flex: 1;
+            min-width: 200px;
+            padding: 0.6rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            outline: none;
+            font-size: 0.9rem;
+        }
+
+        .filter-input:focus {
+            border-color: var(--accent);
+        }
+
+        /* Table */
+        .section-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .scores-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+        }
+
+        .scores-table th {
+            text-align: left;
+            padding: 1rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .scores-table td {
+            padding: 1rem;
+            border-bottom: 1px solid #f9f9f9;
+        }
+
+        .score-val {
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .empty-state {
+            padding: 4rem 2rem;
+            text-align: center;
+            color: var(--text-muted);
+            background: var(--hover-bg);
+            border-radius: 1rem;
+            border: 1px dashed var(--border-color);
+        }
+
+        .clear-btn {
+            margin-top: 2rem;
+            background: #fff;
+            border: 1px solid #ffcfcf;
+            padding: 0.6rem 1.2rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            color: #eb5757;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .clear-btn:hover {
+            background: #fff5f5;
+            border-color: #eb5757;
+        }
+
+        @media (max-width: 600px) {
+
+            .scores-table th:nth-child(4),
+            .scores-table td:nth-child(4) {
+                display: none;
+            }
+
+            .sync-btn {
+                position: static;
+                width: 100%;
+                margin-bottom: 1rem;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <a href="index.html" class="back-link">← Volver al Portal</a>
+            <h1>Libro de Calificaciones</h1>
+            <p style="color: var(--text-muted);">Registro general de actividad en la nube.</p>
+            <button id="syncBtn" class="sync-btn" onclick="syncFromCloud()">🔄 Sincronizar Nube</button>
+        </header>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Total Jugadas</div>
+                <div class="stat-value" id="totalPlays">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Puntuación Media</div>
+                <div class="stat-value" id="avgScore">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Estudiantes Únicos</div>
+                <div class="stat-value" id="uniqueStudents">0</div>
+            </div>
+        </div>
+
+        <div class="filters-section">
+            <input type="text" id="searchName" class="filter-input" placeholder="Buscar por estudiante..."
+                oninput="applyFilters()">
+            <input type="text" id="searchApp" class="filter-input" placeholder="Filtrar por aplicación..."
+                oninput="applyFilters()">
+        </div>
+
+        <div class="section-label" id="tableLabel">Historial Detallado (Local)</div>
+
+        <div id="scoresContent">
+            <table class="scores-table" id="scoresTable">
+                <thead>
+                    <tr>
+                        <th>Estudiante</th>
+                        <th>Aplicación</th>
+                        <th>Puntos</th>
+                        <th>Tiempo</th>
+                        <th>Fecha</th>
+                    </tr>
+                </thead>
+                <tbody id="scoresBody"></tbody>
+            </table>
+
+            <div id="emptyState" class="empty-state" style="display: none;">
+                <p>No se encontraron resultados.</p>
+            </div>
+
+            <button onclick="clearScores()" id="clearBtn" class="clear-btn" style="display: none;">Borrar Historial
+                Local</button>
+        </div>
+    </div>
+
+    <script>
+        // CONFIGURACIÓN: Pega aquí la misma URL que pusiste en engine.js
+        const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbxeP7G4odynvqOqiSYwz-Xun-i8ZRjs2G_-xmvM7XpHS_5G3F-t8gb2TXlffyVuL1IbxQ/exec";
+
+        let allScores = [];
+
+        function loadScores() {
+            allScores = JSON.parse(localStorage.getItem('vocabulary_lab_scores') || '[]');
+            updateStats(allScores);
+            applyFilters();
+        }
+
+        async function syncFromCloud() {
+            if (!WEBHOOK_URL) {
+                alert("Primero debes configurar la URL de tu Google Sheet en el código.");
+                return;
+            }
+
+            const btn = document.getElementById('syncBtn');
+            btn.disabled = true;
+            btn.innerText = "⏳ Sincronizando...";
+
+            try {
+                const response = await fetch(WEBHOOK_URL);
+                const cloudData = await response.json();
+
+                if (Array.isArray(cloudData)) {
+                    allScores = cloudData;
+                    document.getElementById('tableLabel').innerText = "Historial Detallado (Nube)";
+                    updateStats(allScores);
+                    applyFilters();
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Error al conectar con la nube. Asegúrate de que la URL sea correcta y esté publicada como Web App.");
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "🔄 Sincronizar Nube";
+            }
+        }
+
+        function updateStats(scores) {
+            document.getElementById('totalPlays').innerText = scores.length;
+            if (scores.length > 0) {
+                const avg = scores.reduce((acc, s) => acc + (parseInt(s.score) || 0), 0) / scores.length;
+                document.getElementById('avgScore').innerText = Math.round(avg);
+                const uniqueNames = new Set(scores.map(s => s.name?.toLowerCase().trim()));
+                document.getElementById('uniqueStudents').innerText = uniqueNames.size;
+            } else {
+                document.getElementById('avgScore').innerText = "0";
+                document.getElementById('uniqueStudents').innerText = "0";
+            }
+        }
+
+        function applyFilters() {
+            const nameQuery = document.getElementById('searchName').value.toLowerCase();
+            const appQuery = document.getElementById('searchApp').value.toLowerCase();
+            const body = document.getElementById('scoresBody');
+            const table = document.getElementById('scoresTable');
+            const emptyState = document.getElementById('emptyState');
+            const clearBtn = document.getElementById('clearBtn');
+
+            const filtered = allScores.filter(s =>
+                (s.name || "").toLowerCase().includes(nameQuery) &&
+                (s.app || "").toLowerCase().includes(appQuery)
+            ).reverse();
+
+            if (filtered.length > 0) {
+                table.style.display = 'table';
+                emptyState.style.display = 'none';
+                clearBtn.style.display = 'block';
+                body.innerHTML = filtered.map(s => `
+                    <tr>
+                        <td style="font-weight: 600;">${s.name}</td>
+                        <td style="color: var(--text-muted); font-size: 0.85rem;">${s.app}</td>
+                        <td class="score-val">${s.score}</td>
+                        <td>${s.time}</td>
+                        <td style="color: #a1a19f; font-size: 0.8rem;">${s.date}</td>
+                    </tr>
+                `).join('');
+            } else {
+                table.style.display = 'none';
+                emptyState.style.display = 'block';
+                clearBtn.style.display = 'block';
+            }
+        }
+
+        function clearScores() {
+            if (confirm('¿Borrar historial local? (No borrará los datos de la nube)')) {
+                localStorage.removeItem('vocabulary_lab_scores');
+                loadScores();
+            }
+        }
+
+        loadScores();
+    </script>
+</body>
+
+</html>
