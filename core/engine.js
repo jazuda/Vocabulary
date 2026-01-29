@@ -10,6 +10,7 @@ let studentName = "";
 let studentClass = "";
 let wordStartTime = 0;
 
+// Versión: 2026-01-29 - Configuración de Clases
 const CLASSES = {
     "Mr García": [
         "Acosta Valeria", "Araujo Valerie", "Bautista Cristian", "Bravo Armijos Meivi",
