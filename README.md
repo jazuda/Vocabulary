@@ -20,3 +20,5 @@ A helper tool used to select and curate images for the vocabulary presentations.
 
 ## How to used
 Simply open the `index.html` file at the root of this project to access all the applications.
+
+Actualización de sistema
