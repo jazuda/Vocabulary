@@ -286,9 +286,15 @@
         let allScores = [];
 
         function loadScores() {
+            // Cargar local primero para rapidez
             allScores = JSON.parse(localStorage.getItem('vocabulary_lab_scores') || '[]');
             updateStats(allScores);
             applyFilters();
+
+            // Sincronizar con la nube automáticamente si hay URL
+            if (WEBHOOK_URL) {
+                syncFromCloud();
+            }
         }
 
         async function syncFromCloud() {
