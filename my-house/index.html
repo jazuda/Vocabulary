@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vocabulary: My House</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;800&family=Quicksand:wght@500;700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --secondary: #818cf8;
+            --accent: #f59e0b;
+            --bg: #f8fafc;
+            --text: #1e293b;
+            --white: #ffffff;
+            --success: #22c55e;
+            --error: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        /* Progress Bar */
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 6px;
+            background: linear-gradient(to right, var(--primary), var(--accent));
+            z-index: 1000;
+            transition: width 0.3s ease;
+        }
+
+        /* Score & Timer Display */
+        .score-display,
+        .timer-display {
+            position: fixed;
+            top: 2rem;
+            background: var(--white);
+            padding: 1rem 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--primary);
+            z-index: 1000;
+            display: none;
+            border: 3px solid var(--primary);
+            animation: slideInRight 0.5s ease-out;
+        }
+
+        .score-display {
+            right: 2rem;
+        }
+
+        .timer-display {
+            right: 14rem;
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* Slide Container */
+        .slide-container {
+            display: flex;
+            height: 100vh;
+            width: 100%;
+            transition: transform 0.6s cubic-bezier(0.65, 0, 0.35, 1);
+        }
+
+        .slide {
+            min-width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4rem;
+            position: relative;
+        }
+
+        .content {
+            display: flex;
+            align-items: center;
+            gap: 4rem;
+            max-width: 1200px;
+            width: 100%;
+            background: var(--white);
+            padding: 3rem;
+            border-radius: 3rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+        }
+
+        .slide:nth-child(even) .content {
+            flex-direction: row-reverse;
+        }
+
+        .image-box {
+            flex: 1;
+            height: 500px;
+            border-radius: 2rem;
+            overflow: hidden;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .image-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .text-box {
+            flex: 1;
+            padding: 2rem;
+        }
+
+        h1 {
+            font-family: 'Quicksand', sans-serif;
+            font-size: 4rem;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        p {
+            font-size: 1.8rem;
+            line-height: 1.6;
+            color: var(--text);
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        /* Speaker Buttons */
+        .speaker-btn,
+        .sentence-speaker-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: transform 0.2s;
+            padding: 0.5rem;
+            border-radius: 50%;
+            background: #f1f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .speaker-btn:hover,
+        .sentence-speaker-btn:hover {
+            transform: scale(1.2);
+            background: #e2e8f0;
+        }
+
+        /* Reveal Game Styles */
+        .hidden-text h1,
+        .hidden-text p {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease;
+        }
+
+        .hidden-text .speaker-btn,
+        .hidden-text .sentence-speaker-btn {
+            display: none;
+        }
+
+        .reveal-btn {
+            background: var(--accent);
+            color: var(--white);
+            border: none;
+            padding: 1.5rem 3rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            border-radius: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4);
+            }
+
+            70% {
+                transform: scale(1.05);
+                box-shadow: 0 0 0 15px rgba(245, 158, 11, 0);
+            }
+
+            100% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(245, 158, 11, 0);
+            }
+        }
+
+        /* Fill in Blanks Styles */
+        .blank-container {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+
+        .letter-input {
+            width: 50px;
+            height: 60px;
+            font-size: 2.5rem;
+            text-align: center;
+            border: 3px solid #e2e8f0;
+            border-radius: 10px;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800;
+            text-transform: uppercase;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .letter-input.correct {
+            border-color: var(--success);
+            background-color: #f0fdf4;
+            color: var(--success);
+        }
+
+        .letter-input.incorrect {
+            border-color: var(--error);
+            background-color: #fef2f2;
+            color: var(--error);
+        }
+
+        /* Results Display */
+        .results-box {
+            text-align: center;
+            background: var(--white);
+            padding: 4rem;
+            border-radius: 3rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+
+        .results-score,
+        .results-time {
+            font-size: 6rem;
+            font-weight: 800;
+            color: var(--accent);
+            margin: 1rem 0;
+        }
+
+        .results-time {
+            font-size: 3rem;
+            color: var(--primary);
+            margin-bottom: 2rem;
+        }
+
+        .restart-btn {
+            background: var(--primary);
+            color: var(--white);
+            border: none;
+            padding: 1.5rem 3rem;
+            font-size: 1.5rem;
+            font-weight: bold;
+            border-radius: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .restart-btn:hover {
+            transform: scale(1.05);
+            filter: brightness(1.1);
+        }
+
+        /* Controls */
+        .controls {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 1rem;
+            z-index: 100;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .nav-btn {
+            background: var(--white);
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-btn:hover {
+            background: var(--primary);
+            color: var(--white);
+            transform: translateY(-2px);
+        }
+
+        .intro {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            opacity: 0.7;
+        }
+
+        /* Menu Overlay */
+        .menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(79, 70, 229, 0.95);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+
+        .menu-content {
+            text-align: center;
+        }
+
+        .menu-title {
+            color: var(--white);
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 3rem;
+            font-family: 'Quicksand', sans-serif;
+        }
+
+        .menu-item {
+            color: var(--white);
+            font-size: 2rem;
+            margin: 1.5rem 0;
+            cursor: pointer;
+            transition: all 0.3s;
+            opacity: 0.8;
+            font-weight: 600;
+        }
+
+        .menu-item:hover {
+            opacity: 1;
+            transform: scale(1.1);
+            color: var(--accent);
+        }
+
+        .close-menu {
+            position: absolute;
+            top: 2rem;
+            right: 2rem;
+            background: none;
+            border: 2px solid var(--white);
+            color: var(--white);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .menu-divider {
+            width: 100%;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.2);
+            margin: 1.5rem 0;
+        }
+
+        .menu-item.home-link {
+            color: var(--accent) !important;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.8rem 2rem;
+            border-radius: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            opacity: 1 !important;
+        }
+
+        .menu-item.home-link:hover {
+            background: var(--accent);
+            color: var(--white) !important;
+            border-color: var(--accent);
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="progress-bar" id="progress"></div>
+    <div class="score-display" id="scoreDisplay">Score: 100</div>
+    <div class="timer-display" id="timerDisplay">Time: 00:00</div>
+
+    <div class="slide-container" id="container">
+        <!-- Title Slide -->
+        <div class="slide">
+            <div class="content" style="flex-direction: column; text-align: center; padding: 6rem;">
+                <h1 style="font-size: 6rem; margin-bottom: 2rem;">Vocabulary</h1>
+                <h2 style="font-size: 4rem; color: var(--accent); font-family: 'Quicksand', sans-serif;">My House 🏠
+                </h2>
+                <div style="margin-top: 3rem; font-size: 1.5rem; opacity: 0.6;">Press → to start learning</div>
+            </div>
+        </div>
+
+        <!-- Vocab Slides -->
+        <div class="slide">
+            <div class="content">
+                <div class="image-box"><img
+                        src="https://images.unsplash.com/photo-1533090481720-856c6e3c1fdc?q=80&w=600&auto=format&fit=crop"
+                        alt="Table"></div>
+                <div class="text-box">
+                    <h1>Table <button class="speaker-btn" onclick="speak('Table')">🔊</button></h1>
+                    <p>A table is a piece of furniture with a flat top and legs where we eat or work. <button
+                            class="sentence-speaker-btn"
+                            onclick="speak('A table is a piece of furniture with a flat top and legs where we eat or work.')">🔊</button>
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="slide">
+            <div class="content">
+                <div class="image-box"><img
+                        src="https://images.unsplash.com/photo-1592078615290-033ee584e267?q=80&w=600&auto=format&fit=crop"
+                        alt="Chair"></div>
+                <div class="text-box">
+                    <h1>Chair <button class="speaker-btn" onclick="speak('Chair')">🔊</button></h1>
+                    <p>A chair is something you sit on that usually has a back and four legs. <button
+                            class="sentence-speaker-btn"
+                            onclick="speak('A chair is something you sit on that usually has a back and four legs.')">🔊</button>
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="slide">
+            <div class="content">
+                <div class="image-box"><img
+                        src="https://images.unsplash.com/photo-1588854337236-6889d631faa8?q=80&w=600&auto=format&fit=crop"
+                        alt="Kitchen"></div>
+                <div class="text-box">
+                    <h1>Kitchen <button class="speaker-btn" onclick="speak('Kitchen')">🔊</button></h1>
+                    <p>A kitchen is the room in a house where people cook and prepare food. <button
+                            class="sentence-speaker-btn"
+                            onclick="speak('A kitchen is the room in a house where people cook and prepare food.')">🔊</button>
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="slide">
+            <div class="content">
+                <div class="image-box"><img
+                        src="https://images.unsplash.com/photo-1574269909862-7e1d70bb8078?q=80&w=600&auto=format&fit=crop"
+                        alt="Microwave"></div>
+                <div class="text-box">
+                    <h1>Microwave <button class="speaker-btn" onclick="speak('Microwave')">🔊</button></h1>
+                    <p>A microwave is a fast oven that uses waves to heat up food quickly. <button
+                            class="sentence-speaker-btn"
+                            onclick="speak('A microwave is a fast oven that uses waves to heat up food quickly.')">🔊</button>
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="slide">
+            <div class="content">
+                <div class="image-box"><img src="https://jooinn.com/images/window-32.jpg" alt="Window"></div>
+                <div class="text-box">
+                    <h1>Window <button class="speaker-btn" onclick="speak('Window')">🔊</button></h1>
+                    <p>A window is an opening in a wall with glass that lets light and air into the room. <button
+                            class="sentence-speaker-btn"
+                            onclick="speak('A window is an opening in a wall with glass that lets light and air into the room.')">🔊</button>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game 1 Intro -->
+        <div class="slide">
+            <div class="content" style="flex-direction: column; text-align: center;">
+                <h1 style="font-size: 6rem; margin-bottom: 2rem;">Guess the Word! 🕵️</h1>
+                <p style="font-size: 3rem;">Can you name the object before you reveal it?</p>
+            </div>
+        </div>
+
+        <!-- Game 1 Slides -->
+        <div class="slide game-slide">
+            <div class="content">
+                <div class="image-box"><img
+                        src="https://images.unsplash.com/photo-1533090481720-856c6e3c1fdc?q=80&w=600&auto=format&fit=crop"
+                        alt="Table"></div>
+                <div class="text-box hidden-text">
+                    <h1>Table <button class="speaker-btn" onclick="speak('Table')">🔊</button></h1>
+                    <p>A table is a piece of furniture with a flat top and legs where we eat or work. <button
+                            class="sentence-speaker-btn"
+                            onclick="speak('A table is a piece of furniture with a flat top and legs where we eat or work.')">🔊</button>
+                    </p>
+                    <button class="reveal-btn" onclick="revealText(this)">Word</button>
+                </div>
+            </div>
+        </div>
+        <div class="slide game-slide">
+            <div class="content">
+                <div class="image-box"><img
+                        src="https://images.unsplash.com/photo-1592078615290-033ee584e267?q=80&w=600&auto=format&fit=crop"
+                        alt="Chair"></div>
+                <div class="text-box hidden-text">
+                    <h1>Chair <button class="speaker-btn" onclick="speak('Chair')">🔊</button></h1>
+                    <p>A chair is something you sit on that usually has a back and four legs. <button
+                            class="sentence-speaker-btn"
+                            onclick="speak('A chair is something you sit on that usually has a back and four legs.')">🔊</button>
+                    </p>
+                    <button class="reveal-btn" onclick="revealText(this)">Word</button>
+                </div>
+            </div>
+        </div>
+        <div class="slide game-slide">
+            <div class="content">
+                <div class="image-box"><img
+                        src="https://images.unsplash.com/photo-1588854337236-6889d631faa8?q=80&w=600&auto=format&fit=crop"
+                        alt="Kitchen"></div>
+                <div class="text-box hidden-text">
+                    <h1>Kitchen <button class="speaker-btn" onclick="speak('Kitchen')">🔊</button></h1>
+                    <p>A kitchen is the room in a house where people cook and prepare food. <button
+                            class="sentence-speaker-btn"
+                            onclick="speak('A kitchen is the room in a house where people cook and prepare food.')">🔊</button>
+                    </p>
+                    <button class="reveal-btn" onclick="revealText(this)">Word</button>
+                </div>
+            </div>
+        </div>
+        <div class="slide game-slide">
+            <div class="content">
+                <div class="image-box"><img
+                        src="https://images.unsplash.com/photo-1574269909862-7e1d70bb8078?q=80&w=600&auto=format&fit=crop"
+                        alt="Microwave"></div>
+                <div class="text-box hidden-text">
+                    <h1>Microwave <button class="speaker-btn" onclick="speak('Microwave')">🔊</button></h1>
+                    <p>A microwave is a fast oven that uses waves to heat up food quickly. <button
+                            class="sentence-speaker-btn"
+                            onclick="speak('A microwave is a fast oven that uses waves to heat up food quickly.')">🔊</button>
+                    </p>
+                    <button class="reveal-btn" onclick="revealText(this)">Word</button>
+                </div>
+            </div>
+        </div>
+        <div class="slide game-slide">
+            <div class="content">
+                <div class="image-box"><img src="https://jooinn.com/images/window-32.jpg" alt="Window"></div>
+                <div class="text-box hidden-text">
+                    <h1>Window <button class="speaker-btn" onclick="speak('Window')">🔊</button></h1>
+                    <p>A window is an opening in a wall with glass that lets light and air into the room. <button
+                            class="sentence-speaker-btn"
+                            onclick="speak('A window is an opening in a wall with glass that lets light and air into the room.')">🔊</button>
+                    </p>
+                    <button class="reveal-btn" onclick="revealText(this)">Word</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game 2 Intro -->
+        <div class="slide">
+            <div class="content" style="flex-direction: column; text-align: center;">
+                <h1 style="font-size: 6rem; margin-bottom: 2rem;">Fill in the Blanks! ✏️</h1>
+                <p style="font-size: 3rem;">Complete the word based on the image!</p>
+            </div>
+        </div>
+
+        <div id="blank-slides-placeholder"></div>
+    </div>
+
+    <!-- Controls -->
+    <div class="controls">
+        <div class="nav-buttons">
+            <button class="nav-btn" onclick="toggleMenu()">☰</button>
+            <button class="nav-btn" onclick="prevSlide()">←</button>
+            <button class="nav-btn" onclick="nextSlide()">→</button>
+        </div>
+        <div class="intro">My House</div>
+    </div>
+
+    <!-- Navigation Menu -->
+    <div class="menu-overlay" id="menuOverlay">
+        <button class="close-menu" onclick="toggleMenu()">✕</button>
+        <div class="menu-content">
+            <div class="menu-title">Menu</div>
+            <div class="menu-item" onclick="goToSlide(0)">Vocabulary</div>
+            <div class="menu-item" onclick="goToSlide(6)">Guess the word</div>
+            <div class="menu-item" onclick="goToSlide(12)">Fill in the blanks</div>
+            <div class="menu-divider"></div>
+            <div class="menu-item home-link" onclick="window.location.href='../index.html'">🏠 Volver al Inicio</div>
+        </div>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const container = document.getElementById('container');
+        const progress = document.getElementById('progress');
+        let slides = document.querySelectorAll('.slide');
+        let totalSlides = slides.length;
+
+        const vocabData = [
+            { word: 'table', image: 'https://images.unsplash.com/photo-1533090481720-856c6e3c1fdc?q=80&w=600&auto=format&fit=crop' },
+            { word: 'chair', image: 'https://images.unsplash.com/photo-1592078615290-033ee584e267?q=80&w=600&auto=format&fit=crop' },
+            { word: 'kitchen', image: 'https://images.unsplash.com/photo-1588854337236-6889d631faa8?q=80&w=600&auto=format&fit=crop' },
+            { word: 'microwave', image: 'https://images.unsplash.com/photo-1574269909862-7e1d70bb8078?q=80&w=600&auto=format&fit=crop' },
+            { word: 'window', image: 'https://jooinn.com/images/window-32.jpg' }
+        ];
+
+        let score = 100;
+        let wordsCompleted = 0;
+
+        function updateSlide() {
+            container.style.transform = `translateX(-${currentSlide * 100}vw)`;
+            progress.style.width = `${((currentSlide + 1) / totalSlides) * 100}%`;
+
+            // Menu indices: Vocab: 0-5, Guess: 6-11, Fill: 12-end
+            const scoreDisplay = document.getElementById('scoreDisplay');
+            const timerDisplay = document.getElementById('timerDisplay');
+
+            if (currentSlide >= 12) {
+                scoreDisplay.style.display = 'block';
+                timerDisplay.style.display = 'block';
+            } else {
+                scoreDisplay.style.display = 'none';
+                timerDisplay.style.display = 'none';
+            }
+
+            // Start timer when leaving the intro slide (12) to the first game slide (13)
+            if (currentSlide === 13 && !gameStarted) {
+                startTimer();
+            }
+
+            // Stop timer when reaching results slide (last slide)
+            if (currentSlide === totalSlides - 1) {
+                stopTimer();
+                const finalTimeEl = document.getElementById('finalTimeText');
+                if (finalTimeEl) finalTimeEl.innerText = formatTime(elapsedSeconds);
+            }
+
+            slides.forEach((slide, index) => {
+                if (index === currentSlide) {
+                    slide.classList.add('active');
+                } else {
+                    slide.classList.remove('active');
+                }
+            });
+        }
+
+        function nextSlide() {
+            if (currentSlide < totalSlides - 1) {
+                currentSlide++;
+                updateSlide();
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 0) {
+                currentSlide--;
+                updateSlide();
+            }
+        }
+
+        function goToSlide(index) {
+            currentSlide = index;
+            updateSlide();
+            toggleMenu();
+        }
+
+        function toggleMenu() {
+            const menu = document.getElementById('menuOverlay');
+            menu.style.display = (menu.style.display === 'flex') ? 'none' : 'flex';
+        }
+
+        function speak(text) {
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'en-US';
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function revealText(btn) {
+            const textBox = btn.parentElement;
+            textBox.classList.remove('hidden-text');
+            textBox.querySelector('h1').style.opacity = '1';
+            textBox.querySelector('p').style.opacity = '1';
+            textBox.querySelector('h1').style.transform = 'translateY(0)';
+            textBox.querySelector('p').style.transform = 'translateY(0)';
+
+            // Show speaker buttons
+            textBox.querySelectorAll('button:not(.reveal-btn)').forEach(b => b.style.display = 'flex');
+
+            btn.style.opacity = '0';
+            setTimeout(() => btn.style.display = 'none', 300);
+        }
+
+        let elapsedSeconds = 0;
+        let timerInterval;
+        let gameStarted = false;
+
+        function startTimer() {
+            if (gameStarted) return;
+            gameStarted = true;
+            elapsedSeconds = 0;
+            timerInterval = setInterval(() => {
+                elapsedSeconds++;
+                document.getElementById('timerDisplay').innerText = `Time: ${formatTime(elapsedSeconds)}`;
+            }, 1000);
+        }
+
+        function stopTimer() {
+            clearInterval(timerInterval);
+            gameStarted = false;
+        }
+
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        function initFillInBlanks() {
+            const container = document.getElementById('container');
+            const placeholder = document.getElementById('blank-slides-placeholder');
+
+            // Clear old dynamic slides
+            document.querySelectorAll('.slide-dynamic').forEach(s => s.remove());
+
+            const shuffled = [...vocabData].sort(() => Math.random() - 0.5);
+
+            shuffled.forEach(item => {
+                const slide = document.createElement('div');
+                slide.className = 'slide slide-dynamic';
+
+                const blanks = item.word.split('').map(char => {
+                    return `<input type="text" class="letter-input" maxlength="1" data-char="${char.toUpperCase()}" oninput="checkLetter(this)">`;
+                }).join('');
+
+                slide.innerHTML = `
+                    <div class="content">
+                        <div class="image-box"><img src="${item.image}" alt="${item.word}"></div>
+                        <div class="text-box">
+                            <h1 style="text-align: center; margin-bottom: 2rem;">What word is it?</h1>
+                            <div class="blank-container">${blanks}</div>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(slide);
+            });
+
+            // Results Slide
+            const resSlide = document.createElement('div');
+            resSlide.className = 'slide slide-dynamic';
+            resSlide.innerHTML = `
+                <div class="content" style="justify-content: center;">
+                    <div class="results-box">
+                        <h1>Game Over!</h1>
+                        <p>Your final score is:</p>
+                        <div class="results-score" id="finalScoreText">${score}</div>
+                        <p>Total time:</p>
+                        <div class="results-time" id="finalTimeText">00:00</div>
+                        <button class="restart-btn" onclick="restartGame()">Try Again</button>
+                    </div>
+                </div>
+            `;
+            container.appendChild(resSlide);
+
+            slides = document.querySelectorAll('.slide');
+            totalSlides = slides.length;
+            if (placeholder) placeholder.remove();
+        }
+
+        function checkLetter(input) {
+            const val = input.value.toUpperCase();
+            const correct = input.getAttribute('data-char');
+
+            if (val === correct) {
+                input.classList.remove('incorrect');
+                input.classList.add('correct');
+                input.disabled = true;
+
+                const parent = input.closest('.blank-container');
+                const inputs = Array.from(parent.querySelectorAll('.letter-input'));
+                const completed = inputs.every(i => i.value.toUpperCase() === i.getAttribute('data-char'));
+
+                if (completed) {
+                    wordsCompleted++;
+                    setTimeout(() => {
+                        nextSlide();
+                        const finalScoreEl = document.getElementById('finalScoreText');
+                        if (finalScoreEl) finalScoreEl.innerText = score;
+                    }, 500);
+                } else {
+                    const nextIdx = inputs.indexOf(input) + 1;
+                    if (inputs[nextIdx]) inputs[nextIdx].focus();
+                }
+            } else if (val !== "") {
+                input.classList.remove('correct');
+                input.classList.add('incorrect');
+                score = Math.max(0, score - 1);
+                document.getElementById('scoreDisplay').innerText = `Score: ${score}`;
+            }
+        }
+
+        function restartGame() {
+            score = 100;
+            wordsCompleted = 0;
+            document.getElementById('scoreDisplay').innerText = `Score: 100`;
+            document.getElementById('timerDisplay').innerText = `Time: 00:00`;
+            stopTimer();
+            initFillInBlanks();
+            currentSlide = 12; // Go to Game 2 Intro
+            updateSlide();
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') nextSlide();
+            if (e.key === 'ArrowLeft') prevSlide();
+        });
+
+        initFillInBlanks();
+        updateSlide();
+    </script>
+</body>
+
+</html>

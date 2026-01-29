@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vocabulary: Wants and Needs (Portable)</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;800&family=Quicksand:wght@500;700&display=swap"
+        rel="stylesheet">
+    <style>
+        /* CSS CORE START */
+        :root {
+            --primary: #4f46e5;
+            --primary-light: #818cf8;
+            --secondary: #6366f1;
+            --accent: #f59e0b;
+            --accent-hover: #d97706;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+            --text-muted: #64748b;
+            --success: #22c55e;
+            --error: #ef4444;
+            --white: #ffffff;
+            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-lg: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 6px;
+            background: linear-gradient(to right, var(--primary), var(--accent));
+            z-index: 1000;
+            transition: width 0.3s ease;
+        }
+
+        .score-display,
+        .timer-display {
+            position: fixed;
+            top: 2rem;
+            background: var(--white);
+            padding: 0.8rem 1.5rem;
+            border-radius: 1rem;
+            box-shadow: var(--shadow);
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: var(--primary);
+            z-index: 1000;
+            display: none;
+            border: 3px solid var(--primary);
+            animation: slideInDown 0.5s ease-out;
+        }
+
+        .score-display {
+            right: 2rem;
+        }
+
+        .timer-display {
+            right: 12rem;
+        }
+
+        @keyframes slideInDown {
+            from {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .slide-container {
+            display: flex;
+            height: 100vh;
+            width: 100%;
+            transition: transform 0.8s cubic-bezier(0.65, 0, 0.35, 1);
+        }
+
+        .slide {
+            min-width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4rem;
+            position: relative;
+            opacity: 0.3;
+            transition: opacity 0.5s;
+        }
+
+        .slide.active {
+            opacity: 1;
+        }
+
+        .content {
+            display: flex;
+            align-items: center;
+            gap: 4rem;
+            max-width: 1200px;
+            width: 100%;
+            background: var(--card-bg);
+            padding: 3rem;
+            border-radius: 3rem;
+            box-shadow: var(--shadow-lg);
+            transition: transform 0.5s;
+        }
+
+        .slide.active .content {
+            transform: scale(1);
+        }
+
+        .slide:not(.active) .content {
+            transform: scale(0.95);
+        }
+
+        .slide:nth-child(even) .content {
+            flex-direction: row-reverse;
+        }
+
+        .image-box {
+            flex: 1;
+            height: 500px;
+            border-radius: 2rem;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        .image-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .text-box {
+            flex: 1;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        h1 {
+            font-family: 'Quicksand', sans-serif;
+            font-size: 4rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        p {
+            font-size: 1.8rem;
+            line-height: 1.4;
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.8rem;
+        }
+
+        .speaker-btn,
+        .sentence-speaker-btn {
+            background: #f1f5f9;
+            border: none;
+            cursor: pointer;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .speaker-btn {
+            font-size: 2rem;
+            width: 60px;
+            height: 60px;
+        }
+
+        .sentence-speaker-btn {
+            font-size: 1.2rem;
+            width: 40px;
+            height: 40px;
+            margin-top: 0.5rem;
+        }
+
+        .speaker-btn:hover,
+        .sentence-speaker-btn:hover {
+            transform: scale(1.1);
+            background: #e2e8f0;
+            color: var(--primary);
+        }
+
+        .hidden-text h1,
+        .hidden-text p {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease;
+        }
+
+        .hidden-text .speaker-btn,
+        .hidden-text .sentence-speaker-btn {
+            display: none;
+        }
+
+        .reveal-btn {
+            background: var(--accent);
+            color: var(--white);
+            border: none;
+            padding: 1.5rem 3rem;
+            font-size: 1.8rem;
+            font-weight: 800;
+            border-radius: 2rem;
+            cursor: pointer;
+            box-shadow: 0 10px 20px rgba(245, 158, 11, 0.3);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4);
+            }
+
+            70% {
+                transform: scale(1.05);
+                box-shadow: 0 0 0 15px rgba(245, 158, 11, 0);
+            }
+
+            100% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(245, 158, 11, 0);
+            }
+        }
+
+        .blank-container {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 2rem;
+        }
+
+        .letter-input {
+            width: 50px;
+            height: 70px;
+            font-size: 2.5rem;
+            text-align: center;
+            border: 4px solid #e2e8f0;
+            border-radius: 12px;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800;
+            text-transform: uppercase;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .letter-input.correct {
+            border-color: var(--success);
+            background-color: #f0fdf4;
+            color: var(--success);
+        }
+
+        .letter-input.incorrect {
+            border-color: var(--error);
+            background-color: #fef2f2;
+            color: var(--error);
+        }
+
+        .results-box {
+            text-align: center;
+            background: var(--white);
+            padding: 4rem;
+            border-radius: 3rem;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .results-score {
+            font-size: 6rem;
+            font-weight: 800;
+            color: var(--accent);
+            margin: 0.5rem 0;
+        }
+
+        .results-time {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 2rem;
+        }
+
+        .restart-btn {
+            background: var(--primary);
+            color: var(--white);
+            border: none;
+            padding: 1.5rem 3.5rem;
+            font-size: 1.6rem;
+            font-weight: bold;
+            border-radius: 1.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .restart-btn:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 10px 20px rgba(79, 70, 229, 0.3);
+        }
+
+        .controls {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 1rem;
+            z-index: 100;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .nav-btn {
+            background: var(--white);
+            border: none;
+            color: var(--primary);
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            box-shadow: var(--shadow);
+        }
+
+        .nav-btn:hover {
+            background: var(--primary);
+            color: var(--white);
+            transform: translateY(-2px);
+        }
+
+        .topic-label {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            background: white;
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+        }
+
+        .menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(79, 70, 229, 0.95);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1500;
+            backdrop-filter: blur(10px);
+        }
+
+        .menu-title {
+            color: var(--white);
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 2rem;
+            font-family: 'Quicksand', sans-serif;
+        }
+
+        .menu-item {
+            color: var(--white);
+            font-size: 2rem;
+            margin: 1rem 0;
+            cursor: pointer;
+            transition: all 0.3s;
+            opacity: 0.8;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .menu-item:hover {
+            opacity: 1;
+            transform: scale(1.1);
+            color: var(--accent);
+        }
+
+        .close-menu {
+            position: absolute;
+            top: 2rem;
+            right: 2rem;
+            background: none;
+            border: 2px solid var(--white);
+            color: var(--white);
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            font-size: 2rem;
+            cursor: pointer;
+        }
+
+        .title-slide h1 {
+            font-size: 6rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .title-slide h2 {
+            font-size: 4rem;
+            color: var(--accent);
+            font-family: 'Quicksand', sans-serif;
+        }
+
+        .start-hint {
+            margin-top: 3rem;
+            font-size: 1.5rem;
+            opacity: 0.5;
+            font-weight: 600;
+        }
+
+        /* CSS CORE END */
+    </style>
+</head>
+
+<body>
+
+    <div class="progress-bar" id="progress"></div>
+    <div class="score-display" id="scoreDisplay">Score: 100</div>
+    <div class="timer-display" id="timerDisplay">Time: 00:00</div>
+
+    <div class="slide-container" id="container"></div>
+
+    <div class="menu-overlay" id="menuOverlay">
+        <button class="close-menu" onclick="toggleMenu()">✕</button>
+        <div class="menu-content">
+            <div class="menu-title">Menu</div>
+            <div class="menu-item" onclick="goToSlide(0)">Vocabulary</div>
+            <div class="menu-item" onclick="goToSlide(9)">Guess the word</div>
+            <div class="menu-item" onclick="goToSlide(18)">Fill in the blanks</div>
+        </div>
+    </div>
+
+    <div class="controls">
+        <div class="nav-buttons">
+            <button class="nav-btn" onclick="toggleMenu()">☰</button>
+            <button class="nav-btn" onclick="prevSlide()">←</button>
+            <button class="nav-btn" onclick="nextSlide()">→</button>
+        </div>
+        <div class="topic-label">Wants and Needs</div>
+    </div>
+
+    <script>
+        /* JS CORE START */
+        let currentSlide = 0;
+        let totalSlides = 0;
+        let score = 100;
+        let elapsedSeconds = 0;
+        let timerInterval;
+        let gameStarted = false;
+        let _currentConfig = null;
+
+        function initPresentation(userConfig) {
+            _currentConfig = userConfig;
+            const run = () => {
+                const container = document.getElementById('container');
+                if (!container) { setTimeout(run, 100); return; }
+                renderSlides();
+                updateSlide();
+            };
+            if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', run); } else { run(); }
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowRight') nextSlide();
+                if (e.key === 'ArrowLeft') prevSlide();
+            });
+        }
+
+        function renderSlides() {
+            const container = document.getElementById('container');
+            container.innerHTML = '';
+            const titleSlide = document.createElement('div');
+            titleSlide.className = 'slide title-slide';
+            titleSlide.innerHTML = `
+        <div class="content" style="flex-direction: column; text-align: center;">
+            <h1>Vocabulary</h1>
+            <h2>${_currentConfig.title}</h2>
+            <div class="start-hint">Press → to start learning</div>
+        </div>
+    `;
+            container.appendChild(titleSlide);
+            _currentConfig.vocab.forEach((item, index) => {
+                const slide = document.createElement('div');
+                slide.className = 'slide';
+                slide.innerHTML = `<div class="content"><div class="image-box"><img src="${item.image}" alt="${item.word}"></div><div class="text-box"><h1>${item.word} <button class="speaker-btn" onclick="speak('${item.word.replace(/'/g, "\\'")}')">🔊</button></h1><p>${item.sentence} <button class="sentence-speaker-btn" onclick="speak('${item.sentence.replace(/'/g, "\\'")}')">🔊</button></p></div></div>`;
+                container.appendChild(slide);
+            });
+            const guessIntro = document.createElement('div');
+            guessIntro.className = 'slide';
+            guessIntro.innerHTML = `<div class="content" style="flex-direction: column; text-align: center;"><h1 style="font-size: 5rem;">Guess the Word! 🕵️</h1><p style="font-size: 2.5rem;">Can you name the object before you reveal it?</p></div>`;
+            container.appendChild(guessIntro);
+            _currentConfig.vocab.forEach((item) => {
+                const slide = document.createElement('div');
+                slide.className = 'slide game-slide';
+                slide.innerHTML = `<div class="content"><div class="image-box"><img src="${item.image}" alt="${item.word}"></div><div class="text-box hidden-text"><h1>${item.word} <button class="speaker-btn" onclick="speak('${item.word.replace(/'/g, "\\'")}')">🔊</button></h1><p>${item.sentence} <button class="sentence-speaker-btn" onclick="speak('${item.sentence.replace(/'/g, "\\'")}')">🔊</button></p><button class="reveal-btn" onclick="revealText(this)">REVEAL</button></div></div>`;
+                container.appendChild(slide);
+            });
+            const fillIntro = document.createElement('div');
+            fillIntro.className = 'slide';
+            fillIntro.innerHTML = `<div class="content" style="flex-direction: column; text-align: center;"><h1 style="font-size: 5rem;">Fill in the Blanks! ✏️</h1><p style="font-size: 2.5rem;">Complete the word based on the image!</p></div>`;
+            container.appendChild(fillIntro);
+            const placeholder = document.createElement('div');
+            placeholder.id = 'dynamic-game-container';
+            container.appendChild(placeholder);
+            initFillInBlanks();
+        }
+
+        function initFillInBlanks() {
+            const parent = document.getElementById('container');
+            const dynamicContainer = document.getElementById('dynamic-game-container');
+            document.querySelectorAll('.slide-dynamic').forEach(s => s.remove());
+            const shuffled = [..._currentConfig.vocab].sort(() => Math.random() - 0.5);
+            shuffled.forEach(item => {
+                const slide = document.createElement('div');
+                slide.className = 'slide slide-dynamic';
+                const blanks = item.word.split('').map(char => {
+                    if (char === ' ') return '<div style="width: 20px;"></div>';
+                    return `<input type="text" class="letter-input" maxlength="1" data-char="${char.toUpperCase()}" oninput="checkLetter(this)">`;
+                }).join('');
+                slide.innerHTML = `<div class="content"><div class="image-box"><img src="${item.image}" alt="${item.word}"></div><div class="text-box"><h1 style="text-align: center; margin-bottom: 2rem; font-size: 3rem;">What word is it? <button class="speaker-btn" style="display: inline-flex; width: 45px; height: 45px; font-size: 1.2rem; vertical-align: middle;" onclick="speak('${item.word.replace(/'/g, "\\'")}')">🔊</button></h1><div class="blank-container">${blanks}</div></div></div>`;
+                parent.insertBefore(slide, dynamicContainer);
+            });
+            const resSlide = document.createElement('div');
+            resSlide.className = 'slide slide-dynamic';
+            resSlide.innerHTML = `<div class="content" style="justify-content: center;"><div class="results-box"><h1 style="font-size: 5rem;">Well Done! 🎉</h1><p style="font-size: 2rem;">Your final score is:</p><div class="results-score" id="finalScoreText">${score}</div><p style="font-size: 2rem;">Total time:</p><div class="results-time" id="finalTimeText">00:00</div><button class="restart-btn" onclick="restartGame()">Try Again</button></div></div>`;
+            parent.insertBefore(resSlide, dynamicContainer);
+            totalSlides = document.querySelectorAll('.slide').length;
+        }
+
+        function updateSlide() {
+            const container = document.getElementById('container');
+            const progress = document.getElementById('progress');
+            const scoreDisplay = document.getElementById('scoreDisplay');
+            const timerDisplay = document.getElementById('timerDisplay');
+            const slides = document.querySelectorAll('.slide');
+            if (!container || slides.length === 0) return;
+            container.style.transform = `translateX(-${currentSlide * 100}vw)`;
+            progress.style.width = `${((currentSlide + 1) / totalSlides) * 100}%`;
+            const fillIntroIndex = 1 + _currentConfig.vocab.length + 1 + _currentConfig.vocab.length;
+            if (currentSlide > fillIntroIndex && currentSlide < totalSlides - 1) {
+                scoreDisplay.style.display = 'block';
+                timerDisplay.style.display = 'block';
+                if (!gameStarted) startTimer();
+            } else {
+                scoreDisplay.style.display = 'none';
+                timerDisplay.style.display = 'none';
+            }
+            if (currentSlide === totalSlides - 1) {
+                stopTimer();
+                document.getElementById('finalScoreText').innerText = score;
+                document.getElementById('finalTimeText').innerText = formatTime(elapsedSeconds);
+            }
+            slides.forEach((slide, index) => {
+                if (index === currentSlide) slide.classList.add('active');
+                else slide.classList.remove('active');
+            });
+        }
+
+        function nextSlide() { if (currentSlide < totalSlides - 1) { currentSlide++; updateSlide(); } }
+        function prevSlide() { if (currentSlide > 0) { currentSlide--; updateSlide(); } }
+        function goToSlide(index) { currentSlide = index; updateSlide(); toggleMenu(); }
+        function toggleMenu() { const menu = document.getElementById('menuOverlay'); menu.style.display = (menu.style.display === 'flex') ? 'none' : 'flex'; }
+        function speak(text) { window.speechSynthesis.cancel(); const utterance = new SpeechSynthesisUtterance(text); utterance.lang = 'en-US'; utterance.rate = 0.9; window.speechSynthesis.speak(utterance); }
+        function revealText(btn) { const textBox = btn.parentElement; textBox.classList.remove('hidden-text'); btn.style.display = 'none'; }
+        function startTimer() { gameStarted = true; elapsedSeconds = 0; timerInterval = setInterval(() => { elapsedSeconds++; document.getElementById('timerDisplay').innerText = `Time: ${formatTime(elapsedSeconds)}`; }, 1000); }
+        function stopTimer() { clearInterval(timerInterval); gameStarted = false; }
+        function formatTime(seconds) { const mins = Math.floor(seconds / 60); const secs = seconds % 60; return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`; }
+        function checkLetter(input) {
+            const val = input.value.toUpperCase();
+            const correct = input.getAttribute('data-char');
+            if (val === correct) {
+                input.classList.remove('incorrect');
+                input.classList.add('correct');
+                input.disabled = true;
+                const next = input.nextElementSibling;
+                if (next && next.classList.contains('letter-input')) next.focus();
+                const container = input.closest('.blank-container');
+                const inputs = Array.from(container.querySelectorAll('.letter-input'));
+                if (inputs.every(i => i.disabled)) setTimeout(nextSlide, 800);
+            } else if (val !== "") {
+                input.classList.add('incorrect');
+                score = Math.max(0, score - 1);
+                document.getElementById('scoreDisplay').innerText = `Score: ${score}`;
+                setTimeout(() => { input.value = ""; input.classList.remove('incorrect'); }, 500);
+            }
+        }
+        function restartGame() { score = 100; document.getElementById('scoreDisplay').innerText = `Score: ${score}`; initFillInBlanks(); currentSlide = 0; updateSlide(); }
+        /* JS CORE END */
+
+        /* CONFIG START */
+        const config = {
+            title: "Wants and Needs",
+            vocab: [
+                { word: "shoes", sentence: "I wear shoes to protect my feet when I walk.", image: "https://images.unsplash.com/photo-1514989940723-e8e51635b782?q=80&w=600&auto=format&fit=crop" },
+                { word: "coat", sentence: "I wear a coat to stay warm in the winter.", image: "https://t4.ftcdn.net/jpg/01/61/88/17/360_F_161881774_DmKODbtiEUVG06qJOTMbn5V9fjUmdk1h.jpg" },
+                { word: "crayons", sentence: "I use crayons to color and draw beautiful pictures.", image: "https://t3.ftcdn.net/jpg/07/60/22/34/360_F_760223416_mKy6on7oqBLc3YB3bO7oMnNBRwGB594N.jpg" },
+                { word: "soap", sentence: "I use soap and water to wash my hands.", image: "https://media.post.rvohealth.io/wp-content/uploads/2021/04/sudsy-bar-soap-1200x628-facebook-1200x628.jpg" },
+                { word: "food", sentence: "We need healthy food to grow big and strong.", image: "https://images.unsplash.com/photo-1493770348161-369560ae357d?q=80&w=600&auto=format&fit=crop" },
+                { word: "water", sentence: "We need to drink water every day to stay healthy.", image: "https://domf5oio6qrcr.cloudfront.net/medialibrary/7909/conversions/b8a1309a-ba53-48c7-bca3-9c36aab2338a-thumb.jpg" },
+                { word: "hat", sentence: "I wear a hat to protect my head from the sun.", image: "https://images.unsplash.com/photo-1533055640609-24b498dfd74c?q=80&w=600&auto=format&fit=crop" },
+                { word: "milk", sentence: "Milk is a healthy drink that helps build strong bones.", image: "https://media.istockphoto.com/id/1222018207/photo/pouring-milk-into-a-drinking-glass.jpg?s=612x612&w=0&k=20&c=eD4YHoSjKIYSPDgnM2OgWD_HVH2IcmjZSRq7IjUnH6M=" }
+            ]
+        };
+
+        if (typeof config !== 'undefined' && config !== null) {
+            initPresentation(config);
+        }
+        /* CONFIG END */
+    </script>
+</body>
+
+</html>

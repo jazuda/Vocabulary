@@ -1,0 +1,467 @@
+:root {
+    --primary: #4f46e5;
+    --primary-light: #818cf8;
+    --secondary: #6366f1;
+    --accent: #f59e0b;
+    --accent-hover: #d97706;
+    --bg: #f8fafc;
+    --card-bg: #ffffff;
+    --text: #1e293b;
+    --text-muted: #64748b;
+    --success: #22c55e;
+    --error: #ef4444;
+    --white: #ffffff;
+    --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --shadow-lg: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Outfit', sans-serif;
+    background-color: var(--bg);
+    color: var(--text);
+    overflow: hidden;
+    height: 100vh;
+}
+
+/* Progress Bar */
+.progress-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 6px;
+    background: linear-gradient(to right, var(--primary), var(--accent));
+    z-index: 1000;
+    transition: width 0.3s ease;
+}
+
+/* Indicators (Score & Timer) */
+.score-display,
+.timer-display {
+    position: fixed;
+    top: 2rem;
+    background: var(--white);
+    padding: 0.8rem 1.5rem;
+    border-radius: 1rem;
+    box-shadow: var(--shadow);
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: var(--primary);
+    z-index: 1000;
+    display: none;
+    border: 3px solid var(--primary);
+    animation: slideInDown 0.5s ease-out;
+}
+
+.score-display {
+    right: 2rem;
+}
+
+.timer-display {
+    right: 12rem;
+}
+
+@keyframes slideInDown {
+    from {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Slide System */
+.slide-container {
+    display: flex;
+    height: 100vh;
+    width: 100%;
+    transition: transform 0.8s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.slide {
+    min-width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem;
+    position: relative;
+    opacity: 0.3;
+    transition: opacity 0.5s;
+}
+
+.slide.active {
+    opacity: 1;
+}
+
+.content {
+    display: flex;
+    align-items: center;
+    gap: 4rem;
+    max-width: 1200px;
+    width: 100%;
+    background: var(--card-bg);
+    padding: 3rem;
+    border-radius: 3rem;
+    box-shadow: var(--shadow-lg);
+    transition: transform 0.5s;
+}
+
+.slide.active .content {
+    transform: scale(1);
+}
+
+.slide:not(.active) .content {
+    transform: scale(0.95);
+}
+
+.slide:nth-child(even) .content {
+    flex-direction: row-reverse;
+}
+
+/* Components */
+.image-box {
+    flex: 1;
+    height: 500px;
+    border-radius: 2rem;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+}
+
+.image-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.text-box {
+    flex: 1;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+h1 {
+    font-family: 'Quicksand', sans-serif;
+    font-size: 4rem;
+    color: var(--primary);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+p {
+    font-size: 1.8rem;
+    line-height: 1.4;
+    color: var(--text-muted);
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.8rem;
+}
+
+/* Interactive Buttons */
+.speaker-btn,
+.sentence-speaker-btn {
+    background: #f1f5f9;
+    border: none;
+    cursor: pointer;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.speaker-btn {
+    font-size: 2rem;
+    width: 60px;
+    height: 60px;
+}
+
+.sentence-speaker-btn {
+    font-size: 1.2rem;
+    width: 40px;
+    height: 40px;
+    margin-top: 0.5rem;
+}
+
+.speaker-btn:hover,
+.sentence-speaker-btn:hover {
+    transform: scale(1.1);
+    background: #e2e8f0;
+    color: var(--primary);
+}
+
+/* Game: Guess the Word */
+.hidden-text h1,
+.hidden-text p {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.5s ease;
+}
+
+.hidden-text .speaker-btn,
+.hidden-text .sentence-speaker-btn {
+    display: none;
+}
+
+.reveal-btn {
+    background: var(--accent);
+    color: var(--white);
+    border: none;
+    padding: 1.5rem 3rem;
+    font-size: 1.8rem;
+    font-weight: 800;
+    border-radius: 2rem;
+    cursor: pointer;
+    box-shadow: 0 10px 20px rgba(245, 158, 11, 0.3);
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4);
+    }
+
+    70% {
+        transform: scale(1.05);
+        box-shadow: 0 0 0 15px rgba(245, 158, 11, 0);
+    }
+
+    100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(245, 158, 11, 0);
+    }
+}
+
+/* Game: Fill in Blanks */
+.blank-container {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 2rem;
+}
+
+.letter-input {
+    width: 50px;
+    height: 70px;
+    font-size: 2.5rem;
+    text-align: center;
+    border: 4px solid #e2e8f0;
+    border-radius: 12px;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 800;
+    text-transform: uppercase;
+    outline: none;
+    transition: all 0.2s;
+}
+
+.letter-input.correct {
+    border-color: var(--success);
+    background-color: #f0fdf4;
+    color: var(--success);
+}
+
+.letter-input.incorrect {
+    border-color: var(--error);
+    background-color: #fef2f2;
+    color: var(--error);
+}
+
+/* Results Slide */
+.results-box {
+    text-align: center;
+    background: var(--white);
+    padding: 4rem;
+    border-radius: 3rem;
+    box-shadow: var(--shadow-lg);
+}
+
+.results-score {
+    font-size: 6rem;
+    font-weight: 800;
+    color: var(--accent);
+    margin: 0.5rem 0;
+}
+
+.results-time {
+    font-size: 2.5rem;
+    color: var(--primary);
+    margin-bottom: 2rem;
+}
+
+.restart-btn {
+    background: var(--primary);
+    color: var(--white);
+    border: none;
+    padding: 1.5rem 3.5rem;
+    font-size: 1.6rem;
+    font-weight: bold;
+    border-radius: 1.5rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.restart-btn:hover {
+    transform: translateY(-5px) scale(1.05);
+    box-shadow: 0 10px 20px rgba(79, 70, 229, 0.3);
+}
+
+/* Bottom Controls */
+.controls {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 1rem;
+    z-index: 100;
+}
+
+.nav-buttons {
+    display: flex;
+    gap: 1rem;
+}
+
+.nav-btn {
+    background: var(--white);
+    border: none;
+    color: var(--primary);
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    font-size: 1.5rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    box-shadow: var(--shadow);
+}
+
+.nav-btn:hover {
+    background: var(--primary);
+    color: var(--white);
+    transform: translateY(-2px);
+}
+
+.topic-label {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--primary);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    background: white;
+    padding: 0.4rem 1rem;
+    border-radius: 20px;
+    box-shadow: var(--shadow);
+}
+
+/* Menu Overlay */
+.menu-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(79, 70, 229, 0.95);
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 1500;
+    backdrop-filter: blur(10px);
+}
+
+.menu-title {
+    color: var(--white);
+    font-size: 3rem;
+    font-weight: 800;
+    margin-bottom: 2rem;
+    font-family: 'Quicksand', sans-serif;
+}
+
+.menu-item {
+    color: var(--white);
+    font-size: 2rem;
+    margin: 1rem 0;
+    cursor: pointer;
+    transition: all 0.3s;
+    opacity: 0.8;
+    font-weight: 600;
+    text-align: center;
+}
+
+.menu-item:hover {
+    opacity: 1;
+    transform: scale(1.1);
+    color: var(--accent);
+}
+
+.close-menu {
+    position: absolute;
+    top: 2rem;
+    right: 2rem;
+    background: none;
+    border: 2px solid var(--white);
+    color: var(--white);
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    font-size: 2rem;
+    cursor: pointer;
+}
+
+.menu-divider {
+    width: 100%;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.2);
+    margin: 1.5rem 0;
+}
+
+.menu-item.home-link {
+    color: var(--accent);
+    background: rgba(255, 255, 255, 0.1);
+    padding: 0.8rem 2rem;
+    border-radius: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.menu-item.home-link:hover {
+    background: var(--accent);
+    color: var(--white);
+    border-color: var(--accent);
+}
+
+/* Intro Title Slide */
+.title-slide h1 {
+    font-size: 6rem;
+    margin-bottom: 0.5rem;
+}
+
+.title-slide h2 {
+    font-size: 4rem;
+    color: var(--accent);
+    font-family: 'Quicksand', sans-serif;
+}
+
+.start-hint {
+    margin-top: 3rem;
+    font-size: 1.5rem;
+    opacity: 0.5;
+    font-weight: 600;
+}

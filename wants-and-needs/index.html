@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vocabulary: Wants and Needs</title>
+    <!-- Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;800&family=Quicksand:wght@500;700&display=swap"
+        rel="stylesheet">
+    <!-- Core Engine & Styles -->
+    <link rel="stylesheet" href="../core/styles.css">
+    <script src="../core/engine.js" defer></script>
+</head>
+
+<body>
+
+    <div class="progress-bar" id="progress"></div>
+    <div class="score-display" id="scoreDisplay">Score: 100</div>
+    <div class="timer-display" id="timerDisplay">Time: 00:00</div>
+
+    <div class="slide-container" id="container">
+        <!-- Content will be injected by engine.js -->
+    </div>
+
+    <!-- Navigation Overlay -->
+    <div class="menu-overlay" id="menuOverlay">
+        <button class="close-menu" onclick="toggleMenu()">✕</button>
+        <div class="menu-content">
+            <div class="menu-title">Menu</div>
+            <div class="menu-item" onclick="goToSlide(0)">Vocabulary</div>
+            <div class="menu-item" onclick="goToSlide(9)">Guess the word</div>
+            <div class="menu-item" onclick="goToSlide(18)">Fill in the blanks</div>
+            <div class="menu-divider"></div>
+            <div class="menu-item home-link" onclick="window.location.href='../index.html'">🏠 Volver al Inicio</div>
+        </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="controls">
+        <div class="nav-buttons">
+            <button class="nav-btn" onclick="toggleMenu()">☰</button>
+            <button class="nav-btn" onclick="prevSlide()">←</button>
+            <button class="nav-btn" onclick="nextSlide()">→</button>
+        </div>
+        <div class="topic-label">Wants and Needs</div>
+    </div>
+
+    <script>
+        const config = {
+            title: "Wants and Needs",
+            vocab: [
+                {
+                    word: "shoes",
+                    sentence: "I wear shoes to protect my feet when I walk.",
+                    image: "https://images.unsplash.com/photo-1514989940723-e8e51635b782?q=80&w=600&auto=format&fit=crop"
+                },
+                {
+                    word: "coat",
+                    sentence: "I wear a coat to stay warm in the winter.",
+                    image: "https://t4.ftcdn.net/jpg/01/61/88/17/360_F_161881774_DmKODbtiEUVG06qJOTMbn5V9fjUmdk1h.jpg"
+                },
+                {
+                    word: "crayons",
+                    sentence: "I use crayons to color and draw beautiful pictures.",
+                    image: "https://t3.ftcdn.net/jpg/07/60/22/34/360_F_760223416_mKy6on7oqBLc3YB3bO7oMnNBRwGB594N.jpg"
+                },
+                {
+                    word: "soap",
+                    sentence: "I use soap and water to wash my hands.",
+                    image: "https://media.post.rvohealth.io/wp-content/uploads/2021/04/sudsy-bar-soap-1200x628-facebook-1200x628.jpg"
+                },
+                {
+                    word: "food",
+                    sentence: "We need healthy food to grow big and strong.",
+                    image: "https://images.unsplash.com/photo-1493770348161-369560ae357d?q=80&w=600&auto=format&fit=crop"
+                },
+                {
+                    word: "water",
+                    sentence: "We need to drink water every day to stay healthy.",
+                    image: "https://domf5oio6qrcr.cloudfront.net/medialibrary/7909/conversions/b8a1309a-ba53-48c7-bca3-9c36aab2338a-thumb.jpg"
+                },
+                {
+                    word: "hat",
+                    sentence: "I wear a hat to protect my head from the sun.",
+                    image: "https://images.unsplash.com/photo-1533055640609-24b498dfd74c?q=80&w=600&auto=format&fit=crop"
+                },
+                {
+                    word: "milk",
+                    sentence: "Milk is a healthy drink that helps build strong bones.",
+                    image: "https://media.istockphoto.com/id/1222018207/photo/pouring-milk-into-a-drinking-glass.jpg?s=612x612&w=0&k=20&c=eD4YHoSjKIYSPDgnM2OgWD_HVH2IcmjZSRq7IjUnH6M="
+                }
+            ]
+        };
+
+        // Manual initialization check to ensure robustness
+        const init = () => {
+            if (typeof initPresentation === 'function') {
+                initPresentation(config);
+            } else {
+                setTimeout(init, 50);
+            }
+        };
+        init();
+    </script>
+</body>
+
+</html>
