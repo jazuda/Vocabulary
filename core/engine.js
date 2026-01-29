@@ -7,92 +7,123 @@ let gameStarted = false;
 let _currentConfig = null;
 let currentRole = null;
 let studentName = "";
+let studentClass = "";
 let wordStartTime = 0;
 
+const CLASSES = {
+    "Mr García": [
+        "Acosta Valeria", "Araujo Valerie", "Bautista Cristian", "Bravo Armijos Meivi",
+        "Campos Osorio Isaias", "Chango-Tasiguano Brithney", "Chasig Cataleya",
+        "Dominguez-Bahena Liam", "Guadarrama Gerardo", "Hernandez Yanderis",
+        "Lopez Caleb", "Matos Rodriguez Fatima", "Peralta-Flores Mia",
+        "Ramirez Suniaga Isabella", "Sanchez Jair", "Sandoval Mariana",
+        "Sotelo Lesly", "Varela Angel", "Vicente Adrian", "Vital Daniel"
+    ],
+    "Ms Poncelas": [
+        "Beristain Loyo Angel", "Campos Eylin", "Cervantes Casarrubias Sergio",
+        "Diaz Mateo", "Dorantes Lurmarelia", "Escobar Natasha", "Garcia David",
+        "Garcia Sophia", "Guanotuna Sharline", "Landi Denise", "Lutuala Quishpe Erick",
+        "Paniagua Edgar", "Pilaguano Choloquinga Sheyla", "Prada Edymar",
+        "Rios Iam", "Salinas Elena", "Valladares Jesus", "Vallecillo Ana",
+        "Veliz Gomez Carlismar"
+    ],
+    "Mr Zubieta": [
+        "Fernandez Richard", "Gomez Salvador Judit", "Jacho Ayala Ashley",
+        "Jacho Vega Kimberly", "Marin Delgado Isaac", "Martinez Garcia Iker",
+        "Mercado Sapon Arianna", "Orozco Mia", "Perez-Larios Milan",
+        "Ramirez Lauren", "Ruiz Contreras Daviana", "Thiago", "Tocte Condor Keylor",
+        "Torres Pedroza Itzayana", "Valentin Mata Bryan", "Villalobos Emmanuel",
+        "Zuniga Soto Wilson"
+    ]
+};
+
 // URL de tu Web App de Google (Hoja de Cálculo)
-// Déjala vacía para usar solo almacenamiento local
 const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbxeP7G4odynvqOqiSYwz-Xun-i8ZRjs2G_-xmvM7XpHS_5G3F-t8gb2TXlffyVuL1IbxQ/exec";
 
 // Global functions attached to window for HTML onclick compatibility
 window.selectRole = function (role) {
-    console.log("Role selected:", role);
     currentRole = role;
-
-    // Direct start for teacher
     if (role === 'teacher') {
         window.confirmRole();
         return;
     }
 
-    // Logic for student
+    // Check for saved session
     const savedName = sessionStorage.getItem('studentName');
-    if (savedName) {
-        showNameConfirmation(savedName);
+    const savedClass = sessionStorage.getItem('studentClass');
+    if (savedName && savedClass) {
+        showNameConfirmation(savedName, savedClass);
     } else {
-        showNameInput();
+        showClassSelection();
     }
 };
 
-function showNameInput() {
-    document.querySelectorAll('.role-options').forEach(el => el.style.display = 'none');
-    const container = document.getElementById('nameContainer');
-    if (container) {
-        container.style.display = 'block';
-        const input = document.getElementById('studentNameInput');
-        if (input) input.focus();
-    }
-    const startBtn = document.getElementById('startBtn');
-    if (startBtn) startBtn.style.display = 'block';
+function showClassSelection() {
+    const card = document.querySelector('.role-card');
+    card.innerHTML = `
+        <h2>¿De qué clase eres?</h2>
+        <div class="role-options" style="flex-direction: column; gap: 0.5rem;">
+            ${Object.keys(CLASSES).map(teacher => `
+                <button class="role-btn" style="width: 100%;" onclick="window.selectClass('${teacher}')">${teacher}</button>
+            `).join('')}
+        </div>
+    `;
 }
 
-function showNameConfirmation(name) {
+window.selectClass = function (teacher) {
+    studentClass = teacher;
     const card = document.querySelector('.role-card');
-    if (!card) return;
+    card.innerHTML = `
+        <h2>Hola, Clase de ${teacher}</h2>
+        <p style="margin-bottom: 1rem; color: var(--text-muted);">Elige tu nombre:</p>
+        <div class="name-select-grid">
+            ${CLASSES[teacher].map(name => `
+                <button class="name-chip" onclick="window.selectStudentName('${name}')">${name}</button>
+            `).join('')}
+        </div>
+        <button class="role-btn secondary" style="margin-top: 1rem; font-size: 0.8rem;" onclick="showClassSelection()">← Volver a elegir clase</button>
+    `;
+};
 
+window.selectStudentName = function (name) {
+    studentName = name;
+    sessionStorage.setItem('studentName', name);
+    sessionStorage.setItem('studentClass', studentClass);
+    window.confirmRole();
+};
+
+function showNameConfirmation(name, className) {
+    const card = document.querySelector('.role-card');
     card.innerHTML = `
         <h2>¡Hola de nuevo!</h2>
-        <p style="margin-bottom: 2rem; font-size: 1.2rem; color: var(--text-muted);">¿Sigues siendo <strong>${name}</strong>?</p>
+        <p style="margin-bottom: 2rem; font-size: 1.2rem; color: var(--text-muted);">
+            ¿Eres <strong>${name}</strong> de la clase de <strong>${className}</strong>?
+        </p>
         <div class="role-options">
-            <button class="role-btn selected" onclick="window.confirmPreviousName('${name}')">✅ Sí, soy yo</button>
+            <button class="role-btn selected" onclick="window.confirmRoleFromSession('${name}', '${className}')">✅ Sí, soy yo</button>
             <button class="role-btn" onclick="window.resetNameSession()">❌ No soy yo</button>
         </div>
     `;
 }
 
-window.confirmPreviousName = function (name) {
+window.confirmRoleFromSession = function (name, className) {
     studentName = name;
+    studentClass = className;
     currentRole = 'student';
     window.confirmRole();
 };
 
 window.resetNameSession = function () {
     sessionStorage.removeItem('studentName');
+    sessionStorage.removeItem('studentClass');
     const overlay = document.getElementById('roleOverlay');
     if (overlay) overlay.remove();
     showRoleSelection();
 };
 
-window.validateStartBtn = function () {
-    const btn = document.getElementById('startBtn');
-    if (!btn) return;
-
-    if (currentRole === 'student') {
-        const input = document.getElementById('studentNameInput');
-        const name = input ? input.value.trim() : "";
-        btn.disabled = name.length < 2;
-    }
-};
-
 window.confirmRole = function () {
-    if (currentRole === 'student' && !studentName) {
-        const input = document.getElementById('studentNameInput');
-        studentName = input ? input.value.trim() : "";
-        sessionStorage.setItem('studentName', studentName);
-    }
-
     const overlay = document.getElementById('roleOverlay');
     if (overlay) overlay.remove();
-
     renderSlides();
     updateSlide();
 };
@@ -155,9 +186,8 @@ window.checkLetter = function (input) {
                 // Word Completed logic
                 const duration = (Date.now() - wordStartTime) / 1000;
 
-                if (duration <= 5) {
-                    score += 1; // Bonus for speed
-                } else {
+                // NO bonus for speed as requested, only penalties
+                if (duration > 5) {
                     const extraTime = duration - 5;
                     const penalty = Math.floor(extraTime / 3);
                     score = Math.max(0, score - penalty); // Penalty for slowness
@@ -171,7 +201,7 @@ window.checkLetter = function (input) {
         }
     } else if (val !== "") {
         input.classList.add('incorrect');
-        score = Math.max(0, score - 1);
+        score = Math.max(0, score - 1); // Penalty for mistakes
         const scoreDisp = document.getElementById('scoreDisplay');
         if (scoreDisp) scoreDisp.innerText = `Score: ${score}`;
         setTimeout(() => {
@@ -183,7 +213,6 @@ window.checkLetter = function (input) {
 
 function initPresentation(userConfig) {
     _currentConfig = userConfig;
-
     const run = () => {
         const container = document.getElementById('container');
         if (!container) {
@@ -192,13 +221,11 @@ function initPresentation(userConfig) {
         }
         showRoleSelection();
     };
-
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', run);
     } else {
         run();
     }
-
     document.addEventListener('keydown', (e) => {
         if (document.activeElement.tagName === 'INPUT') return;
         if (e.key === 'ArrowRight') nextSlide();
@@ -218,11 +245,6 @@ function showRoleSelection() {
                     <button class="role-btn" id="teacherBtn" onclick="window.selectRole('teacher')">👨‍🏫 Soy Maestro/a</button>
                     <button class="role-btn" id="studentBtn" onclick="window.selectRole('student')">🎓 Soy Estudiante</button>
                 </div>
-                <div class="name-input-container" id="nameContainer" style="display:none">
-                    <label for="studentNameInput">¿Cómo te llamas?</label>
-                    <input type="text" id="studentNameInput" class="name-input" placeholder="Escribe tu nombre..." oninput="window.validateStartBtn()">
-                </div>
-                <button class="start-app-btn" id="startBtn" disabled style="display:none" onclick="window.confirmRole()">¡Comenzar!</button>
             </div>
         `;
         document.body.appendChild(overlay);
@@ -313,11 +335,8 @@ function initFillInBlanks() {
     const parent = document.getElementById('container');
     const dynamicContainer = document.getElementById('dynamic-game-container');
     if (!parent) return;
-
     document.querySelectorAll('.slide-dynamic').forEach(s => s.remove());
-
     const shuffled = [..._currentConfig.vocab].sort(() => Math.random() - 0.5);
-
     shuffled.forEach(item => {
         const slide = document.createElement('div');
         slide.className = 'slide slide-dynamic';
@@ -325,7 +344,6 @@ function initFillInBlanks() {
             if (char === ' ') return '<div style="width: 20px;"></div>';
             return `<input type="text" class="letter-input" maxlength="1" data-char="${char.toUpperCase()}" oninput="window.checkLetter(this)">`;
         }).join('');
-
         slide.innerHTML = `
             <div class="content">
                 <div class="image-box"><img src="${item.image}" alt="${item.word}"></div>
@@ -340,7 +358,6 @@ function initFillInBlanks() {
         `;
         parent.insertBefore(slide, dynamicContainer);
     });
-
     const resSlide = document.createElement('div');
     resSlide.className = 'slide slide-dynamic';
     resSlide.innerHTML = `
@@ -350,7 +367,6 @@ function initFillInBlanks() {
                 <p style="font-size: 1.2rem; color: var(--text-muted);">Tu puntuación es:</p>
                 <div class="results-score" id="finalScoreText">${score}</div>
                 <p style="font-size: 1.2rem; color: var(--text-muted);">Tiempo: <span id="finalTimeText" style="color: var(--primary); font-weight: bold;">00:00</span></p>
-                
                 <div class="results-buttons">
                     <button class="restart-btn" onclick="window.restartGame()">Intentar de nuevo</button>
                     <button class="restart-btn secondary" onclick="window.goToSlide(0)">Ir al inicio</button>
@@ -369,14 +385,11 @@ function updateSlide() {
     const scoreDisplay = document.getElementById('scoreDisplay');
     const timerDisplay = document.getElementById('timerDisplay');
     const slides = document.querySelectorAll('.slide');
-
     if (!container) return;
     container.style.transform = `translateX(-${currentSlide * 100}vw)`;
     if (progress) progress.style.width = `${((currentSlide + 1) / totalSlides) * 100}%`;
-
     const vocabCount = _currentConfig ? _currentConfig.vocab.length : 0;
     const fillIntroIndex = 1 + vocabCount + 1 + vocabCount;
-
     if (currentSlide > fillIntroIndex && currentSlide < totalSlides - 1) {
         if (scoreDisplay) scoreDisplay.style.display = 'block';
         if (timerDisplay) timerDisplay.style.display = 'block';
@@ -385,7 +398,6 @@ function updateSlide() {
         if (scoreDisplay) scoreDisplay.style.display = 'none';
         if (timerDisplay) timerDisplay.style.display = 'none';
     }
-
     if (currentSlide === totalSlides - 1) {
         stopTimer();
         const scText = document.getElementById('finalScoreText');
@@ -394,18 +406,13 @@ function updateSlide() {
         if (tmText) tmText.innerText = formatTime(elapsedSeconds);
         saveGameResult();
     }
-
     slides.forEach((slide, index) => {
         if (index === currentSlide) {
             slide.classList.add('active');
-            // Auto-focus first input in game slides
             if (slide.classList.contains('slide-dynamic')) {
-                wordStartTime = Date.now(); // Start timing the word
+                wordStartTime = Date.now();
                 const firstInput = slide.querySelector('.letter-input');
-                if (firstInput) {
-                    // Small delay to match slide transition (0.8s)
-                    setTimeout(() => firstInput.focus(), 850);
-                }
+                if (firstInput) setTimeout(() => firstInput.focus(), 850);
             }
         }
         else slide.classList.remove('active');
@@ -419,19 +426,16 @@ function saveGameResult() {
         app: _currentConfig.title,
         score: score,
         time: formatTime(elapsedSeconds),
-        date: new Date().toLocaleString()
+        date: new Date().toLocaleString(),
+        class: studentClass
     };
-
-    // 1. Guardar localmente
     const scores = JSON.parse(localStorage.getItem('vocabulary_lab_scores') || '[]');
     scores.push(result);
     localStorage.setItem('vocabulary_lab_scores', JSON.stringify(scores));
-
-    // 2. Enviar a la nube si hay URL configurada
     if (WEBHOOK_URL) {
         fetch(WEBHOOK_URL, {
             method: 'POST',
-            mode: 'no-cors', // Necesario para Google Apps Script
+            mode: 'no-cors',
             cache: 'no-cache',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(result)
@@ -442,7 +446,6 @@ function saveGameResult() {
 
 function nextSlide() { if (currentSlide < totalSlides - 1) { currentSlide++; updateSlide(); } }
 function prevSlide() { if (currentSlide > 0) { currentSlide--; updateSlide(); } }
-
 function startTimer() {
     gameStarted = true;
     elapsedSeconds = 0;
@@ -452,14 +455,12 @@ function startTimer() {
         if (td) td.innerText = `Tiempo: ${formatTime(elapsedSeconds)}`;
     }, 1000);
 }
-
 function stopTimer() { clearInterval(timerInterval); gameStarted = false; }
 function formatTime(s) {
     const mins = Math.floor(s / 60);
     const secs = s % 60;
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
 }
-
 if (typeof config !== 'undefined' && config !== null) {
     initPresentation(config);
 }
