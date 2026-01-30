@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vocabulary Lab | Registro General</title>
+    <title>Vocabulary Lab | Registro Maestro</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -33,9 +33,64 @@
             justify-content: center;
         }
 
+        /* Lock Screen */
+        #lockScreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.98);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(5px);
+        }
+
+        .lock-card {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            border: 1px solid var(--border-color);
+        }
+
+        .lock-card h2 {
+            margin-bottom: 1rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .lock-input {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            font-size: 1rem;
+            text-align: center;
+        }
+
+        .lock-btn {
+            background: var(--text-main);
+            color: white;
+            border: none;
+            padding: 0.8rem 2rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 600;
+            width: 100%;
+        }
+
+        /* Main Content */
         .container {
             width: 100%;
             max-width: var(--max-width);
+            display: none;
         }
 
         header {
@@ -51,11 +106,6 @@
             align-items: center;
             gap: 0.5rem;
             margin-bottom: 1rem;
-            transition: color 0.2s;
-        }
-
-        .back-link:hover {
-            color: var(--text-main);
         }
 
         h1 {
@@ -77,23 +127,8 @@
             font-size: 0.85rem;
             font-weight: 600;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            transition: all 0.2s;
         }
 
-        .sync-btn:hover {
-            background: #1a73e8;
-            transform: translateY(-1px);
-        }
-
-        .sync-btn:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-        }
-
-        /* Stats Panel */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -125,14 +160,32 @@
         /* Filters */
         .filters-section {
             display: flex;
-            gap: 1rem;
+            gap: 1.5rem;
             margin-bottom: 2rem;
             flex-wrap: wrap;
+            align-items: center;
+            background: #fcfcfc;
+            padding: 1.5rem;
+            border-radius: 0.8rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .filter-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .filter-group label {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            margin-bottom: 0.4rem;
+            text-transform: uppercase;
         }
 
         .filter-input {
-            flex: 1;
-            min-width: 200px;
+            width: 100%;
             padding: 0.6rem 1rem;
             border: 1px solid var(--border-color);
             border-radius: 0.5rem;
@@ -140,22 +193,45 @@
             font-size: 0.9rem;
         }
 
-        .filter-input:focus {
-            border-color: var(--accent);
+        /* Toggle Button */
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .toggle {
+            position: relative;
+            width: 44px;
+            height: 22px;
+            background: #ccc;
+            border-radius: 20px;
+            transition: 0.3s;
+        }
+
+        .toggle::after {
+            content: '';
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            background: white;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: 0.3s;
+        }
+
+        #bestOnly:checked+.toggle {
+            background: var(--accent);
+        }
+
+        #bestOnly:checked+.toggle::after {
+            left: 24px;
         }
 
         /* Table */
-        .section-label {
-            font-size: 0.75rem;
-            font-weight: 600;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            margin-bottom: 1rem;
-            padding-bottom: 0.5rem;
-            border-bottom: 1px solid var(--border-color);
-        }
-
         .scores-table-container {
             width: 100%;
             overflow-x: auto;
@@ -177,7 +253,6 @@
             font-weight: 600;
             background: var(--hover-bg);
             border-bottom: 1px solid var(--border-color);
-            white-space: nowrap;
         }
 
         .scores-table td {
@@ -199,151 +274,139 @@
             background: #eef2ff;
             color: #4f46e5;
         }
-
-        .empty-state {
-            padding: 4rem 2rem;
-            text-align: center;
-            color: var(--text-muted);
-            background: var(--hover-bg);
-            border-radius: 1rem;
-            border: 1px dashed var(--border-color);
-        }
-
-        .clear-btn {
-            margin-top: 2rem;
-            background: #fff;
-            border: 1px solid #ffcfcf;
-            padding: 0.6rem 1.2rem;
-            border-radius: 0.5rem;
-            cursor: pointer;
-            color: #eb5757;
-            font-size: 0.9rem;
-            transition: all 0.2s;
-        }
-
-        .clear-btn:hover {
-            background: #fff5f5;
-            border-color: #eb5757;
-        }
-
-        @media (max-width: 600px) {
-            .sync-btn {
-                position: static;
-                width: 100%;
-                margin-bottom: 1rem;
-                justify-content: center;
-            }
-
-            .scores-table th:nth-child(2),
-            .scores-table td:nth-child(2) {
-                display: none;
-            }
-
-            /* Ocultar clase en móvil */
-        }
     </style>
 </head>
 
 <body>
-    <div class="container">
+    <!-- Pantalla de Bloqueo -->
+    <div id="lockScreen">
+        <div class="lock-card">
+            <h2>Acceso Restringido</h2>
+            <p style="color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.9rem;">Por favor, introduce la
+                contraseña de maestro para continuar.</p>
+            <input type="password" id="passInput" class="lock-input" placeholder="Contraseña">
+            <button class="lock-btn" onclick="checkPassword()">Entrar</button>
+            <p id="lockError" style="color: #eb5757; font-size: 0.8rem; margin-top: 1rem; display: none;">Contraseña
+                incorrecta</p>
+        </div>
+    </div>
+
+    <!-- Contenido Principal -->
+    <div class="container" id="mainContainer">
         <header>
             <a href="index.html" class="back-link">← Volver al Portal</a>
             <h1>Libro de Calificaciones</h1>
-            <p style="color: var(--text-muted);">Registro general de actividad en la nube.</p>
-            <button id="syncBtn" class="sync-btn" onclick="syncFromCloud()">🔄 Sincronizar Nube</button>
+            <p style="color: var(--text-muted);">Registro de puntuaciones en tiempo real.</p>
+            <button id="syncBtn" class="sync-btn" onclick="syncFromCloud()">🔄 Sincronizar</button>
         </header>
 
         <div class="stats-grid">
             <div class="stat-card">
-                <div class="stat-label">Total Jugadas</div>
+                <div class="stat-label">Total Intentos</div>
                 <div class="stat-value" id="totalPlays">0</div>
             </div>
             <div class="stat-card">
-                <div class="stat-label">Puntuación Media</div>
+                <div class="stat-label">Media General</div>
                 <div class="stat-value" id="avgScore">0</div>
             </div>
             <div class="stat-card">
-                <div class="stat-label">Estudiantes Únicos</div>
+                <div class="stat-label">Alumnos Activos</div>
                 <div class="stat-value" id="uniqueStudents">0</div>
             </div>
         </div>
 
         <div class="filters-section">
-            <input type="text" id="searchName" class="filter-input" placeholder="Buscar por estudiante..."
-                oninput="applyFilters()">
-            <input type="text" id="searchApp" class="filter-input" placeholder="Filtrar por aplicación o clase..."
-                oninput="applyFilters()">
+            <div class="filter-group">
+                <label>Nombre del Estudiante</label>
+                <input type="text" id="searchName" class="filter-input" placeholder="Ej: Caleb Lopez"
+                    oninput="applyFilters()">
+            </div>
+            <div class="filter-group">
+                <label>Clase / Salón</label>
+                <select id="searchClass" class="filter-input" onchange="applyFilters()">
+                    <option value="">Todas las clases</option>
+                    <option value="Mr García">Mr García</option>
+                    <option value="Ms Poncelas">Ms Poncelas</option>
+                    <option value="Mr Zubieta">Mr Zubieta</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Aplicación</label>
+                <input type="text" id="searchApp" class="filter-input" placeholder="Ej: My House"
+                    oninput="applyFilters()">
+            </div>
+            <div class="filter-group" style="flex: 0; min-width: auto; margin-top: 1.5rem;">
+                <label class="toggle-container">
+                    <input type="checkbox" id="bestOnly" style="display:none;" onchange="applyFilters()">
+                    <div class="toggle"></div>
+                    <span style="font-size: 0.9rem; font-weight: 600; white-space: nowrap;">Solo Mejores Notas</span>
+                </label>
+            </div>
         </div>
 
-        <div class="section-label" id="tableLabel">Historial Detallado (Local)</div>
-
-        <div id="scoresContent">
-            <div class="scores-table-container">
-                <table class="scores-table" id="scoresTable">
-                    <thead>
-                        <tr>
-                            <th>Estudiante</th>
-                            <th>Salón / Clase</th>
-                            <th>Aplicación</th>
-                            <th>Puntos</th>
-                            <th>Tiempo</th>
-                            <th>Fecha</th>
-                        </tr>
-                    </thead>
-                    <tbody id="scoresBody"></tbody>
-                </table>
-            </div>
-
-            <div id="emptyState" class="empty-state" style="display: none;">
-                <p>No se encontraron resultados.</p>
-            </div>
-
-            <button onclick="clearScores()" id="clearBtn" class="clear-btn" style="display: none;">Borrar Historial
-                Local</button>
+        <div class="scores-table-container">
+            <table class="scores-table">
+                <thead>
+                    <tr>
+                        <th>Estudiante</th>
+                        <th>Clase</th>
+                        <th>Aplicación</th>
+                        <th>Puntos</th>
+                        <th>Tiempo</th>
+                        <th>Fecha</th>
+                    </tr>
+                </thead>
+                <tbody id="scoresBody"></tbody>
+            </table>
         </div>
     </div>
 
     <script>
-        // CONFIGURACIÓN: URL de tu Google Sheet
         const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbxeP7G4odynvqOqiSYwz-Xun-i8ZRjs2G_-xmvM7XpHS_5G3F-t8gb2TXlffyVuL1IbxQ/exec";
-
         let allScores = [];
 
+        function checkPassword() {
+            const pass = document.getElementById('passInput').value;
+            const error = document.getElementById('lockError');
+            if (pass === "amoazubieta") {
+                document.getElementById('lockScreen').style.display = 'none';
+                document.getElementById('mainContainer').style.display = 'block';
+                loadScores();
+            } else {
+                error.style.display = 'block';
+                document.getElementById('passInput').value = "";
+            }
+        }
+
+        // Permitir entrar con la tecla Enter
+        document.getElementById('passInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') checkPassword();
+        });
+
         function loadScores() {
-            // Cargar local primero
             allScores = JSON.parse(localStorage.getItem('vocabulary_lab_scores') || '[]');
             updateStats(allScores);
             applyFilters();
-
-            // Sincronizar nube automático
             if (WEBHOOK_URL) syncFromCloud();
         }
 
         async function syncFromCloud() {
             if (!WEBHOOK_URL) return;
-
             const btn = document.getElementById('syncBtn');
             btn.disabled = true;
-            btn.innerText = "⏳ Sincronizando...";
-
             try {
                 const response = await fetch(WEBHOOK_URL);
                 const rawData = await response.json();
-
                 if (Array.isArray(rawData)) {
-                    // Normalizar datos para evitar el "undefined"
                     allScores = rawData.map(item => {
-                        // Buscamos las propiedades sin importar si son mayúsculas o minúsculas
                         const find = (keys) => {
                             for (let k of keys) {
                                 if (item[k] !== undefined) return item[k];
-                                // Probar versión capitalizada
                                 let cap = k.charAt(0).toUpperCase() + k.slice(1);
                                 if (item[cap] !== undefined) return item[cap];
                             }
                             return "";
                         };
-
                         return {
                             name: find(['name', 'nombre', 'estudiante']),
                             class: find(['class', 'clase', 'salón', 'salon']),
@@ -353,69 +416,60 @@
                             date: find(['date', 'fecha'])
                         };
                     });
-
-                    document.getElementById('tableLabel').innerText = "Historial Detallado (Nube)";
                     updateStats(allScores);
                     applyFilters();
                 }
-            } catch (err) {
-                console.error(err);
-            } finally {
-                btn.disabled = false;
-                btn.innerText = "🔄 Sincronizar Nube";
-            }
-        }
-
-        function updateStats(scores) {
-            document.getElementById('totalPlays').innerText = scores.length;
-            if (scores.length > 0) {
-                const validScores = scores.map(s => parseInt(s.score)).filter(n => !isNaN(n));
-                const avg = validScores.length > 0 ? validScores.reduce((a, b) => a + b, 0) / validScores.length : 0;
-                document.getElementById('avgScore').innerText = Math.round(avg);
-                const uniqueNames = new Set(scores.map(s => s.name?.toLowerCase().trim()).filter(n => n));
-                document.getElementById('uniqueStudents').innerText = uniqueNames.size;
-            }
+            } catch (err) { console.error(err); }
+            finally { btn.disabled = false; }
         }
 
         function applyFilters() {
             const nameQuery = document.getElementById('searchName').value.toLowerCase();
             const appQuery = document.getElementById('searchApp').value.toLowerCase();
+            const bestOnly = document.getElementById('bestOnly').checked;
             const body = document.getElementById('scoresBody');
-            const table = document.getElementById('scoresTable');
-            const emptyState = document.getElementById('emptyState');
 
-            const filtered = allScores.filter(s =>
+            let filtered = allScores.filter(s =>
                 (s.name || "").toLowerCase().includes(nameQuery) &&
                 ((s.app || "").toLowerCase().includes(appQuery) || (s.class || "").toLowerCase().includes(appQuery))
-            ).reverse();
+            );
 
-            if (filtered.length > 0) {
-                table.parentElement.style.display = 'block';
-                emptyState.style.display = 'none';
-                body.innerHTML = filtered.map(s => `
-                    <tr>
-                        <td style="font-weight: 600;">${s.name || '---'}</td>
-                        <td><span class="class-badge">${s.class || 'Sin clase'}</span></td>
-                        <td style="color: var(--text-muted); font-size: 0.85rem;">${s.app || '---'}</td>
-                        <td class="score-val">${s.score !== "" ? s.score : '0'}</td>
-                        <td>${s.time || '---'}</td>
-                        <td style="color: #a1a19f; font-size: 0.8rem;">${s.date || '---'}</td>
-                    </tr>
-                `).join('');
-            } else {
-                table.parentElement.style.display = 'none';
-                emptyState.style.display = 'block';
+            // Filtro de Solo Mejores Notas por Estudiante + App
+            if (bestOnly) {
+                const bestMap = new Map();
+                filtered.forEach(s => {
+                    const key = `${s.name.trim()}_${s.app.trim()}`;
+                    const currentScore = parseInt(s.score) || 0;
+                    if (!bestMap.has(key) || currentScore > parseInt(bestMap.get(key).score)) {
+                        bestMap.set(key, s);
+                    }
+                });
+                filtered = Array.from(bestMap.values());
             }
+
+            filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            body.innerHTML = filtered.map(s => `
+                <tr>
+                    <td style="font-weight: 600;">${s.name || '---'}</td>
+                    <td><span class="class-badge">${s.class || 'Sin clase'}</span></td>
+                    <td style="color: var(--text-muted); font-size: 0.85rem;">${s.app || '---'}</td>
+                    <td class="score-val">${s.score !== "" ? s.score : '0'}</td>
+                    <td>${s.time || '---'}</td>
+                    <td style="color: #a1a19f; font-size: 0.8rem;">${s.date || '---'}</td>
+                </tr>
+            `).join('');
         }
 
-        function clearScores() {
-            if (confirm('¿Borrar historial local?')) {
-                localStorage.removeItem('vocabulary_lab_scores');
-                loadScores();
-            }
+        function updateStats(scores) {
+            document.getElementById('totalPlays').innerText = scores.length;
+            const validScores = scores.map(s => parseInt(s.score)).filter(n => !isNaN(n));
+            const avg = validScores.length > 0 ? validScores.reduce((a, b) => a + b, 0) / validScores.length : 0;
+            document.getElementById('avgScore').innerText = Math.round(avg);
+            const uniqueNames = new Set(scores.map(s => s.name?.toLowerCase().trim()).filter(n => n));
+            document.getElementById('uniqueStudents').innerText = uniqueNames.size;
         }
 
-        loadScores();
     </script>
 </body>
 
