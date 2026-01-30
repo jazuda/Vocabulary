@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Práctica de Matemáticas - Tema 16</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;700&display=swap');
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            padding: 40px;
+            max-width: 800px;
+            margin: auto;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        h1 {
+            text-align: center;
+            border-bottom: 2px solid #2383e2;
+            padding-bottom: 10px;
+            color: #2383e2;
+        }
+
+        .info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            font-weight: bold;
+        }
+
+        .activity {
+            margin-bottom: 40px;
+            break-inside: avoid;
+        }
+
+        .activity h2 {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            background: #f0f7ff;
+            padding: 8px;
+            border-radius: 4px;
+            border-left: 4px solid #2383e2;
+        }
+
+        .content {
+            margin-left: 20px;
+        }
+
+        input[type="text"] {
+            border: none;
+            border-bottom: 1px solid #333;
+            width: 100px;
+            text-align: center;
+            outline: none;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(10, 25px);
+            gap: 1px;
+            background: #ccc;
+            border: 1px solid #999;
+            margin: 10px 0;
+            width: fit-content;
+        }
+
+        .grid div {
+            width: 25px;
+            height: 25px;
+            background: #fff;
+        }
+
+        svg {
+            margin: 20px 0;
+            border: 1px solid #eee;
+            background: #fafafa;
+            display: block;
+        }
+
+        .choices {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .choice {
+            border: 1px solid #ccc;
+            padding: 8px;
+            border-radius: 4px;
+        }
+
+        @media print {
+            .no-print {
+                display: none;
+            }
+
+            body {
+                padding: 0;
+            }
+
+            svg {
+                border: none;
+                background: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="no-print"
+        style="background: #fff3cd; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #ffeeba;">
+        <strong>Nota para el maestro:</strong> Este documento está diseñado para ser impreso. Haz clic en el botón
+        derecho del ratón y selecciona "Imprimir" (o Ctrl+P).
+    </div>
+
+    <h1>Práctica de Matemáticas: Tema 16</h1>
+    <div class="info">
+        <span>Nombre: ____________________________________</span>
+        <span>Fecha: ________________</span>
+    </div>
+
+    <div class="activity">
+        <h2>1. Vocabulario</h2>
+        <div class="content">
+            <p>Completa las oraciones usando: <strong>Perímetro</strong> o <strong>Área</strong>.</p>
+            <p>a) La distancia alrededor de una figura se llama ____________________.</p>
+            <p>b) El ____________________ es el número de unidades cuadradas necesarias para cubrir una región.</p>
+        </div>
+    </div>
+
+    <div class="activity">
+        <h2>2. Cálculo de Perímetros</h2>
+        <div class="content">
+            <p>Calcula las siguientes sumas:</p>
+            <p>a) 3 + 3 + 3 + 3 = ________</p>
+            <p>b) 12 + 18 + 12 + 18 = ________</p>
+            <p>c) 11 + 7 + 11 + 7 = ________</p>
+            <p>d) 8 + 12 + 15 + 25 = ________</p>
+        </div>
+    </div>
+
+    <div class="activity">
+        <h2>3. Lados Faltantes</h2>
+        <div class="content">
+            <p>Escribe la longitud de los lados que faltan en estas figuras:</p>
+            <div style="display: flex; gap: 50px; align-items: center;">
+                <div style="text-align: center;">
+                    <svg width="120" height="120">
+                        <rect x="10" y="10" width="100" height="100" fill="none" stroke="#333" stroke-width="2" />
+                        <text x="60" y="25" text-anchor="middle" font-size="12">5 in</text>
+                        <text x="60" y="105" text-anchor="middle" font-size="12">?</text>
+                        <text x="25" y="65" text-anchor="end" font-size="12">5 in</text>
+                        <text x="95" y="65" text-anchor="start" font-size="12">?</text>
+                    </svg>
+                    <p>Cuadrado</p>
+                </div>
+                <div style="text-align: center;">
+                    <svg width="150" height="100">
+                        <rect x="10" y="10" width="130" height="80" fill="none" stroke="#333" stroke-width="2" />
+                        <text x="75" y="25" text-anchor="middle" font-size="12">7 in</text>
+                        <text x="75" y="105" text-anchor="middle" font-size="12">?</text>
+                        <text x="25" y="55" text-anchor="end" font-size="12">3 in</text>
+                        <text x="125" y="55" text-anchor="start" font-size="12">?</text>
+                    </svg>
+                    <p>Rectángulo</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="activity">
+        <h2>4. Conceptos</h2>
+        <div class="content">
+            <p>Utiliza las palabras <strong>Área</strong> y <strong>Perímetro</strong> para completar:</p>
+            <p>a) El borde de un cuadro representa el ____________________.</p>
+            <p>b) La pintura dentro del cuadro representa el ____________________.</p>
+        </div>
+    </div>
+
+    <div class="activity">
+        <h2>5. El Jardín</h2>
+        <div class="content">
+            <p>¿Cuál es el perímetro del jardín en la cuadrícula? (Escala: — = 1 pie)</p>
+            <svg width="200" height="150">
+                <defs>
+                    <pattern id="grid-p" width="20" height="20" patternUnits="userSpaceOnUse">
+                        <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#eee" stroke-width="1" />
+                    </pattern>
+                </defs>
+                <rect width="100%" height="100%" fill="url(#grid-p)" />
+                <path d="M40,40 h120 v80 h-120 z" fill="rgba(0,0,0,0.05)" stroke="#333" stroke-width="2" />
+            </svg>
+            <p>Respuesta: ______________ pies</p>
+        </div>
+    </div>
+
+    <div class="activity">
+        <h2>6. Polígono Irregular</h2>
+        <div class="content">
+            <p>Calcula el perímetro del polígono mostrado:</p>
+            <svg width="250" height="200">
+                <polygon points="50,180 250,180 220,50 120,30 50,100" fill="none" stroke="#333" stroke-width="2" />
+                <text x="150" y="200" text-anchor="middle">15 ft</text>
+                <text x="35" y="140">6 ft</text>
+                <text x="80" y="60">10 ft</text>
+                <text x="180" y="40">7 ft</text>
+                <text x="250" y="120">7 ft</text>
+            </svg>
+            <p>Respuesta: ______________ pies</p>
+        </div>
+    </div>
+
+    <div class="activity">
+        <h2>7. Dibujo en Cuadrícula</h2>
+        <div class="content">
+            <p>En la cuadrícula, dibuja una figura con un perímetro de <strong>16 unidades</strong>.</p>
+            <div class="grid">
+                ${Array(100).fill('<div></div>').join('')}
+            </div>
+        </div>
+    </div>
+
+    <div class="activity">
+        <h2>8. Triángulo Equilátero</h2>
+        <div class="content">
+            <p>Calcula el perímetro de un triángulo equilátero que mide <strong>5 yd</strong> de lado.</p>
+            <p>Respuesta: ______________ yardas</p>
+        </div>
+    </div>
+
+    <div class="activity">
+        <h2>9. Rectángulo en Metros</h2>
+        <div class="content">
+            <p>Calcula el perímetro de un rectángulo que mide <strong>7 m</strong> de largo y <strong>5 m</strong> de
+                ancho.</p>
+            <p>Respuesta: ______________ metros</p>
+        </div>
+    </div>
+
+    <div class="activity">
+        <h2>10. Lado Desconocido (Trapacio)</h2>
+        <div class="content">
+            <p>Encuentra la longitud del lado que falta (X). El perímetro total es <strong>40 yd</strong>.</p>
+            <svg width="250" height="150">
+                <polygon points="50,150 250,150 200,50 100,50" fill="none" stroke="#333" stroke-width="2" />
+                <text x="150" y="175" text-anchor="middle">12 yd</text>
+                <text x="150" y="40" text-anchor="middle">X</text>
+                <text x="55" y="100" text-anchor="end">10 yd</text>
+                <text x="245" y="100">10 yd</text>
+            </svg>
+            <p>Respuesta: X = ______________ yardas</p>
+        </div>
+    </div>
+
+    <div class="activity">
+        <h2>11. Lado X</h2>
+        <div class="content">
+            <p>Encuentra la longitud del lado X. El perímetro total es <strong>20 ft</strong>.</p>
+            <svg width="200" height="150">
+                <polygon points="100,20 20,130 180,130" fill="none" stroke="#333" stroke-width="2" />
+                <text x="100" y="150" text-anchor="middle">X</text>
+                <text x="40" y="80" text-anchor="end">8 ft</text>
+                <text x="160" y="80">8 ft</text>
+            </svg>
+            <p>Respuesta: X = ______________ pies</p>
+        </div>
+    </div>
+
+    <div class="activity">
+        <h2>12. Tony y sus Figuras</h2>
+        <div class="content">
+            <p>Tony dibujó un cuadrado de 6x6 y un rectángulo de 4x8. Marca las afirmaciones verdaderas:</p>
+            <div class="choices">
+                <div class="choice">[ ] Las figuras tienen perímetros diferentes.</div>
+                <div class="choice">[ ] Las figuras tienen áreas diferentes.</div>
+                <div class="choice">[ ] Las figuras tienen el mismo perímetro.</div>
+                <div class="choice">[ ] El cuadrado tiene mayor área que el rectángulo.</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="activity">
+        <h2>13. El Perímetro más Grande</h2>
+        <div class="content">
+            <p>¿Qué rectángulo tiene el perímetro más grande?</p>
+            <p>A) 10 x 2 &nbsp;&nbsp;&nbsp; B) 5 x 3 &nbsp;&nbsp;&nbsp; C) 6 x 2</p>
+            <p>Respuesta: ______________</p>
+        </div>
+    </div>
+
+    <div class="activity">
+        <h2>14. Rectángulo de 14 pulgadas</h2>
+        <div class="content">
+            <p>Dibuja un rectángulo con un perímetro de 14 pulgadas en la cuadrícula inferior.</p>
+            <div class="grid">
+                ${Array(50).fill('<div></div>').join('')}
+            </div>
+        </div>
+    </div>
+
+    <div class="activity">
+        <h2>15. Comparación</h2>
+        <div class="content">
+            <p>¿Qué afirmación es verdadera sobre un cuadrado de 10x10 y un rectángulo de 20x5?</p>
+            <p>Respuesta: ____________________________________________________</p>
+        </div>
+    </div>
+
+    <div class="activity">
+        <h2>16. La Alfombra de Mary</h2>
+        <div class="content">
+            <p>La alfombra del cuarto de Mary mide 6 pies por 4 pies.</p>
+            <p>A) Encuentra el perímetro y el área: P = __________ , A = __________</p>
+            <p>B) ¿Podría un cuadrado con lados de números enteros tener el mismo perímetro? Explica:</p>
+            <p>____________________________________________________________________________________</p>
+            <p>____________________________________________________________________________________</p>
+        </div>
+    </div>
+</body>
+
+</html>
