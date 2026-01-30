@@ -14,7 +14,7 @@
             --border-color: #e9e9e8;
             --hover-bg: #f5f5f4;
             --accent: #2383e2;
-            --max-width: 1000px;
+            --max-width: 1100px;
         }
 
         * {
@@ -156,10 +156,18 @@
             border-bottom: 1px solid var(--border-color);
         }
 
+        .scores-table-container {
+            width: 100%;
+            overflow-x: auto;
+            border-radius: 0.75rem;
+            border: 1px solid var(--border-color);
+        }
+
         .scores-table {
             width: 100%;
             border-collapse: collapse;
             font-size: 0.95rem;
+            background: white;
         }
 
         .scores-table th {
@@ -167,7 +175,9 @@
             padding: 1rem;
             color: var(--text-muted);
             font-weight: 600;
+            background: var(--hover-bg);
             border-bottom: 1px solid var(--border-color);
+            white-space: nowrap;
         }
 
         .scores-table td {
@@ -178,6 +188,16 @@
         .score-val {
             font-weight: 700;
             color: var(--accent);
+        }
+
+        .class-badge {
+            display: inline-block;
+            padding: 0.2rem 0.5rem;
+            border-radius: 0.3rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            background: #eef2ff;
+            color: #4f46e5;
         }
 
         .empty-state {
@@ -207,18 +227,19 @@
         }
 
         @media (max-width: 600px) {
-
-            .scores-table th:nth-child(4),
-            .scores-table td:nth-child(4) {
-                display: none;
-            }
-
             .sync-btn {
                 position: static;
                 width: 100%;
                 margin-bottom: 1rem;
                 justify-content: center;
             }
+
+            .scores-table th:nth-child(2),
+            .scores-table td:nth-child(2) {
+                display: none;
+            }
+
+            /* Ocultar clase en móvil */
         }
     </style>
 </head>
@@ -250,25 +271,28 @@
         <div class="filters-section">
             <input type="text" id="searchName" class="filter-input" placeholder="Buscar por estudiante..."
                 oninput="applyFilters()">
-            <input type="text" id="searchApp" class="filter-input" placeholder="Filtrar por aplicación..."
+            <input type="text" id="searchApp" class="filter-input" placeholder="Filtrar por aplicación o clase..."
                 oninput="applyFilters()">
         </div>
 
         <div class="section-label" id="tableLabel">Historial Detallado (Local)</div>
 
         <div id="scoresContent">
-            <table class="scores-table" id="scoresTable">
-                <thead>
-                    <tr>
-                        <th>Estudiante</th>
-                        <th>Aplicación</th>
-                        <th>Puntos</th>
-                        <th>Tiempo</th>
-                        <th>Fecha</th>
-                    </tr>
-                </thead>
-                <tbody id="scoresBody"></tbody>
-            </table>
+            <div class="scores-table-container">
+                <table class="scores-table" id="scoresTable">
+                    <thead>
+                        <tr>
+                            <th>Estudiante</th>
+                            <th>Salón / Clase</th>
+                            <th>Aplicación</th>
+                            <th>Puntos</th>
+                            <th>Tiempo</th>
+                            <th>Fecha</th>
+                        </tr>
+                    </thead>
+                    <tbody id="scoresBody"></tbody>
+                </table>
+            </div>
 
             <div id="emptyState" class="empty-state" style="display: none;">
                 <p>No se encontraron resultados.</p>
@@ -280,28 +304,23 @@
     </div>
 
     <script>
-        // CONFIGURACIÓN: Pega aquí la misma URL que pusiste en engine.js
+        // CONFIGURACIÓN: URL de tu Google Sheet
         const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbxeP7G4odynvqOqiSYwz-Xun-i8ZRjs2G_-xmvM7XpHS_5G3F-t8gb2TXlffyVuL1IbxQ/exec";
 
         let allScores = [];
 
         function loadScores() {
-            // Cargar local primero para rapidez
+            // Cargar local primero
             allScores = JSON.parse(localStorage.getItem('vocabulary_lab_scores') || '[]');
             updateStats(allScores);
             applyFilters();
 
-            // Sincronizar con la nube automáticamente si hay URL
-            if (WEBHOOK_URL) {
-                syncFromCloud();
-            }
+            // Sincronizar nube automático
+            if (WEBHOOK_URL) syncFromCloud();
         }
 
         async function syncFromCloud() {
-            if (!WEBHOOK_URL) {
-                alert("Primero debes configurar la URL de tu Google Sheet en el código.");
-                return;
-            }
+            if (!WEBHOOK_URL) return;
 
             const btn = document.getElementById('syncBtn');
             btn.disabled = true;
@@ -309,17 +328,38 @@
 
             try {
                 const response = await fetch(WEBHOOK_URL);
-                const cloudData = await response.json();
+                const rawData = await response.json();
 
-                if (Array.isArray(cloudData)) {
-                    allScores = cloudData;
+                if (Array.isArray(rawData)) {
+                    // Normalizar datos para evitar el "undefined"
+                    allScores = rawData.map(item => {
+                        // Buscamos las propiedades sin importar si son mayúsculas o minúsculas
+                        const find = (keys) => {
+                            for (let k of keys) {
+                                if (item[k] !== undefined) return item[k];
+                                // Probar versión capitalizada
+                                let cap = k.charAt(0).toUpperCase() + k.slice(1);
+                                if (item[cap] !== undefined) return item[cap];
+                            }
+                            return "";
+                        };
+
+                        return {
+                            name: find(['name', 'nombre', 'estudiante']),
+                            class: find(['class', 'clase', 'salón', 'salon']),
+                            app: find(['app', 'aplicación', 'tema']),
+                            score: find(['score', 'puntos', 'puntuación']),
+                            time: find(['time', 'tiempo']),
+                            date: find(['date', 'fecha'])
+                        };
+                    });
+
                     document.getElementById('tableLabel').innerText = "Historial Detallado (Nube)";
                     updateStats(allScores);
                     applyFilters();
                 }
             } catch (err) {
                 console.error(err);
-                alert("Error al conectar con la nube. Asegúrate de que la URL sea correcta y esté publicada como Web App.");
             } finally {
                 btn.disabled = false;
                 btn.innerText = "🔄 Sincronizar Nube";
@@ -329,13 +369,11 @@
         function updateStats(scores) {
             document.getElementById('totalPlays').innerText = scores.length;
             if (scores.length > 0) {
-                const avg = scores.reduce((acc, s) => acc + (parseInt(s.score) || 0), 0) / scores.length;
+                const validScores = scores.map(s => parseInt(s.score)).filter(n => !isNaN(n));
+                const avg = validScores.length > 0 ? validScores.reduce((a, b) => a + b, 0) / validScores.length : 0;
                 document.getElementById('avgScore').innerText = Math.round(avg);
-                const uniqueNames = new Set(scores.map(s => s.name?.toLowerCase().trim()));
+                const uniqueNames = new Set(scores.map(s => s.name?.toLowerCase().trim()).filter(n => n));
                 document.getElementById('uniqueStudents').innerText = uniqueNames.size;
-            } else {
-                document.getElementById('avgScore').innerText = "0";
-                document.getElementById('uniqueStudents').innerText = "0";
             }
         }
 
@@ -345,35 +383,33 @@
             const body = document.getElementById('scoresBody');
             const table = document.getElementById('scoresTable');
             const emptyState = document.getElementById('emptyState');
-            const clearBtn = document.getElementById('clearBtn');
 
             const filtered = allScores.filter(s =>
                 (s.name || "").toLowerCase().includes(nameQuery) &&
-                (s.app || "").toLowerCase().includes(appQuery)
+                ((s.app || "").toLowerCase().includes(appQuery) || (s.class || "").toLowerCase().includes(appQuery))
             ).reverse();
 
             if (filtered.length > 0) {
-                table.style.display = 'table';
+                table.parentElement.style.display = 'block';
                 emptyState.style.display = 'none';
-                clearBtn.style.display = 'block';
                 body.innerHTML = filtered.map(s => `
                     <tr>
-                        <td style="font-weight: 600;">${s.name}</td>
-                        <td style="color: var(--text-muted); font-size: 0.85rem;">${s.app}</td>
-                        <td class="score-val">${s.score}</td>
-                        <td>${s.time}</td>
-                        <td style="color: #a1a19f; font-size: 0.8rem;">${s.date}</td>
+                        <td style="font-weight: 600;">${s.name || '---'}</td>
+                        <td><span class="class-badge">${s.class || 'Sin clase'}</span></td>
+                        <td style="color: var(--text-muted); font-size: 0.85rem;">${s.app || '---'}</td>
+                        <td class="score-val">${s.score !== "" ? s.score : '0'}</td>
+                        <td>${s.time || '---'}</td>
+                        <td style="color: #a1a19f; font-size: 0.8rem;">${s.date || '---'}</td>
                     </tr>
                 `).join('');
             } else {
-                table.style.display = 'none';
+                table.parentElement.style.display = 'none';
                 emptyState.style.display = 'block';
-                clearBtn.style.display = 'block';
             }
         }
 
         function clearScores() {
-            if (confirm('¿Borrar historial local? (No borrará los datos de la nube)')) {
+            if (confirm('¿Borrar historial local?')) {
                 localStorage.removeItem('vocabulary_lab_scores');
                 loadScores();
             }
