@@ -29,12 +29,12 @@ const CLASSES = {
         "Veliz Gomez Carlismar"
     ],
     "Mr Zubieta": [
-        "Fernandez Richard", "Gomez Salvador Judit", "Jacho Ayala Ashley",
-        "Jacho Vega Kimberly", "Marin Delgado Isaac", "Martinez Garcia Iker",
-        "Mercado Sapon Arianna", "Orozco Mia", "Perez-Larios Milan",
-        "Ramirez Lauren", "Ruiz Contreras Daviana", "Thiago", "Tocte Condor Keylor",
-        "Torres Pedroza Itzayana", "Valentin Mata Bryan", "Villalobos Emmanuel",
-        "Zuniga Soto Wilson"
+        "Diaz Zoe", "Fernandez Richard", "Garcia David", "Gomez Salvador Judit",
+        "Jacho Ayala Ashley", "Jacho Vega Kimberly", "Marin Delgado Isaac",
+        "Martinez Garcia Iker", "Mercado Sapon Arianna", "Orozco Mia",
+        "Perez-Larios Milan", "Ramirez Lauren", "Ruiz Contreras Daviana",
+        "Thiago", "Tocte Condor Keylor", "Torres Pedroza Itzayana",
+        "Valentin Mata Bryan", "Villalobos Emmanuel", "Zuniga Soto Wilson"
     ]
 };
 
@@ -417,13 +417,42 @@ function updateSlide() {
         if (scoreDisplay) scoreDisplay.style.display = 'none';
         if (timerDisplay) timerDisplay.style.display = 'none';
     }
-    if (currentSlide === totalSlides - 1) {
+    if (currentSlide === totalSlides - 1 && currentRole === 'student') {
+        const checkAllWordsDone = () => {
+            const dynamicSlides = document.querySelectorAll('.slide-dynamic');
+            for (let i = 0; i < dynamicSlides.length; i++) {
+                const inputs = dynamicSlides[i].querySelectorAll('.letter-input');
+                if (inputs.length > 0) {
+                    const isComplete = Array.from(inputs).every(inp => inp.disabled);
+                    if (!isComplete) {
+                        // Return the index of this slide in the global slides list
+                        return Array.from(document.querySelectorAll('.slide')).indexOf(dynamicSlides[i]);
+                    }
+                }
+            }
+            return -1;
+        };
+
+        const incompleteSlideIndex = checkAllWordsDone();
+        if (incompleteSlideIndex !== -1) {
+            currentSlide = incompleteSlideIndex;
+            container.style.transform = `translateX(-${currentSlide * 100}vw)`;
+            if (progress) progress.style.width = `${((currentSlide + 1) / totalSlides) * 100}%`;
+            alert("¡Espera! No has terminado todas las palabras. Complétalas todas para ver tu puntuación.");
+            // Re-run updateSlide for the new currentSlide to handle focus/timer
+            updateSlide();
+            return;
+        }
+
         stopTimer();
         const scText = document.getElementById('finalScoreText');
         const tmText = document.getElementById('finalTimeText');
         if (scText) scText.innerText = score;
         if (tmText) tmText.innerText = formatTime(elapsedSeconds);
         saveGameResult();
+    } else if (currentSlide === totalSlides - 1) {
+        // Teacher or others just viewing
+        stopTimer();
     }
     slides.forEach((slide, index) => {
         if (index === currentSlide) {
