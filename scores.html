@@ -498,31 +498,45 @@
             try {
                 const response = await fetch(WEBHOOK_URL);
                 const rawData = await response.json();
+                console.log("Datos recibidos:", rawData);
+
                 if (Array.isArray(rawData)) {
                     allScores = rawData.map(item => {
                         const find = (keys) => {
+                            // Try exact, then lowercase versions
                             for (let k of keys) {
-                                if (item[k] !== undefined) return item[k];
+                                if (item[k] !== undefined && item[k] !== null) return item[k];
+                                let lower = k.toLowerCase();
+                                if (item[lower] !== undefined && item[lower] !== null) return item[lower];
                                 let cap = k.charAt(0).toUpperCase() + k.slice(1);
-                                if (item[cap] !== undefined) return item[cap];
+                                if (item[cap] !== undefined && item[cap] !== null) return item[cap];
                             }
                             return "";
                         };
+
                         return {
-                            name: find(['name', 'nombre', 'estudiante']),
-                            class: find(['class', 'clase', 'salón', 'salon']),
-                            app: find(['app', 'aplicación', 'tema']),
-                            score: find(['score', 'puntos', 'puntuación']),
-                            time: find(['time', 'tiempo']),
-                            date: find(['date', 'fecha']),
-                            details: find(['details', 'detalles', 'detalle'])
+                            name: find(['name', 'nombre', 'estudiante', 'Nombre', 'Estudiante']),
+                            class: find(['class', 'clase', 'salón', 'salon', 'Clase', 'Salón', 'Salon']),
+                            app: find(['app', 'aplicación', 'tema', 'App', 'Aplicación', 'Tema']),
+                            score: find(['score', 'puntos', 'puntuación', 'Score', 'Puntos', 'Puntuación']),
+                            time: find(['time', 'tiempo', 'Time', 'Tiempo']),
+                            date: find(['date', 'fecha', 'Date', 'Fecha']),
+                            details: find(['details', 'detalles', 'detalle', 'Details', 'Detalles', 'Detalle'])
                         };
                     });
+
+                    // Solo guardar y actualizar si realmente hay datos válidos
+                    if (allScores.length > 0) {
+                        localStorage.setItem('vocabulary_lab_scores', JSON.stringify(allScores));
+                    }
                     updateStats(allScores);
                     applyFilters();
                 }
-            } catch (err) { console.error(err); }
-            finally { btn.disabled = false; }
+            } catch (err) {
+                console.error("Error en sincronización:", err);
+            } finally {
+                btn.disabled = false;
+            }
         }
 
         function applyFilters() {
