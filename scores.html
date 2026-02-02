@@ -129,6 +129,21 @@
             cursor: pointer;
         }
 
+        #debugBtn {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            font-size: 0.7rem;
+            opacity: 0.3;
+            cursor: pointer;
+            background: none;
+            border: none;
+        }
+
+        #debugBtn:hover {
+            opacity: 1;
+        }
+
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -502,8 +517,21 @@
 
                 if (Array.isArray(rawData)) {
                     allScores = rawData.map(item => {
+                        // Si el item es un array (fila de Excel), mapeamos por posición
+                        if (Array.isArray(item)) {
+                            return {
+                                name: item[0] || "",
+                                class: item[1] && item[1].includes("Mr") || item[1] && item[1].includes("Ms") ? item[1] : (item[6] || ""), // Intenta detectar clase
+                                app: item[1] || "",
+                                score: item[2] || "0",
+                                time: item[3] || "",
+                                date: item[4] || "",
+                                details: item[5] || ""
+                            };
+                        }
+
+                        // Si es un objeto, buscamos por llaves
                         const find = (keys) => {
-                            // Try exact, then lowercase versions
                             for (let k of keys) {
                                 if (item[k] !== undefined && item[k] !== null) return item[k];
                                 let lower = k.toLowerCase();
@@ -634,6 +662,12 @@
             }
         };
 
+        window.showRawData = function () {
+            const data = JSON.stringify(allScores, null, 2);
+            const win = window.open("", "_blank");
+            win.document.write("<pre>" + data + "</pre>");
+        };
+
     </script>
 
     <!-- Modal para detalles -->
@@ -652,6 +686,8 @@
             </div>
         </div>
     </div>
+
+    <button id="debugBtn" onclick="showRawData()">Ver datos crudos</button>
 </body>
 
 </html>
