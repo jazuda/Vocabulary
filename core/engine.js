@@ -29,11 +29,11 @@ const CLASSES = {
         "Veliz Gomez Carlismar"
     ],
     "Mr Zubieta": [
-        "Diaz Zoe", "Fernandez Richard", "Garcia David", "Gomez Salvador Judit",
+        "Alvarado Kevin", "Cordova Thiago", "Diaz Zoe", "Fernandez Richard", "Garcia David", "Gomez Salvador Judit",
         "Jacho Ayala Ashley", "Jacho Vega Kimberly", "Marin Delgado Isaac",
         "Martinez Garcia Iker", "Mercado Sapon Arianna", "Orozco Mia",
         "Perez-Larios Milan", "Ramirez Lauren", "Ruiz Contreras Daviana",
-        "Thiago", "Tocte Condor Keylor", "Torres Pedroza Itzayana",
+        "Tocte Condor Keylor", "Torres Pedroza Itzayana",
         "Valentin Mata Bryan", "Villalobos Emmanuel", "Zuniga Soto Wilson"
     ]
 };

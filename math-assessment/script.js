@@ -6,7 +6,7 @@ let userRole = null;
 let answeredQuestions = new Set();
 
 const CLASSES = {
-    "Mr Zubieta": ["Diaz Zoe", "Fernandez Richard", "Garcia David", "Gomez Salvador Judit", "Jacho Ayala Ashley", "Jacho Vega Kimberly", "Marin Delgado Isaac", "Martinez Garcia Iker", "Mercado Sapon Arianna", "Orozco Mia", "Perez-Larios Milan", "Ramirez Lauren", "Ruiz Contreras Daviana", "Tocte Condor Keylor", "Torres Pedroza Itzayana", "Valentin Mata Bryan", "Villalobos Emmanuel", "Zuniga Soto Wilson"],
+    "Mr Zubieta": ["Alvarado Kevin", "Cordova Thiago", "Diaz Zoe", "Fernandez Richard", "Garcia David", "Gomez Salvador Judit", "Jacho Ayala Ashley", "Jacho Vega Kimberly", "Marin Delgado Isaac", "Martinez Garcia Iker", "Mercado Sapon Arianna", "Orozco Mia", "Perez-Larios Milan", "Ramirez Lauren", "Ruiz Contreras Daviana", "Tocte Condor Keylor", "Torres Pedroza Itzayana", "Valentin Mata Bryan", "Villalobos Emmanuel", "Zuniga Soto Wilson"],
     "Ms Poncelas": ["Beristain Loyo Angel", "Campos Eylin", "Cervantes Casarrubias Sergio", "Diaz Mateo", "Dorantes Lurmarelia", "Escobar Natasha", "Garcia David", "Garcia Sophia", "Guanotuna Sharline", "Landi Denise", "Lutuala Quishpe Erick", "Paniagua Edgar", "Pilaguano Choloquinga Sheyla", "Prada Edymar", "Rios Iam", "Salinas Elena", "Valladares Jesus", "Vallecillo Ana", "Veliz Gomez Carlismar"],
     "Mr García": ["Acosta Valeria", "Araujo Valerie", "Bautista Cristian", "Bravo Armijos Meivi", "Campos Osorio Isaias", "Chango-Tasiguano Brithney", "Chasig Cataleya", "Dominguez-Bahena Liam", "Guadarrama Gerardo", "Hernandez Yanderis", "Lopez Caleb", "Matos Rodriguez Fatima", "Peralta-Flores Mia", "Ramirez Suniaga Isabella", "Sanchez Jair", "Sandoval Mariana", "Sotelo Lesly", "Varela Angel", "Vicente Adrian", "Vital Daniel"]
 };
