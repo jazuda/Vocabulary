@@ -274,6 +274,106 @@
             background: #eef2ff;
             color: #4f46e5;
         }
+
+        /* Details Modal */
+        #detailsModal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(3px);
+        }
+
+        .modal-content {
+            background: white;
+            width: 90%;
+            max-width: 800px;
+            max-height: 85vh;
+            border-radius: 1rem;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--hover-bg);
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+            overflow-y: auto;
+        }
+
+        .detail-item {
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            background: #fdfdfd;
+        }
+
+        .detail-q {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-main);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .detail-a {
+            font-family: monospace;
+            background: #f5f5f5;
+            padding: 0.5rem;
+            border-radius: 0.3rem;
+            font-size: 0.9rem;
+            color: #d1453b;
+        }
+
+        .points-badge {
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .points-correct {
+            background: #e6ffed;
+            color: #22863a;
+        }
+
+        .points-wrong {
+            background: #ffeef0;
+            color: #cb2431;
+        }
+
+        .view-details-btn {
+            background: none;
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            padding: 0.3rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .view-details-btn:hover {
+            background: var(--accent);
+            color: white;
+        }
     </style>
 </head>
 
@@ -354,6 +454,7 @@
                         <th>Puntos</th>
                         <th>Tiempo</th>
                         <th>Fecha</th>
+                        <th>Acción</th>
                     </tr>
                 </thead>
                 <tbody id="scoresBody"></tbody>
@@ -413,7 +514,8 @@
                             app: find(['app', 'aplicación', 'tema']),
                             score: find(['score', 'puntos', 'puntuación']),
                             time: find(['time', 'tiempo']),
-                            date: find(['date', 'fecha'])
+                            date: find(['date', 'fecha']),
+                            details: find(['details', 'detalles', 'detalle'])
                         };
                     });
                     updateStats(allScores);
@@ -454,9 +556,12 @@
                     <td style="font-weight: 600;">${s.name || '---'}</td>
                     <td><span class="class-badge">${s.class || 'Sin clase'}</span></td>
                     <td style="color: var(--text-muted); font-size: 0.85rem;">${s.app || '---'}</td>
-                    <td class="score-val">${s.score !== "" ? s.score : '0'}</td>
+                    <td class="score-val">${s.score !== "" ? s.score : '0'}%</td>
                     <td>${s.time || '---'}</td>
                     <td style="color: #a1a19f; font-size: 0.8rem;">${s.date || '---'}</td>
+                    <td>
+                        <button class="view-details-btn" onclick="showDetails(${allScores.indexOf(s)})">Ver más</button>
+                    </td>
                 </tr>
             `).join('');
         }
@@ -465,12 +570,74 @@
             document.getElementById('totalPlays').innerText = scores.length;
             const validScores = scores.map(s => parseInt(s.score)).filter(n => !isNaN(n));
             const avg = validScores.length > 0 ? validScores.reduce((a, b) => a + b, 0) / validScores.length : 0;
-            document.getElementById('avgScore').innerText = Math.round(avg);
+            document.getElementById('avgScore').innerText = Math.round(avg) + '%';
             const uniqueNames = new Set(scores.map(s => s.name?.toLowerCase().trim()).filter(n => n));
             document.getElementById('uniqueStudents').innerText = uniqueNames.size;
         }
 
+        window.showDetails = function (index) {
+            const score = allScores[index];
+            if (!score || !score.details) {
+                alert("No hay detalles disponibles para este intento.");
+                return;
+            }
+
+            let details = score.details;
+            // Parse if it's a string from the sheet
+            if (typeof details === 'string') {
+                try { details = JSON.parse(details); } catch (e) { console.error("Error parsing details", e); }
+            }
+
+            const modal = document.getElementById('detailsModal');
+            const studentNameSpan = document.getElementById('studentNameDetails');
+            const body = document.getElementById('detailsBody');
+
+            studentNameSpan.innerText = score.name;
+            body.innerHTML = details.map(d => `
+                <div class="detail-item">
+                    <div class="detail-q">
+                        <span>Pregunta ${d.id}: ${d.question}</span>
+                        <span class="points-badge ${d.points === d.maxPoints ? 'points-correct' : 'points-wrong'}">
+                            ${d.points}/${d.maxPoints} pts
+                        </span>
+                    </div>
+                    <div class="detail-a">Respuesta: ${d.answer || '(Vacío)'}</div>
+                </div>
+            `).join('');
+
+            modal.style.display = 'flex';
+        };
+
+        window.closeDetails = function () {
+            document.getElementById('detailsModal').style.display = 'none';
+        };
+
+        // Close modal on click outside
+        window.onclick = function (event) {
+            const modal = document.getElementById('detailsModal');
+            if (event.target == modal) {
+                closeDetails();
+            }
+        };
+
     </script>
+
+    <!-- Modal para detalles -->
+    <div id="detailsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 style="font-size: 1.25rem;">Resultados de <span id="studentNameDetails"></span></h2>
+                <button class="nav-btn" onclick="closeDetails()"
+                    style="border: none; font-size: 1.5rem; padding: 0;">&times;</button>
+            </div>
+            <div class="modal-body" id="detailsBody">
+                <!-- Details injected here -->
+            </div>
+            <div style="padding: 1.5rem; border-top: 1px solid var(--border-color); text-align: right;">
+                <button class="lock-btn" style="width: auto;" onclick="closeDetails()">Cerrar</button>
+            </div>
+        </div>
+    </div>
 </body>
 
 </html>

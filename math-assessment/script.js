@@ -312,7 +312,7 @@ window.checkIfAnswered = function (actId) {
     }
 };
 
-window.submitAssessment = function (force = false) {
+window.submitAssessment = async function (force = false) {
     const missing = [];
     MATH_CONFIG.activities.forEach(act => {
         if (!answeredQuestions.has(act.id)) {
@@ -332,16 +332,117 @@ window.submitAssessment = function (force = false) {
             </div>
         `;
     } else {
-        output.innerHTML = `
-            <div class="validation-msg" style="color: var(--notion-green); background: rgba(46, 204, 113, 0.05); border-color: var(--notion-green);">
-                ✅ ¡Evaluación enviada con éxito! ${missing.length > 0 ? `<br><small style="color:var(--text-muted)">Se envió con ${missing.length} preguntas sin contestar.</small>` : ''}
-            </div>
-            <button class="nav-btn" style="margin-top: 1rem; width: 100%; justify-content: center;" onclick="location.reload()">Terminar sesión</button>
-        `;
+        const results = collectResults();
+        const totalScore = results.reduce((acc, curr) => acc + curr.points, 0);
+        const maxPoints = results.reduce((acc, curr) => acc + curr.maxPoints, 0);
+        const percentage = Math.round((totalScore / maxPoints) * 100);
+
+        const payload = {
+            name: studentName,
+            class: studentClass,
+            app: MATH_CONFIG.title,
+            sheetName: MATH_CONFIG.sheetName,
+            score: percentage,
+            points: totalScore,
+            maxPoints: maxPoints,
+            time: document.getElementById('timerDisplay')?.innerText.replace('Tiempo: ', '') || '00:00',
+            date: new Date().toLocaleString(),
+            details: results
+        };
+
+        output.innerHTML = `<div class="validation-msg" style="color: var(--primary);">⏳ Guardando resultados...</div>`;
         document.querySelector('.submit-btn').style.display = 'none';
-        console.log("Assessment Submitted for:", studentName, "Missing questions:", missing);
+
+        try {
+            const webhookUrl = "https://script.google.com/macros/s/AKfycbxeP7G4odynvqOqiSYwz-Xun-i8ZRjs2G_-xmvM7XpHS_5G3F-t8gb2TXlffyVuL1IbxQ/exec";
+            await fetch(webhookUrl, {
+                method: 'POST',
+                mode: 'no-cors',
+                cache: 'no-cache',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            output.innerHTML = `
+                <div class="validation-msg" style="color: var(--notion-green); background: rgba(46, 204, 113, 0.05); border-color: var(--notion-green);">
+                    ✅ ¡Evaluación enviada con éxito! <br>
+                    <strong>Puntuación: ${percentage}%</strong>
+                </div>
+                <button class="nav-btn" style="margin-top: 1rem; width: 100%; justify-content: center;" onclick="location.reload()">Terminar sesión</button>
+            `;
+        } catch (err) {
+            console.error("Error al enviar:", err);
+            output.innerHTML = `<div class="validation-msg">❌ Error al conectar. Inténtalo de nuevo.</div>`;
+            document.querySelector('.submit-btn').style.display = 'block';
+        }
     }
 };
+
+function collectResults() {
+    return MATH_CONFIG.activities.map(act => {
+        const slide = document.getElementById(`slide-act-${act.id}`);
+        let studentAnswer = "";
+        let points = 0;
+        let maxPoints = 1;
+
+        if (act.type === 'text-fill') {
+            const inputs = Array.from(slide.querySelectorAll('input'));
+            const answers = inputs.map(i => i.value.trim().toLowerCase());
+            const correctAnswers = act.items.map(it => it.answer.toLowerCase());
+            maxPoints = correctAnswers.length;
+            answers.forEach((ans, i) => { if (ans === correctAnswers[i]) points++; });
+            studentAnswer = answers.join(', ');
+        } else if (act.type === 'math-grid') {
+            const inputs = Array.from(slide.querySelectorAll('input'));
+            const answers = inputs.map(i => i.value.trim());
+            maxPoints = act.items.length;
+            answers.forEach((ans, i) => { if (ans === act.items[i].answer) points++; });
+            studentAnswer = answers.join(', ');
+        } else if (act.type === 'shapes-fill') {
+            const inputs = Array.from(slide.querySelectorAll('input'));
+            const answers = inputs.map(i => i.value.trim());
+            const correctAnswers = act.shapes.flatMap(s => s.answers);
+            maxPoints = correctAnswers.length;
+            answers.forEach((ans, i) => { if (ans === correctAnswers[i]) points++; });
+            studentAnswer = answers.join(', ');
+        } else if (act.type === 'perimeter-calc' || act.type === 'missing-side') {
+            const ans = slide.querySelector('input').value.trim();
+            if (ans === act.answer) points = 1;
+            studentAnswer = ans;
+        } else if (act.type === 'multiple-choice') {
+            const btn = slide.querySelector('.choice-btn.primary');
+            studentAnswer = btn ? btn.innerText : "";
+            const correct = act.options.find(o => o.answer || o.correct);
+            if (studentAnswer === correct?.text) points = 1;
+        } else if (act.type === 'multiple-choice-multi') {
+            const checks = Array.from(slide.querySelectorAll('input[type="checkbox"]'));
+            const studentChoices = checks.map(c => c.checked);
+            const correctChoices = act.options.map(o => o.correct);
+            const isCorrect = studentChoices.every((val, i) => val === correctChoices[i]);
+            if (isCorrect) points = 1;
+            studentAnswer = act.options.filter((o, i) => studentChoices[i]).map(o => o.text).join('; ');
+        } else if (act.type === 'drawing-grid') {
+            const pInput = slide.querySelector('input').value.trim();
+            if (parseInt(pInput) === act.targetPerimeter) points = 1;
+            studentAnswer = `P:${pInput}`;
+        } else if (act.type === 'multipart') {
+            const inputs = Array.from(slide.querySelectorAll('input, textarea'));
+            studentAnswer = inputs.map(i => i.value.trim()).join(' | ');
+            // Simple scoring for multipart: check text-fill parts
+            act.parts.forEach((part, pIdx) => {
+                if (part.type === 'text-fill') {
+                    maxPoints = part.items.length;
+                    const pInputs = Array.from(slide.querySelectorAll(`.math-input`)).slice(0, part.items.length);
+                    pInputs.forEach((inp, i) => { if (inp.value.trim() === part.items[i].answer) points++; });
+                }
+                // text-area usually subjective, we give 1 point if not empty for this simple version
+                if (part.type === 'text-area' && inputs[inputs.length - 1].value.trim() !== "") points++;
+            });
+        }
+
+        return { id: act.id, question: act.question, answer: studentAnswer, points: points, maxPoints: maxPoints };
+    });
+}
 
 function renderSVG(act) {
     const fillOpacity = 0.1;

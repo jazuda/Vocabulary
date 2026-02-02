@@ -1,5 +1,6 @@
 const MATH_CONFIG = {
     title: "Evaluación de Práctica de Matemáticas: Topic 16",
+    sheetName: "Practica - topic 16",
     activities: [
         {
             level: 2,
@@ -31,8 +32,8 @@ const MATH_CONFIG = {
             type: "shapes-fill",
             question: "Escribe la longitud de los lados que faltan.",
             shapes: [
-                { type: "square", side: 5, label: "5 in" },
-                { type: "rectangle", w: 10, h: 4, labelW: "10 in", labelH: "4 in" }
+                { type: "square", side: 5, label: "5 in", answers: ["5", "5"] },
+                { type: "rectangle", w: 10, h: 4, labelW: "10 in", labelH: "4 in", answers: ["10", "4"] }
             ],
             image: null
         },

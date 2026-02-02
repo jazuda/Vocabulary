@@ -1,5 +1,6 @@
 const MATH_CONFIG = {
     title: "Evaluación de Matemáticas: Topic 16",
+    sheetName: "Topic 16 - Test",
     activities: [
         {
             level: 2,
@@ -31,8 +32,8 @@ const MATH_CONFIG = {
             type: "shapes-fill",
             question: "Escribe la longitud de los lados que faltan.",
             shapes: [
-                { type: "square", side: 4, label: "4 in" },
-                { type: "rectangle", w: 8, h: 2, labelW: "8 in", labelH: "2 in" }
+                { type: "square", side: 4, label: "4 in", answers: ["4", "4"] }, // bottom, right
+                { type: "rectangle", w: 8, h: 2, labelW: "8 in", labelH: "2 in", answers: ["8", "2"] } // bottom, right
             ],
             image: null
         },
