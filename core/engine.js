@@ -24,7 +24,7 @@ const CLASSES = {
         "Beristain Loyo Angel", "Campos Eylin", "Cervantes Casarrubias Sergio",
         "Diaz Mateo", "Dorantes Lurmarelia", "Escobar Natasha", "Garcia David",
         "Garcia Sophia", "Guanotuna Sharline", "Landi Denise", "Lutuala Quishpe Erick",
-        "Paniagua Edgar", "Pilaguano Choloquinga Sheyla", "Prada Edymar",
+        "Ortega Mathyas", "Paniagua Edgar", "Pilaguano Choloquinga Sheyla", "Prada Edymar",
         "Rios Iam", "Salinas Elena", "Valladares Jesus", "Vallecillo Ana",
         "Veliz Gomez Carlismar"
     ],
