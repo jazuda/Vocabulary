@@ -39,7 +39,7 @@ const CLASSES = {
 };
 
 // URL de tu Web App de Google (Hoja de Cálculo)
-const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbxeP7G4odynvqOqiSYwz-Xun-i8ZRjs2G_-xmvM7XpHS_5G3F-t8gb2TXlffyVuL1IbxQ/exec";
+const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbwq5nLTHd5eY02ULQH7A6mEu0E1xLQjMN6-bH74HJamGWxhIDrAnNb6l_ovYI2watZXMQ/exec";
 
 // Global functions attached to window for HTML onclick compatibility
 window.selectRole = function (role) {

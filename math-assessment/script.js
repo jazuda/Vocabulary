@@ -354,7 +354,7 @@ window.submitAssessment = async function (force = false) {
         document.querySelector('.submit-btn').style.display = 'none';
 
         try {
-            const webhookUrl = "https://script.google.com/macros/s/AKfycbxeP7G4odynvqOqiSYwz-Xun-i8ZRjs2G_-xmvM7XpHS_5G3F-t8gb2TXlffyVuL1IbxQ/exec";
+            const webhookUrl = "https://script.google.com/macros/s/AKfycbwq5nLTHd5eY02ULQH7A6mEu0E1xLQjMN6-bH74HJamGWxhIDrAnNb6l_ovYI2watZXMQ/exec";
             await fetch(webhookUrl, {
                 method: 'POST',
                 mode: 'no-cors',

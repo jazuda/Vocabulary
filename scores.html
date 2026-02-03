@@ -478,8 +478,9 @@
     </div>
 
     <script>
-        const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbxeP7G4odynvqOqiSYwz-Xun-i8ZRjs2G_-xmvM7XpHS_5G3F-t8gb2TXlffyVuL1IbxQ/exec";
+        const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbwq5nLTHd5eY02ULQH7A6mEu0E1xLQjMN6-bH74HJamGWxhIDrAnNb6l_ovYI2watZXMQ/exec";
         let allScores = [];
+        let rawDataFromServer = null; // Para debugging
 
         function checkPassword() {
             const pass = document.getElementById('passInput').value;
@@ -510,34 +511,43 @@
             if (!WEBHOOK_URL) return;
             const btn = document.getElementById('syncBtn');
             btn.disabled = true;
+            btn.innerText = '⏳ Sincronizando...';
+
             try {
                 const response = await fetch(WEBHOOK_URL);
                 const rawData = await response.json();
-                console.log("Datos recibidos:", rawData);
+                rawDataFromServer = rawData; // Guardar para debugging
+                console.log("Datos recibidos del servidor:", rawData);
 
-                if (Array.isArray(rawData)) {
+                if (rawData.error) {
+                    console.error("Error del servidor:", rawData.error);
+                    alert("Error al cargar datos: " + rawData.error);
+                    return;
+                }
+
+                if (Array.isArray(rawData) && rawData.length > 0) {
                     allScores = rawData.map(item => {
                         // Si el item es un array (fila de Excel), mapeamos por posición
                         if (Array.isArray(item)) {
                             return {
                                 name: item[0] || "",
-                                class: item[1] && item[1].includes("Mr") || item[1] && item[1].includes("Ms") ? item[1] : (item[6] || ""), // Intenta detectar clase
                                 app: item[1] || "",
                                 score: item[2] || "0",
                                 time: item[3] || "",
                                 date: item[4] || "",
-                                details: item[5] || ""
+                                class: item[5] || "",
+                                details: item[6] || ""
                             };
                         }
 
                         // Si es un objeto, buscamos por llaves
                         const find = (keys) => {
                             for (let k of keys) {
-                                if (item[k] !== undefined && item[k] !== null) return item[k];
+                                if (item[k] !== undefined && item[k] !== null && item[k] !== '') return item[k];
                                 let lower = k.toLowerCase();
-                                if (item[lower] !== undefined && item[lower] !== null) return item[lower];
+                                if (item[lower] !== undefined && item[lower] !== null && item[lower] !== '') return item[lower];
                                 let cap = k.charAt(0).toUpperCase() + k.slice(1);
-                                if (item[cap] !== undefined && item[cap] !== null) return item[cap];
+                                if (item[cap] !== undefined && item[cap] !== null && item[cap] !== '') return item[cap];
                             }
                             return "";
                         };
@@ -545,23 +555,38 @@
                         return {
                             name: find(['name', 'nombre', 'estudiante', 'Nombre', 'Estudiante']),
                             class: find(['class', 'clase', 'salón', 'salon', 'Clase', 'Salón', 'Salon']),
-                            app: find(['app', 'aplicación', 'tema', 'App', 'Aplicación', 'Tema']),
-                            score: find(['score', 'puntos', 'puntuación', 'Score', 'Puntos', 'Puntuación']),
+                            app: find(['app', 'aplicación', 'aplicacion', 'tema', 'App', 'Aplicación', 'Tema']),
+                            score: find(['score', 'puntos', 'puntuación', 'puntuacion', 'Score', 'Puntos', 'Puntuación']),
                             time: find(['time', 'tiempo', 'Time', 'Tiempo']),
                             date: find(['date', 'fecha', 'Date', 'Fecha']),
                             details: find(['details', 'detalles', 'detalle', 'Details', 'Detalles', 'Detalle'])
                         };
                     });
 
+                    console.log("Datos procesados:", allScores);
+
                     // Solo guardar y actualizar si realmente hay datos válidos
                     if (allScores.length > 0) {
                         localStorage.setItem('vocabulary_lab_scores', JSON.stringify(allScores));
+                        updateStats(allScores);
+                        applyFilters();
+                        btn.innerText = '✅ Sincronizado';
+                        setTimeout(() => { btn.innerText = '🔄 Sincronizar'; }, 2000);
+                    } else {
+                        console.warn("No se encontraron datos válidos");
+                        btn.innerText = '⚠️ Sin datos';
+                        setTimeout(() => { btn.innerText = '🔄 Sincronizar'; }, 2000);
                     }
-                    updateStats(allScores);
-                    applyFilters();
+                } else {
+                    console.warn("Respuesta vacía o no es un array:", rawData);
+                    btn.innerText = '⚠️ Sin datos';
+                    setTimeout(() => { btn.innerText = '🔄 Sincronizar'; }, 2000);
                 }
             } catch (err) {
                 console.error("Error en sincronización:", err);
+                alert("Error de conexión: " + err.message);
+                btn.innerText = '❌ Error';
+                setTimeout(() => { btn.innerText = '🔄 Sincronizar'; }, 2000);
             } finally {
                 btn.disabled = false;
             }
@@ -663,9 +688,13 @@
         };
 
         window.showRawData = function () {
-            const data = JSON.stringify(allScores, null, 2);
+            const data = {
+                processedScores: allScores,
+                rawServerData: rawDataFromServer,
+                localStorageData: JSON.parse(localStorage.getItem('vocabulary_lab_scores') || '[]')
+            };
             const win = window.open("", "_blank");
-            win.document.write("<pre>" + data + "</pre>");
+            win.document.write("<pre style='font-family: monospace; padding: 20px;'>" + JSON.stringify(data, null, 2) + "</pre>");
         };
 
     </script>
