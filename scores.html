@@ -447,8 +447,9 @@
             </div>
             <div class="filter-group">
                 <label>Aplicación</label>
-                <input type="text" id="searchApp" class="filter-input" placeholder="Ej: My House"
-                    oninput="applyFilters()">
+                <select id="searchApp" class="filter-input" onchange="applyFilters()">
+                    <option value="">Todas las aplicaciones</option>
+                </select>
             </div>
             <div class="filter-group" style="flex: 0; min-width: auto; margin-top: 1.5rem;">
                 <label class="toggle-container">
@@ -502,6 +503,7 @@
 
         function loadScores() {
             allScores = JSON.parse(localStorage.getItem('vocabulary_lab_scores') || '[]');
+            populateAppDropdown();
             updateStats(allScores);
             applyFilters();
             if (WEBHOOK_URL) syncFromCloud();
@@ -568,6 +570,7 @@
                     // Solo guardar y actualizar si realmente hay datos válidos
                     if (allScores.length > 0) {
                         localStorage.setItem('vocabulary_lab_scores', JSON.stringify(allScores));
+                        populateAppDropdown();
                         updateStats(allScores);
                         applyFilters();
                         btn.innerText = '✅ Sincronizado';
@@ -592,15 +595,44 @@
             }
         }
 
+        function populateAppDropdown() {
+            const appSelect = document.getElementById('searchApp');
+            const uniqueApps = new Set();
+
+            allScores.forEach(score => {
+                if (score.app && score.app.trim() !== '') {
+                    uniqueApps.add(score.app.trim());
+                }
+            });
+
+            // Ordenar alfabéticamente
+            const sortedApps = Array.from(uniqueApps).sort();
+
+            // Limpiar opciones existentes excepto la primera
+            while (appSelect.options.length > 1) {
+                appSelect.remove(1);
+            }
+
+            // Añadir las aplicaciones
+            sortedApps.forEach(app => {
+                const option = document.createElement('option');
+                option.value = app;
+                option.textContent = app;
+                appSelect.appendChild(option);
+            });
+        }
+
         function applyFilters() {
             const nameQuery = document.getElementById('searchName').value.toLowerCase();
-            const appQuery = document.getElementById('searchApp').value.toLowerCase();
+            const appQuery = document.getElementById('searchApp').value; // Ya no necesita toLowerCase porque es select
+            const classQuery = document.getElementById('searchClass').value;
             const bestOnly = document.getElementById('bestOnly').checked;
             const body = document.getElementById('scoresBody');
 
             let filtered = allScores.filter(s =>
                 (s.name || "").toLowerCase().includes(nameQuery) &&
-                ((s.app || "").toLowerCase().includes(appQuery) || (s.class || "").toLowerCase().includes(appQuery))
+                (appQuery === "" || s.app === appQuery) &&
+                (classQuery === "" || s.class === classQuery)
             );
 
             // Filtro de Solo Mejores Notas por Estudiante + App
