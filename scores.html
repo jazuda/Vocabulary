@@ -624,16 +624,32 @@
 
         function applyFilters() {
             const nameQuery = document.getElementById('searchName').value.toLowerCase();
-            const appQuery = document.getElementById('searchApp').value; // Ya no necesita toLowerCase porque es select
+            const appQuery = document.getElementById('searchApp').value;
             const classQuery = document.getElementById('searchClass').value;
             const bestOnly = document.getElementById('bestOnly').checked;
             const body = document.getElementById('scoresBody');
 
-            let filtered = allScores.filter(s =>
-                (s.name || "").toLowerCase().includes(nameQuery) &&
-                (appQuery === "" || s.app === appQuery) &&
-                (classQuery === "" || s.class === classQuery)
-            );
+            console.log("Aplicando filtros:", { nameQuery, appQuery, classQuery, bestOnly });
+            console.log("Total scores:", allScores.length);
+
+            let filtered = allScores.filter(s => {
+                const nameMatch = !nameQuery || (s.name || "").toLowerCase().includes(nameQuery);
+                const appMatch = !appQuery || s.app === appQuery;
+                const classMatch = !classQuery || (s.class && s.class.trim() === classQuery);
+
+                // Debug para ver qué está fallando
+                if (classQuery && !classMatch) {
+                    console.log("Class mismatch:", {
+                        studentClass: s.class,
+                        expectedClass: classQuery,
+                        student: s.name
+                    });
+                }
+
+                return nameMatch && appMatch && classMatch;
+            });
+
+            console.log("Filtered scores:", filtered.length);
 
             // Filtro de Solo Mejores Notas por Estudiante + App
             if (bestOnly) {
