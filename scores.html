@@ -458,6 +458,17 @@
                     <span style="font-size: 0.9rem; font-weight: 600; white-space: nowrap;">Solo Mejores Notas</span>
                 </label>
             </div>
+            <div class="filter-group" style="min-width: 200px;">
+                <label>Ordenar por</label>
+                <select id="sortBy" class="filter-input" onchange="applyFilters()">
+                    <option value="date-desc">Fecha (más reciente)</option>
+                    <option value="date-asc">Fecha (más antigua)</option>
+                    <option value="name-asc">Apellido (A-Z)</option>
+                    <option value="name-desc">Apellido (Z-A)</option>
+                    <option value="score-desc">Puntuación (mayor)</option>
+                    <option value="score-asc">Puntuación (menor)</option>
+                </select>
+            </div>
         </div>
 
         <div class="scores-table-container">
@@ -674,7 +685,32 @@
                 filtered = Array.from(bestMap.values());
             }
 
-            filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+            // Aplicar ordenamiento según la selección del usuario
+            const sortBy = document.getElementById('sortBy').value;
+
+            filtered.sort((a, b) => {
+                switch (sortBy) {
+                    case 'date-desc':
+                        return new Date(b.date) - new Date(a.date);
+                    case 'date-asc':
+                        return new Date(a.date) - new Date(b.date);
+                    case 'name-asc':
+                        // Ordenar por apellido (última palabra del nombre)
+                        const lastNameA = (a.name || '').trim().split(' ').pop().toLowerCase();
+                        const lastNameB = (b.name || '').trim().split(' ').pop().toLowerCase();
+                        return lastNameA.localeCompare(lastNameB);
+                    case 'name-desc':
+                        const lastNameA2 = (a.name || '').trim().split(' ').pop().toLowerCase();
+                        const lastNameB2 = (b.name || '').trim().split(' ').pop().toLowerCase();
+                        return lastNameB2.localeCompare(lastNameA2);
+                    case 'score-desc':
+                        return (parseInt(b.score) || 0) - (parseInt(a.score) || 0);
+                    case 'score-asc':
+                        return (parseInt(a.score) || 0) - (parseInt(b.score) || 0);
+                    default:
+                        return new Date(b.date) - new Date(a.date);
+                }
+            });
 
             body.innerHTML = filtered.map(s => `
                 <tr>
