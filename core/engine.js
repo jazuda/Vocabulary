@@ -9,6 +9,7 @@ let currentRole = null;
 let studentName = "";
 let studentClass = "";
 let wordStartTime = 0;
+let _listenersAdded = false;
 
 // Versión: 2026-01-29 - Configuración de Clases
 const CLASSES = {
@@ -237,11 +238,14 @@ function initPresentation(userConfig) {
     } else {
         run();
     }
-    document.addEventListener('keydown', (e) => {
-        if (document.activeElement.tagName === 'INPUT') return;
-        if (e.key === 'ArrowRight') nextSlide();
-        if (e.key === 'ArrowLeft') prevSlide();
-    });
+    if (!_listenersAdded) {
+        document.addEventListener('keydown', (e) => {
+            if (document.activeElement.tagName === 'INPUT') return;
+            if (e.key === 'ArrowRight') nextSlide();
+            if (e.key === 'ArrowLeft') prevSlide();
+        });
+        _listenersAdded = true;
+    }
 }
 
 function showRoleSelection(hasSession) {
@@ -492,8 +496,8 @@ function saveGameResult() {
     }
 }
 
-function nextSlide() { if (currentSlide < totalSlides - 1) { currentSlide++; updateSlide(); } }
-function prevSlide() { if (currentSlide > 0) { currentSlide--; updateSlide(); } }
+window.nextSlide = function () { if (currentSlide < totalSlides - 1) { currentSlide++; updateSlide(); } };
+window.prevSlide = function () { if (currentSlide > 0) { currentSlide--; updateSlide(); } };
 function startTimer() {
     gameStarted = true;
     elapsedSeconds = 0;
