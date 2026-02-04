@@ -695,14 +695,9 @@
                     case 'date-asc':
                         return new Date(a.date) - new Date(b.date);
                     case 'name-asc':
-                        // Ordenar por apellido (última palabra del nombre)
-                        const lastNameA = (a.name || '').trim().split(' ').pop().toLowerCase();
-                        const lastNameB = (b.name || '').trim().split(' ').pop().toLowerCase();
-                        return lastNameA.localeCompare(lastNameB);
+                        return (a.name || '').localeCompare(b.name || '');
                     case 'name-desc':
-                        const lastNameA2 = (a.name || '').trim().split(' ').pop().toLowerCase();
-                        const lastNameB2 = (b.name || '').trim().split(' ').pop().toLowerCase();
-                        return lastNameB2.localeCompare(lastNameA2);
+                        return (b.name || '').localeCompare(a.name || '');
                     case 'score-desc':
                         return (parseInt(b.score) || 0) - (parseInt(a.score) || 0);
                     case 'score-asc':
