@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vocabulary: Chicago Culture</title>
+    <!-- Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;800&family=Quicksand:wght@500;700&display=swap"
+        rel="stylesheet">
+    <!-- Core Engine & Styles -->
+    <link rel="stylesheet" href="../core/styles.css">
+    <script src="../core/engine.js" defer></script>
+</head>
+
+<body>
+
+    <div class="progress-bar" id="progress"></div>
+    <div class="score-display" id="scoreDisplay">Score: 100</div>
+    <div class="timer-display" id="timerDisplay">Time: 00:00</div>
+
+    <div class="slide-container" id="container">
+        <!-- Content will be injected by engine.js -->
+    </div>
+
+    <!-- Navigation Overlay -->
+    <div class="menu-overlay" id="menuOverlay">
+        <button class="close-menu" onclick="toggleMenu()">✕</button>
+        <div class="menu-content">
+            <div class="menu-title">Menu</div>
+            <div class="menu-item" onclick="goToSlide(0)">Vocabulary</div>
+            <div class="menu-item" onclick="goToSlide(9)">Guess the word</div>
+            <div class="menu-item" onclick="goToSlide(18)">Fill in the blanks</div>
+            <div class="menu-divider"></div>
+            <div class="menu-item home-link" onclick="window.location.href='../index.html'">🏠 Volver al Inicio</div>
+        </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="controls">
+        <div class="nav-buttons">
+            <button class="nav-btn" onclick="toggleMenu()">☰</button>
+            <button class="nav-btn" onclick="prevSlide()">←</button>
+            <button class="nav-btn" onclick="nextSlide()">→</button>
+        </div>
+        <div class="topic-label">Chicago Culture</div>
+    </div>
+
+    <script>
+        const config = {
+            title: "Culture and Identity in Chicago",
+            vocab: [
+                {
+                    word: "culture",
+                    sentence: "Chicago has a rich culture with people from many different backgrounds.",
+                    image: "https://images.unsplash.com/photo-1473893604153-03e1302829ec?q=80&w=600&auto=format&fit=crop"
+                },
+                {
+                    word: "tradition",
+                    sentence: "Dyeing the river green for St. Patrick's Day is a famous Chicago tradition.",
+                    image: "https://images.unsplash.com/photo-1584033705051-576269431876?q=80&w=600&auto=format&fit=crop"
+                },
+                {
+                    word: "language",
+                    sentence: "You can hear many different languages being spoken in the neighborhoods of Chicago.",
+                    image: "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?q=80&w=600&auto=format&fit=crop"
+                },
+                {
+                    word: "food",
+                    sentence: "Chicago is famous for its delicious food, like deep-dish pizza.",
+                    image: "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?q=80&w=600&auto=format&fit=crop"
+                },
+                {
+                    word: "music",
+                    sentence: "Chicago is known as the home of the blues and jazz music.",
+                    image: "https://images.unsplash.com/photo-1511192336575-5a79af67a629?q=80&w=600&auto=format&fit=crop"
+                },
+                {
+                    word: "history",
+                    sentence: "The Water Tower is an important part of Chicago's history after the Great Fire.",
+                    image: "https://images.unsplash.com/photo-1494522855154-9297ac14b55f?q=80&w=600&auto=format&fit=crop"
+                },
+                {
+                    word: "dress",
+                    sentence: "During cultural parades, people wear beautiful traditional dress to show their identity.",
+                    image: "https://images.unsplash.com/photo-1621619856624-42fd193a0661?q=80&w=600&auto=format&fit=crop"
+                },
+                {
+                    word: "story",
+                    sentence: "Every person in Chicago has a unique story about their cultural identity.",
+                    image: "https://images.unsplash.com/photo-1512820790803-83ca734da794?q=80&w=600&auto=format&fit=crop"
+                }
+            ]
+        };
+
+        // Manual initialization check to ensure robustness
+        const init = () => {
+            if (typeof initPresentation === 'function') {
+                initPresentation(config);
+            } else {
+                setTimeout(init, 50);
+            }
+        };
+        init();
+    </script>
+</body>
+
+</html>
