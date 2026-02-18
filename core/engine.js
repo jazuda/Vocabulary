@@ -11,7 +11,7 @@ let studentClass = "";
 let wordStartTime = 0;
 let _listenersAdded = false;
 
-// Versión: 2026-01-29 - Configuración de Clases
+// Versión: 2026-02-18 - Lógica de Puntuación Estricta
 const CLASSES = {
     "Mr García": [
         "Acosta Valeria", "Araujo Valerie", "Bautista Cristian", "Bravo Armijos Meivi",
@@ -188,11 +188,12 @@ window.checkLetter = function (input) {
                 // Word Completed logic
                 const duration = (Date.now() - wordStartTime) / 1000;
 
-                // NO bonus for speed as requested, only penalties
                 if (duration > 5) {
                     const extraTime = duration - 5;
-                    const penalty = Math.floor(extraTime / 3);
-                    score = Math.max(0, score - penalty); // Penalty for slowness
+                    const penalty = Math.floor(extraTime / 5);
+                    score = Math.max(0, score - penalty); // Penalti por lentitud (1 punto cada 5 seg extra)
+                } else {
+                    score = Math.min(100, score + 1); // Bonus por rapidez (menos de 5 seg)
                 }
 
                 const scoreDisp = document.getElementById('scoreDisplay');
@@ -203,7 +204,7 @@ window.checkLetter = function (input) {
         }
     } else if (val !== "") {
         input.classList.add('incorrect');
-        score = Math.max(0, score - 1); // Penalty for mistakes
+        score = Math.max(0, score - 1); // Penalti por error (-1 punto)
         const scoreDisp = document.getElementById('scoreDisplay');
         if (scoreDisp) scoreDisp.innerText = `Score: ${score}`;
         setTimeout(() => {
