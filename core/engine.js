@@ -497,7 +497,26 @@ function saveGameResult() {
     }
 }
 
-window.nextSlide = function () { if (currentSlide < totalSlides - 1) { currentSlide++; updateSlide(); } };
+window.nextSlide = function () {
+    if (currentSlide < totalSlides - 1) {
+        // Bloqueo en el juego de deletreo:
+        const slides = document.querySelectorAll('.slide');
+        const currentSlideEl = slides[currentSlide];
+
+        if (currentRole === 'student' && currentSlideEl && currentSlideEl.classList.contains('slide-dynamic')) {
+            const inputs = currentSlideEl.querySelectorAll('.letter-input');
+            if (inputs.length > 0) {
+                const isComplete = Array.from(inputs).every(inp => inp.disabled);
+                if (!isComplete) {
+                    alert("¡Debes completar la palabra correctamente para continuar!");
+                    return;
+                }
+            }
+        }
+        currentSlide++;
+        updateSlide();
+    }
+};
 window.prevSlide = function () { if (currentSlide > 0) { currentSlide--; updateSlide(); } };
 function startTimer() {
     gameStarted = true;
