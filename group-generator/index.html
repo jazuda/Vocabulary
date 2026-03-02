@@ -277,7 +277,13 @@
         }
 
         .col-name {
-            min-width: 150px;
+            min-width: 140px;
+        }
+
+        .col-unique,
+        .col-helper {
+            width: 55px;
+            text-align: center;
         }
 
         .col-subject {
@@ -594,6 +600,7 @@
                             <th class="col-subject">Inglés</th>
                             <th class="col-subject">Matemáticas</th>
                             <th class="col-unique">⭐ Único</th>
+                            <th class="col-helper">🤝 Ayuda</th>
                             <th class="col-avoid">🚫 Evitar a</th>
                             <th class="col-partner">🤝 Junto con</th>
                         </tr>
@@ -718,7 +725,11 @@
                     <td>${renderLevelVisual(name, 'math', data.math || '=')}</td>
                     <td style="text-align: center;">
                         <input type="checkbox" ${data.unique ? 'checked' : ''} 
-                            onchange="toggleUnique('${safeName}', this.checked)">
+                            onchange="toggleClassificationAttr('${safeName}', 'unique', this.checked)">
+                    </td>
+                    <td style="text-align: center;">
+                        <input type="checkbox" ${data.helper ? 'checked' : ''} 
+                            onchange="toggleClassificationAttr('${safeName}', 'helper', this.checked)">
                     </td>
                     <td>
                         <div class="multi-select-container">
@@ -751,11 +762,11 @@
             });
         }
 
-        function toggleUnique(name, checked) {
+        function toggleClassificationAttr(name, attr, checked) {
             if (!classifications[name]) classifications[name] = {
-                selected: true, spanish: '=', english: '=', math: '=', avoid: [], partner: '', unique: false
+                selected: true, spanish: '=', english: '=', math: '=', avoid: [], partner: '', unique: false, helper: false
             };
-            classifications[name].unique = checked;
+            classifications[name][attr] = checked;
             save();
         }
 
@@ -856,7 +867,7 @@
             if (confirm('¿Estás seguro de que quieres limpiar todos los datos de estos estudiantes?')) {
                 STUDENTS[currentTeacher].forEach(name => {
                     classifications[name] = {
-                        selected: true, spanish: '=', english: '=', math: '=', avoid: [], partner: '', unique: false
+                        selected: true, spanish: '=', english: '=', math: '=', avoid: [], partner: '', unique: false, helper: false
                     };
                 });
                 save();
@@ -980,9 +991,29 @@
                     // Verificar "Único"
                     if (data.unique) {
                         const otherUniquesInGroup = group.filter(m => m !== student && classifications[m]?.unique).length;
-                        conflicts += otherUniquesInGroup * 2; // Penalización mayor para únicos
+                        conflicts += otherUniquesInGroup * 2;
+                    }
+
+                    // Verificar "Helper" (Ayuda)
+                    if (data.helper) {
+                        const otherHelpers = group.filter(m => m !== student && classifications[m]?.helper).length;
+                        conflicts += otherHelpers * 3; // Penalización fuerte por tener más de un helper
+
+                        const needyInGroup = group.filter(m => {
+                            const md = classifications[m];
+                            return md && (md.spanish === '-' || md.english === '-' || md.math === '-');
+                        }).length;
+                        if (needyInGroup === 0) conflicts += 1; // Un helper sin nadie a quien ayudar
                     }
                 });
+
+                // Verificar si hay necesitados sin helper
+                const hasNeedy = group.some(m => {
+                    const md = classifications[m];
+                    return md && (md.spanish === '-' || md.english === '-' || md.math === '-');
+                });
+                const hasHelper = group.some(m => classifications[m]?.helper);
+                if (hasNeedy && !hasHelper) conflicts += 2;
             });
             return conflicts;
         }
@@ -1071,6 +1102,7 @@
                                 <li class="member-item">
                                     👤 ${m}
                                     ${d.unique ? '⭐' : ''}
+                                    ${d.helper ? '🤝' : ''}
                                     ${getBadge(d.spanish, 'ES')}
                                     ${getBadge(d.english, 'EN')}
                                     ${getBadge(d.math, 'MA')}
