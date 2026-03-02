@@ -1,0 +1,1118 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de Grupos | Vocabulary Lab</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-light: #818cf8;
+            --secondary: #64748b;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #06b6d4;
+            --bg-gradient: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            --glass: rgba(255, 255, 255, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.3);
+            --shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-gradient);
+            background-attachment: fixed;
+            min-height: 100vh;
+            color: #1e293b;
+            padding: 2rem;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            max-width: 1000px;
+            width: 100%;
+        }
+
+        header {
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .back-link {
+            text-decoration: none;
+            color: var(--secondary);
+            font-size: 0.9rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover {
+            color: var(--primary);
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 800;
+            background: linear-gradient(to right, #4f46e5, #9333ea);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Teacher Selection */
+        .teacher-selector {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: 1rem;
+            box-shadow: var(--shadow);
+        }
+
+        .teacher-option {
+            flex: 1;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            text-align: center;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 2px solid transparent;
+            background: white;
+            color: var(--secondary);
+        }
+
+        .teacher-option:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .teacher-option.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary-light);
+            box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.3);
+        }
+
+        /* Student Management Box */
+        .glass-box {
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: 1.5rem;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+            display: none;
+            /* Shown when teacher is selected */
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .box-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .box-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+
+        .actions {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .btn {
+            padding: 0.6rem 1.2rem;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-clear {
+            background: #f1f5f9;
+            color: var(--danger);
+        }
+
+        .btn-clear:hover {
+            background: #fee2e2;
+        }
+
+        .btn-generate {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-generate:hover {
+            background: #4f46e5;
+            transform: scale(1.05);
+        }
+
+        /* Student Grid */
+        .student-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1rem;
+        }
+
+        .student-card {
+            background: white;
+            padding: 1rem;
+            border-radius: 1rem;
+            border: 1px solid #f1f5f9;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            transition: all 0.2s;
+        }
+
+        .student-card:hover {
+            border-color: var(--primary-light);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+        }
+
+        .student-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .student-name {
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .checkbox-custom {
+            width: 1.25rem;
+            height: 1.25rem;
+            cursor: pointer;
+            accent-color: var(--primary);
+        }
+
+        /* Student Table Style */
+        .table-container {
+            width: 100%;
+            overflow: auto;
+            margin-top: 1rem;
+            max-height: 70vh;
+            border-radius: 0.75rem;
+            border: 1px solid #f1f5f9;
+        }
+
+        .student-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            font-size: 0.9rem;
+            background: white;
+        }
+
+        .student-table th {
+            position: sticky;
+            top: 0;
+            background: #f8fafc;
+            padding: 0.8rem 0.5rem;
+            text-align: left;
+            font-weight: 700;
+            color: var(--secondary);
+            border-bottom: 2px solid #f1f5f9;
+            text-transform: uppercase;
+            font-size: 0.65rem;
+            letter-spacing: 0.05em;
+            z-index: 50;
+            box-shadow: inset 0 -2px 0 #f1f5f9;
+            white-space: nowrap;
+        }
+
+        .student-table td {
+            padding: 0.5rem 0.4rem;
+            border-bottom: 1px solid #f1f5f9;
+            vertical-align: middle;
+        }
+
+        /* Column Widths */
+        .col-check {
+            width: 40px;
+            text-align: center;
+        }
+
+        .col-name {
+            min-width: 150px;
+        }
+
+        .col-subject {
+            width: 1%;
+            white-space: nowrap;
+        }
+
+        .col-avoid {
+            width: 140px;
+        }
+
+        .col-partner {
+            width: 130px;
+        }
+
+        .col-unique {
+            width: 60px;
+            text-align: center;
+        }
+
+        .student-table tr:hover {
+            background-color: #f8fafc;
+        }
+
+        /* Visual Level Selector (Segmented Control) */
+        .level-control {
+            display: flex;
+            background: #f1f5f9;
+            padding: 0.15rem;
+            border-radius: 0.5rem;
+            gap: 0.1rem;
+            width: fit-content;
+        }
+
+        .level-seg-btn {
+            border: none;
+            background: transparent;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.35rem;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 0.75rem;
+            color: #64748b;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 1.6rem;
+        }
+
+        .level-seg-btn:hover {
+            background: rgba(255, 255, 255, 0.5);
+            color: #1e293b;
+        }
+
+        .level-seg-btn.active[data-val="+"] {
+            background: var(--success) !important;
+            color: white !important;
+            box-shadow: 0 2px 8px rgba(34, 197, 94, 0.2);
+        }
+
+        .level-seg-btn.active[data-val="="] {
+            background: var(--warning) !important;
+            color: white !important;
+            box-shadow: 0 2px 8px rgba(245, 158, 11, 0.2);
+        }
+
+        .level-seg-btn.active[data-val="-"] {
+            background: var(--danger) !important;
+            color: white !important;
+            box-shadow: 0 2px 8px rgba(239, 68, 68, 0.2);
+        }
+
+        .multi-select-container {
+            position: relative;
+            width: 110px;
+        }
+
+        .dropdown-trigger {
+            padding: 0.35rem 0.4rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            background: #fff;
+            font-size: 0.7rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            min-height: 1.8rem;
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            z-index: 100;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            max-height: 200px;
+            overflow-y: auto;
+            width: 100%;
+            display: none;
+            padding: 0.5rem;
+        }
+
+        .dropdown-menu.active {
+            display: block;
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.4rem;
+            cursor: pointer;
+            border-radius: 0.3rem;
+            transition: background 0.2s;
+        }
+
+        .dropdown-item:hover {
+            background: #f1f5f9;
+        }
+
+        .dropdown-item input {
+            width: 1rem;
+            height: 1rem;
+        }
+
+        .badge-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.2rem;
+            margin-top: 0.2rem;
+        }
+
+        .badge {
+            padding: 0.1rem 0.4rem;
+            background: #e2e8f0;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            color: #475569;
+        }
+
+        /* Configuration Modal */
+        #configModal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 1.5rem;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-field {
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-field label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--secondary);
+        }
+
+        .input-select,
+        .input-number {
+            width: 100%;
+            padding: 0.8rem;
+            border-radius: 0.75rem;
+            border: 1px solid #e2e8f0;
+            outline: none;
+            font-size: 1rem;
+        }
+
+        .input-select:focus {
+            border-color: var(--primary);
+        }
+
+        /* Results & History */
+        .results-section {
+            margin-top: 2rem;
+            display: none;
+        }
+
+        .group-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .group-card {
+            background: white;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            border-top: 5px solid var(--primary);
+        }
+
+        .group-card h3 {
+            margin-bottom: 1rem;
+            color: var(--primary);
+            font-size: 1.1rem;
+            border-bottom: 1px solid #f1f5f9;
+            padding-bottom: 0.5rem;
+        }
+
+        .member-list {
+            list-style: none;
+        }
+
+        .member-item {
+            padding: 0.4rem 0;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .history-section {
+            margin-top: 4rem;
+        }
+
+        .history-item {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            padding: 1rem;
+            border-radius: 1rem;
+            margin-bottom: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .history-item:hover {
+            background: white;
+            transform: translateX(5px);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--secondary);
+            font-style: italic;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 1rem;
+            }
+
+            .teacher-selector {
+                flex-direction: column;
+            }
+
+            .student-list {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <a href="../index.html" class="back-link">← Volver al Portal</a>
+            <h1>Generador de Grupos</h1>
+        </header>
+
+        <div class="teacher-selector">
+            <div class="teacher-option" onclick="selectTeacher('zubieta')" id="btn-zubieta">Mr Zubieta</div>
+            <div class="teacher-option" onclick="selectTeacher('garcia')" id="btn-garcia">Mr García</div>
+            <div class="teacher-option" onclick="selectTeacher('poncelas')" id="btn-poncelas">Ms Poncelas</div>
+        </div>
+
+        <!-- Student List View -->
+        <div id="studentSection" class="glass-box">
+            <div class="box-header">
+                <div class="box-title">Estudiantes (<span id="teacherName">...</span>)</div>
+                <div class="actions">
+                    <button class="btn btn-clear" onclick="clearClassifications()">🧹 Limpiar</button>
+                    <button class="btn btn-generate" onclick="openConfig()">🚀 Generar Grupos</button>
+                </div>
+            </div>
+
+            <p style="font-size: 0.85rem; color: var(--secondary); margin-bottom: 1.5rem;">
+                Selecciona a los estudiantes y clasifícalos para mejorar el equilibrio de los grupos.
+            </p>
+
+            <div class="table-container">
+                <table class="student-table">
+                    <thead>
+                        <tr>
+                            <th class="col-check"><input type="checkbox" id="selectAll"
+                                    onchange="toggleSelectAll(this.checked)"></th>
+                            <th class="col-name">Nombre</th>
+                            <th class="col-subject">Español</th>
+                            <th class="col-subject">Inglés</th>
+                            <th class="col-subject">Matemáticas</th>
+                            <th class="col-unique">⭐ Único</th>
+                            <th class="col-avoid">🚫 Evitar a</th>
+                            <th class="col-partner">🤝 Junto con</th>
+                        </tr>
+                    </thead>
+                    <tbody id="studentTableBody">
+                        <!-- Rows injected here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Group Results -->
+        <div id="resultsSection" class="results-section">
+            <div class="box-header">
+                <div class="box-title">Grupos Generados (<span id="genDate">...</span>)</div>
+                <button class="btn btn-clear" onclick="hideResults()">Cerrar</button>
+            </div>
+            <div id="groupContainer" class="group-container">
+                <!-- Groups injected here -->
+            </div>
+        </div>
+
+        <!-- History -->
+        <div class="history-section">
+            <h2 style="margin-bottom: 1rem; font-size: 1.25rem;">Historial Reciente</h2>
+            <div id="historyList">
+                <!-- History injected here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Config Modal -->
+    <div id="configModal">
+        <div class="modal-content">
+            <h2 style="margin-bottom: 1.5rem;">Configuración de Grupos</h2>
+
+            <div class="modal-field">
+                <label>Tipo de Agrupación</label>
+                <select id="groupType" class="input-select">
+                    <option value="mixed">Grupos Mezclados (Diferente nivel)</option>
+                    <option value="same">Grupos Homogéneos (Mismo nivel)</option>
+                </select>
+                <p style="font-size: 0.75rem; color: var(--secondary); margin-top: 0.4rem;">
+                    *Los grupos mezclados usan los datos de 'Ayudante' y 'Necesita' para equilibrar cada grupo.
+                </p>
+            </div>
+
+            <div class="modal-field">
+                <label>Estudiantes por Grupo</label>
+                <input type="number" id="studentsPerGroup" class="input-number" min="2" max="10" placeholder="Ej: 4">
+                <p style="font-size: 0.75rem; color: var(--secondary); margin-top: 0.4rem;">
+                    O elige el número total de grupos:
+                </p>
+                <input type="number" id="totalGroups" class="input-number" min="1" max="20"
+                    placeholder="Ej: 5 (Opcional)" style="margin-top: 0.5rem;">
+            </div>
+
+            <div class="modal-buttons" style="display: flex; gap: 1rem; margin-top: 2rem;">
+                <button class="btn btn-clear" style="flex: 1;" onclick="closeModal()">Cancelar</button>
+                <button class="btn btn-generate" style="flex: 1; justify-content: center;"
+                    onclick="generateGroups()">¡Generar!</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const STUDENTS = {
+            "zubieta": ["Alvarado Kevin", "Cordova Thiago", "Diaz Zoe", "Fernandez Richard", "Garcia David", "Gomez Salvador Judit", "Jacho Ayala Ashley", "Jacho Vega Kimberly", "Marin Delgado Isaac", "Martinez Garcia Iker", "Mercado Sapon Arianna", "Orozco Mia", "Perez-Larios Milan", "Ramirez Lauren", "Ruiz Contreras Daviana", "Tocte Condor Keylor", "Torres Pedroza Itzayana", "Valentin Mata Bryan", "Villalobos Emmanuel", "Zuniga Soto Wilson"],
+            "poncelas": ["Beristain Loyo Angel", "Campos Eylin", "Cervantes Casarrubias Sergio", "Diaz Mateo", "Dorantes Lurmarelia", "Escobar Natasha", "Garcia David", "Garcia Sophia", "Guanotuna Sharline", "Landi Denise", "Lutuala Quishpe Erick", "Ortega Mathyas", "Paniagua Edgar", "Pilaguano Choloquinga Sheyla", "Prada Edymar", "Rios Iam", "Salinas Elena", "Valladares Jesus", "Vallecillo Ana", "Veliz Gomez Carlismar"],
+            "garcia": ["Acosta Valeria", "Araujo Valerie", "Bautista Cristian", "Bravo Armijos Meivi", "Campos Osorio Isaias", "Chango-Tasiguano Brithney", "Chasig Cataleya", "Dominguez-Bahena Liam", "Guadarrama Gerardo", "Hernandez Yanderis", "Lopez Caleb", "Matos Rodriguez Fatima", "Peralta-Flores Mia", "Ramirez Suniaga Isabella", "Sanchez Jair", "Sandoval Mariana", "Sotelo Lesly", "Varela Angel", "Vicente Adrian", "Vital Daniel"]
+        };
+
+        let currentTeacher = null;
+        let classifications = JSON.parse(localStorage.getItem('group_classifications') || '{}');
+        let history = JSON.parse(localStorage.getItem('group_history') || '[]');
+
+        function selectTeacher(teacher) {
+            currentTeacher = teacher;
+
+            // UI Updates
+            document.querySelectorAll('.teacher-option').forEach(opt => opt.classList.remove('active'));
+            document.getElementById(`btn-${teacher}`).classList.add('active');
+
+            document.getElementById('teacherName').innerText = teacher.charAt(0).toUpperCase() + teacher.slice(1);
+            document.getElementById('studentSection').style.display = 'block';
+
+            renderStudents();
+            renderHistory();
+        }
+
+        function save() {
+            localStorage.setItem('group_classifications', JSON.stringify(classifications));
+        }
+
+        function renderStudents() {
+            const body = document.getElementById('studentTableBody');
+            body.innerHTML = '';
+
+            const teacherStudents = STUDENTS[currentTeacher];
+
+            teacherStudents.forEach(name => {
+                const data = classifications[name] || {
+                    selected: true,
+                    spanish: '=', english: '=', math: '=',
+                    avoid: [], partner: ''
+                };
+
+                // Initialize if missing
+                if (!Array.isArray(data.avoid)) data.avoid = [];
+                const safeName = name.replace(/'/g, "\\'").replace(/"/g, "&quot;");
+                const rowId = name.replace(/[^a-zA-Z0-9]/g, '');
+
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>
+                        <input type="checkbox" class="checkbox-custom" ${data.selected !== false ? 'checked' : ''} 
+                            onchange="toggleSelection('${safeName}', this.checked)">
+                    </td>
+                    <td class="student-name">${name}</td>
+                    <td>${renderLevelVisual(name, 'spanish', data.spanish || '=')}</td>
+                    <td>${renderLevelVisual(name, 'english', data.english || '=')}</td>
+                    <td>${renderLevelVisual(name, 'math', data.math || '=')}</td>
+                    <td style="text-align: center;">
+                        <input type="checkbox" ${data.unique ? 'checked' : ''} 
+                            onchange="toggleUnique('${safeName}', this.checked)">
+                    </td>
+                    <td>
+                        <div class="multi-select-container">
+                            <div class="dropdown-trigger" onclick="toggleDropdown('${safeName}', 'avoid')">
+                                <span id="avoid-label-${rowId}">${data.avoid.length ? data.avoid.length + ' selecc.' : 'Nadie'}</span>
+                                ▾
+                            </div>
+                            <div class="dropdown-menu" id="avoid-menu-${rowId}">
+                                ${teacherStudents.filter(s => s !== name).map(s => {
+                    const safeS = s.replace(/'/g, "\\'").replace(/"/g, "&quot;");
+                    return `
+                                        <div class="dropdown-item">
+                                            <input type="checkbox" ${data.avoid.includes(s) ? 'checked' : ''} 
+                                                onchange="updateAvoidList('${safeName}', '${safeS}', this.checked, '${rowId}')">
+                                            <span>${s}</span>
+                                        </div>
+                                    `;
+                }).join('')}
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <select class="rel-select" onchange="updateRelation('${safeName}', 'partner', this.value)" style="width: 120px;">
+                            <option value="">Nadie</option>
+                            ${teacherStudents.filter(s => s !== name).map(s => `<option value="${s}" ${data.partner === s ? 'selected' : ''}>${s}</option>`).join('')}
+                        </select>
+                    </td>
+                `;
+                body.appendChild(row);
+            });
+        }
+
+        function toggleUnique(name, checked) {
+            if (!classifications[name]) classifications[name] = {
+                selected: true, spanish: '=', english: '=', math: '=', avoid: [], partner: '', unique: false
+            };
+            classifications[name].unique = checked;
+            save();
+        }
+
+        function renderLevelVisual(name, subject, currentVal) {
+            const safeName = name.replace(/'/g, "\\'").replace(/"/g, "&quot;");
+            return `
+                <div class="level-control">
+                    <button type="button" class="level-seg-btn ${currentVal === '+' ? 'active' : ''}" 
+                        data-val="+" onclick="updateLevel('${safeName}', '${subject}', '+')">+</button>
+                    <button type="button" class="level-seg-btn ${currentVal === '=' ? 'active' : ''}" 
+                        data-val="=" onclick="updateLevel('${safeName}', '${subject}', '=')">=</button>
+                    <button type="button" class="level-seg-btn ${currentVal === '-' ? 'active' : ''}" 
+                        data-val="-" onclick="updateLevel('${safeName}', '${subject}', '-')">-</button>
+                </div>
+            `;
+        }
+
+        function toggleDropdown(name, type) {
+            const rowId = name.replace(/[^a-zA-Z0-9]/g, '');
+            const id = `${type}-menu-${rowId}`;
+            const menu = document.getElementById(id);
+            // Close all other menus
+            document.querySelectorAll('.dropdown-menu').forEach(m => {
+                if (m.id !== id) m.classList.remove('active');
+            });
+            menu.classList.toggle('active');
+        }
+
+        // Close dropdowns on click outside
+        window.addEventListener('click', (e) => {
+            if (!e.target.closest('.multi-select-container')) {
+                document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.remove('active'));
+            }
+        });
+
+        function updateLevel(name, subject, val) {
+            // Ensure student entry exists
+            if (!classifications[name]) {
+                classifications[name] = {
+                    selected: true,
+                    spanish: '=', english: '=', math: '=',
+                    avoid: [], partner: ''
+                };
+            }
+            // Update the subject level
+            classifications[name][subject] = val;
+
+            // Save to localStorage
+            save();
+
+            // Re-render only if needed (for simplicity we redraw the whole list now)
+            renderStudents();
+        }
+
+        function updateAvoidList(name, targetName, added, rowId) {
+            if (!classifications[name]) classifications[name] = {
+                selected: true, spanish: '=', english: '=', math: '=', avoid: [], partner: ''
+            };
+            if (!Array.isArray(classifications[name].avoid)) classifications[name].avoid = [];
+
+            if (added) {
+                if (!classifications[name].avoid.includes(targetName)) {
+                    classifications[name].avoid.push(targetName);
+                }
+            } else {
+                classifications[name].avoid = classifications[name].avoid.filter(n => n !== targetName);
+            }
+            save();
+
+            // Update label without full re-render
+            const label = document.getElementById(`avoid-label-${rowId}`);
+            if (label) {
+                const count = classifications[name].avoid.length;
+                label.innerText = count ? count + ' selecc.' : 'Nadie';
+            }
+        }
+
+        function updateRelation(name, type, value) {
+            if (!classifications[name]) classifications[name] = {
+                selected: true, spanish: '=', english: '=', math: '=', avoid: [], partner: ''
+            };
+            classifications[name][type] = value;
+            save();
+        }
+
+        function toggleSelectAll(checked) {
+            STUDENTS[currentTeacher].forEach(name => {
+                if (!classifications[name]) classifications[name] = {
+                    selected: true, spanish: '=', english: '=', math: '=', avoid: [], partner: ''
+                };
+                classifications[name].selected = checked;
+            });
+            save();
+            renderStudents();
+        }
+
+        function clearClassifications() {
+            if (confirm('¿Estás seguro de que quieres limpiar todos los datos de estos estudiantes?')) {
+                STUDENTS[currentTeacher].forEach(name => {
+                    classifications[name] = {
+                        selected: true, spanish: '=', english: '=', math: '=', avoid: [], partner: '', unique: false
+                    };
+                });
+                save();
+                renderStudents();
+            }
+        }
+
+        function toggleSelection(name, checked) {
+            if (!classifications[name]) classifications[name] = {
+                selected: true, spanish: '=', english: '=', math: '=', avoid: [], partner: ''
+            };
+            classifications[name].selected = checked;
+            save();
+        }
+
+        function openConfig() {
+            const selectedCount = STUDENTS[currentTeacher].filter(name => {
+                return !classifications[name] || classifications[name].selected !== false;
+            }).length;
+
+            // Sugerir un número razonable de estudiantes por grupo (por defecto 4)
+            document.getElementById('studentsPerGroup').value = 4;
+            document.getElementById('totalGroups').value = "";
+            document.getElementById('configModal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('configModal').style.display = 'none';
+        }
+
+        function generateGroups() {
+            const selectedStudents = STUDENTS[currentTeacher].filter(name => {
+                return !classifications[name] || classifications[name].selected !== false;
+            });
+
+            if (selectedStudents.length < 2) {
+                alert('Selecciona al menos 2 estudiantes.');
+                return;
+            }
+
+            const perGroupInput = parseInt(document.getElementById('studentsPerGroup').value);
+            const totalGroupsInput = parseInt(document.getElementById('totalGroups').value);
+            const type = document.getElementById('groupType').value;
+
+            let numGroupsCalc;
+            if (totalGroupsInput > 0) {
+                numGroupsCalc = totalGroupsInput;
+            } else {
+                numGroupsCalc = Math.ceil(selectedStudents.length / (perGroupInput || 4));
+            }
+
+            const numGroups = Math.max(1, Math.min(numGroupsCalc, selectedStudents.length));
+
+            let groups = [];
+
+            // Intentar generar grupos válidos (máximo 15 intentos para resolver conflictos)
+            let bestGroups = null;
+            let minConflicts = Infinity;
+
+            for (let i = 0; i < 20; i++) {
+                let currentGroups;
+                if (type === 'mixed') {
+                    currentGroups = generateMixedGroups(selectedStudents, numGroups);
+                } else {
+                    currentGroups = generateSameLevelGroups(selectedStudents, numGroups);
+                }
+
+                let conflicts = checkConflicts(currentGroups);
+                if (conflicts === 0) {
+                    bestGroups = currentGroups;
+                    break;
+                }
+
+                if (conflicts < minConflicts) {
+                    minConflicts = conflicts;
+                    bestGroups = currentGroups;
+                }
+            }
+
+            groups = bestGroups;
+
+            const result = {
+                id: Date.now(),
+                teacher: currentTeacher,
+                date: new Date().toLocaleString(),
+                groups: groups
+            };
+
+            history.unshift(result);
+            if (history.length > 10) history.pop();
+            localStorage.setItem('group_history', JSON.stringify(history));
+
+            closeModal();
+            showResults(result);
+            renderHistory();
+        }
+
+        function checkConflicts(groups) {
+            let conflicts = 0;
+            groups.forEach(group => {
+                group.forEach(student => {
+                    const data = classifications[student];
+                    if (!data) return;
+
+                    // Verificar "Evitar"
+                    if (Array.isArray(data.avoid)) {
+                        data.avoid.forEach(avoidName => {
+                            if (group.includes(avoidName)) conflicts += 1;
+                        });
+                    }
+
+                    // Verificar "Juntos"
+                    if (data.partner && !group.includes(data.partner)) {
+                        // Solo sumamos conflicto si la pareja está seleccionada para participar
+                        const partnerData = classifications[data.partner];
+                        if (!partnerData || partnerData.selected !== false) {
+                            conflicts += 1;
+                        }
+                    }
+
+                    // Verificar "Único"
+                    if (data.unique) {
+                        const otherUniquesInGroup = group.filter(m => m !== student && classifications[m]?.unique).length;
+                        conflicts += otherUniquesInGroup * 2; // Penalización mayor para únicos
+                    }
+                });
+            });
+            return conflicts;
+        }
+
+        function getAveragedLevel(name) {
+            const data = classifications[name];
+            if (!data) return 0;
+            const map = { '+': 1, '=': 0, '-': -1 };
+            const avg = (map[data.spanish || '='] + map[data.english || '='] + map[data.math || '=']) / 3;
+            return avg;
+        }
+
+        function generateMixedGroups(students, numGroups) {
+            // Shuffle
+            let pool = [...students].sort(() => Math.random() - 0.5);
+
+            // Identificar perfiles por promedio de niveles
+            const high = pool.filter(n => getAveragedLevel(n) > 0.3);
+            const low = pool.filter(n => getAveragedLevel(n) < -0.3);
+            const medium = pool.filter(n => !high.includes(n) && !low.includes(n));
+
+            const groups = Array.from({ length: numGroups }, () => []);
+
+            // Primero: Forzar parejas (Partners)
+            const processed = new Set();
+            students.forEach(name => {
+                if (processed.has(name)) return;
+                const partner = classifications[name]?.partner;
+                if (partner && students.includes(partner)) {
+                    const targetGroup = groups.reduce((prev, curr) => prev.length <= curr.length ? prev : curr);
+                    targetGroup.push(name, partner);
+                    processed.add(name);
+                    processed.add(partner);
+                }
+            });
+
+            const remainingPool = pool.filter(n => !processed.has(n));
+            const rHigh = remainingPool.filter(n => high.includes(n));
+            const rLow = remainingPool.filter(n => low.includes(n));
+            const rMed = remainingPool.filter(n => medium.includes(n));
+
+            [...rHigh, ...rLow, ...rMed].forEach(s => {
+                let bestG = 0;
+                for (let i = 0; i < numGroups; i++) {
+                    if (groups[i].length < groups[bestG].length) bestG = i;
+                }
+                groups[bestG].push(s);
+            });
+
+            return groups.filter(g => g.length > 0);
+        }
+
+        function generateSameLevelGroups(students, numGroups) {
+            // Sort by averaged level
+            let sorted = [...students].sort((a, b) => getAveragedLevel(b) - getAveragedLevel(a));
+
+            const groups = Array.from({ length: numGroups }, () => []);
+            sorted.forEach((s, i) => {
+                groups[i % numGroups].push(s);
+            });
+
+            return groups.filter(g => g.length > 0);
+        }
+
+        function showResults(data) {
+            document.getElementById('resultsSection').style.display = 'block';
+            document.getElementById('genDate').innerText = data.date;
+
+            const container = document.getElementById('groupContainer');
+            container.innerHTML = '';
+
+            data.groups.forEach((members, i) => {
+                const card = document.createElement('div');
+                card.className = 'group-card';
+                card.innerHTML = `
+                    <h3>Grupo ${i + 1}</h3>
+                    <ul class="member-list">
+                        ${members.map(m => {
+                    const d = classifications[m] || {};
+                    const getBadge = (val, label) => {
+                        if (val === '+') return `<span style="color: var(--success); font-weight: bold;">[${label}+]</span>`;
+                        if (val === '-') return `<span style="color: var(--danger); font-weight: bold;">[${label}-]</span>`;
+                        return '';
+                    };
+                    return `
+                                <li class="member-item">
+                                    👤 ${m}
+                                    ${d.unique ? '⭐' : ''}
+                                    ${getBadge(d.spanish, 'ES')}
+                                    ${getBadge(d.english, 'EN')}
+                                    ${getBadge(d.math, 'MA')}
+                                </li>
+                            `;
+                }).join('')}
+                    </ul>
+                `;
+                container.appendChild(card);
+            });
+
+            window.scrollTo({ top: document.getElementById('resultsSection').offsetTop - 20, behavior: 'smooth' });
+        }
+
+        function hideResults() {
+            document.getElementById('resultsSection').style.display = 'none';
+        }
+
+        function renderHistory() {
+            const list = document.getElementById('historyList');
+            const teacherHistory = history.filter(h => h.teacher === currentTeacher);
+
+            if (teacherHistory.length === 0) {
+                list.innerHTML = '<div class="empty-state">No hay grupos generados anteriormente.</div>';
+                return;
+            }
+
+            list.innerHTML = teacherHistory.map(h => `
+                <div class="history-item" onclick="viewHistoryItem(${h.id})">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <strong>Generado el ${h.date}</strong>
+                        <span style="font-size: 0.8rem; color: var(--secondary);">${h.groups.length} grupos</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function viewHistoryItem(id) {
+            const item = history.find(h => h.id === id);
+            if (item) showResults(item);
+        }
+    </script>
+</body>
+
+</html>
