@@ -600,7 +600,7 @@
                             <th class="col-subject">Inglés</th>
                             <th class="col-subject">Matemáticas</th>
                             <th class="col-unique">⭐ Único</th>
-                            <th class="col-helper">🤝 Ayuda</th>
+                            <th class="col-helper">🤝 Helper</th>
                             <th class="col-avoid">🚫 Evitar a</th>
                             <th class="col-partner">🤝 Junto con</th>
                         </tr>
@@ -638,13 +638,31 @@
             <h2 style="margin-bottom: 1.5rem;">Configuración de Grupos</h2>
 
             <div class="modal-field">
+                <label>Nombre de la agrupación</label>
+                <input type="text" id="groupName" class="input-text" placeholder="Ej: Práctica Matemáticas"
+                    style="width: 100%; padding: 0.6rem; border: 1px solid #e2e8f0; border-radius: 0.5rem; font-size: 0.9rem;">
+            </div>
+
+            <div class="modal-field">
+                <label>Materias a considerar</label>
+                <div style="display: flex; gap: 1rem; margin-top: 0.5rem;">
+                    <label style="font-size: 0.85rem; display: flex; align-items: center; gap: 0.3rem;"><input
+                            type="checkbox" id="considerSpanish" checked> Español</label>
+                    <label style="font-size: 0.85rem; display: flex; align-items: center; gap: 0.3rem;"><input
+                            type="checkbox" id="considerEnglish" checked> Inglés</label>
+                    <label style="font-size: 0.85rem; display: flex; align-items: center; gap: 0.3rem;"><input
+                            type="checkbox" id="considerMath" checked> Matemáticas</label>
+                </div>
+            </div>
+
+            <div class="modal-field">
                 <label>Tipo de Agrupación</label>
                 <select id="groupType" class="input-select">
                     <option value="mixed">Grupos Mezclados (Diferente nivel)</option>
                     <option value="same">Grupos Homogéneos (Mismo nivel)</option>
                 </select>
                 <p style="font-size: 0.75rem; color: var(--secondary); margin-top: 0.4rem;">
-                    *Los grupos mezclados usan los datos de 'Ayudante' y 'Necesita' para equilibrar cada grupo.
+                    *Los grupos mezclados usan los datos de 'Helper' y 'Necesita' para equilibrar cada grupo.
                 </p>
             </div>
 
@@ -910,7 +928,18 @@
 
             const perGroupInput = parseInt(document.getElementById('studentsPerGroup').value);
             const totalGroupsInput = parseInt(document.getElementById('totalGroups').value);
+            const nameInput = document.getElementById('groupName').value.trim() || "Nueva Agrupación";
             const type = document.getElementById('groupType').value;
+
+            const selectedSubjects = [];
+            if (document.getElementById('considerSpanish').checked) selectedSubjects.push('spanish');
+            if (document.getElementById('considerEnglish').checked) selectedSubjects.push('english');
+            if (document.getElementById('considerMath').checked) selectedSubjects.push('math');
+
+            if (selectedSubjects.length === 0) {
+                alert('Selecciona al menos una materia para basar la clasificación.');
+                return;
+            }
 
             let numGroupsCalc;
             if (totalGroupsInput > 0) {
@@ -930,12 +959,12 @@
             for (let i = 0; i < 20; i++) {
                 let currentGroups;
                 if (type === 'mixed') {
-                    currentGroups = generateMixedGroups(selectedStudents, numGroups);
+                    currentGroups = generateMixedGroups(selectedStudents, numGroups, selectedSubjects);
                 } else {
-                    currentGroups = generateSameLevelGroups(selectedStudents, numGroups);
+                    currentGroups = generateSameLevelGroups(selectedStudents, numGroups, selectedSubjects);
                 }
 
-                let conflicts = checkConflicts(currentGroups);
+                let conflicts = checkConflicts(currentGroups, selectedSubjects);
                 if (conflicts === 0) {
                     bestGroups = currentGroups;
                     break;
@@ -952,6 +981,7 @@
             const result = {
                 id: Date.now(),
                 teacher: currentTeacher,
+                name: nameInput,
                 date: new Date().toLocaleString(),
                 groups: groups
             };
@@ -965,7 +995,7 @@
             renderHistory();
         }
 
-        function checkConflicts(groups) {
+        function checkConflicts(groups, subjects) {
             let conflicts = 0;
             groups.forEach(group => {
                 group.forEach(student => {
@@ -1001,7 +1031,8 @@
 
                         const needyInGroup = group.filter(m => {
                             const md = classifications[m];
-                            return md && (md.spanish === '-' || md.english === '-' || md.math === '-');
+                            if (!md) return false;
+                            return subjects.some(s => md[s] === '-');
                         }).length;
                         if (needyInGroup === 0) conflicts += 1; // Un helper sin nadie a quien ayudar
                     }
@@ -1010,7 +1041,8 @@
                 // Verificar si hay necesitados sin helper
                 const hasNeedy = group.some(m => {
                     const md = classifications[m];
-                    return md && (md.spanish === '-' || md.english === '-' || md.math === '-');
+                    if (!md) return false;
+                    return subjects.some(s => md[s] === '-');
                 });
                 const hasHelper = group.some(m => classifications[m]?.helper);
                 if (hasNeedy && !hasHelper) conflicts += 2;
@@ -1018,21 +1050,25 @@
             return conflicts;
         }
 
-        function getAveragedLevel(name) {
+        function getAveragedLevel(name, subjects) {
             const data = classifications[name];
             if (!data) return 0;
             const map = { '+': 1, '=': 0, '-': -1 };
-            const avg = (map[data.spanish || '='] + map[data.english || '='] + map[data.math || '=']) / 3;
-            return avg;
+
+            let total = 0;
+            subjects.forEach(s => {
+                total += map[data[s] || '='];
+            });
+            return total / subjects.length;
         }
 
-        function generateMixedGroups(students, numGroups) {
+        function generateMixedGroups(students, numGroups, subjects) {
             // Shuffle
             let pool = [...students].sort(() => Math.random() - 0.5);
 
             // Identificar perfiles por promedio de niveles
-            const high = pool.filter(n => getAveragedLevel(n) > 0.3);
-            const low = pool.filter(n => getAveragedLevel(n) < -0.3);
+            const high = pool.filter(n => getAveragedLevel(n, subjects) > 0.3);
+            const low = pool.filter(n => getAveragedLevel(n, subjects) < -0.3);
             const medium = pool.filter(n => !high.includes(n) && !low.includes(n));
 
             const groups = Array.from({ length: numGroups }, () => []);
@@ -1066,9 +1102,9 @@
             return groups.filter(g => g.length > 0);
         }
 
-        function generateSameLevelGroups(students, numGroups) {
+        function generateSameLevelGroups(students, numGroups, subjects) {
             // Sort by averaged level
-            let sorted = [...students].sort((a, b) => getAveragedLevel(b) - getAveragedLevel(a));
+            let sorted = [...students].sort((a, b) => getAveragedLevel(b, subjects) - getAveragedLevel(a, subjects));
 
             const groups = Array.from({ length: numGroups }, () => []);
             sorted.forEach((s, i) => {
@@ -1080,7 +1116,7 @@
 
         function showResults(data) {
             document.getElementById('resultsSection').style.display = 'block';
-            document.getElementById('genDate').innerText = data.date;
+            document.getElementById('genDate').innerText = `${data.name} - ${data.date}`;
 
             const container = document.getElementById('groupContainer');
             container.innerHTML = '';
@@ -1133,8 +1169,8 @@
             list.innerHTML = teacherHistory.map(h => `
                 <div class="history-item" onclick="viewHistoryItem(${h.id})">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <strong>Generado el ${h.date}</strong>
-                        <span style="font-size: 0.8rem; color: var(--secondary);">${h.groups.length} grupos</span>
+                        <strong>${h.name || 'Generación sin nombre'}</strong>
+                        <span style="font-size: 0.8rem; color: var(--secondary);">${h.date}</span>
                     </div>
                 </div>
             `).join('');
