@@ -520,6 +520,19 @@
             gap: 0.5rem;
         }
 
+        .student-view-active .member-item {
+            padding: 0.6rem 0;
+            border-bottom: 1px dashed #f1f5f9;
+        }
+
+        .student-view-active .member-item:last-child {
+            border-bottom: none;
+        }
+
+        .student-view-active .badge-group {
+            display: none !important;
+        }
+
         .history-section {
             margin-top: 4rem;
         }
@@ -612,11 +625,16 @@
             </div>
         </div>
 
-        <!-- Group Results -->
         <div id="resultsSection" class="results-section">
             <div class="box-header">
                 <div class="box-title">Grupos Generados (<span id="genDate">...</span>)</div>
-                <button class="btn btn-clear" onclick="hideResults()">Cerrar</button>
+                <div class="actions">
+                    <button class="btn" style="background: #e0e7ff; color: var(--primary);"
+                        onclick="toggleStudentView()">
+                        👁️ Vista Estudiantes
+                    </button>
+                    <button class="btn btn-clear" onclick="hideResults()">Cerrar</button>
+                </div>
             </div>
             <div id="groupContainer" class="group-container">
                 <!-- Groups injected here -->
@@ -1153,8 +1171,12 @@
             return groups.filter(g => g.length > 0);
         }
 
+        let currentGroupData = null;
+
         function showResults(data) {
+            currentGroupData = data;
             document.getElementById('resultsSection').style.display = 'block';
+            document.getElementById('resultsSection').classList.remove('student-view-active');
             document.getElementById('genDate').innerText = `${data.name} - ${data.date}`;
 
             const container = document.getElementById('groupContainer');
@@ -1165,31 +1187,37 @@
                 card.className = 'group-card';
                 card.innerHTML = `
                     <h3>Grupo ${i + 1}</h3>
-                    <ul class="member-list">
+                    <ol class="member-list" style="margin-left: 1.2rem;">
                         ${members.map(m => {
                     const d = classifications[m] || {};
                     const getBadge = (val, label) => {
-                        if (val === '+') return `<span style="color: var(--success); font-weight: bold;">[${label}+]</span>`;
-                        if (val === '-') return `<span style="color: var(--danger); font-weight: bold;">[${label}-]</span>`;
+                        if (val === '+') return `<span class="badge-group" style="color: var(--success); font-weight: bold;">[${label}+]</span>`;
+                        if (val === '-') return `<span class="badge-group" style="color: var(--danger); font-weight: bold;">[${label}-]</span>`;
                         return '';
                     };
                     return `
                                 <li class="member-item">
-                                    👤 ${m}
-                                    ${d.unique ? '⭐' : ''}
-                                    ${d.helper ? '🤝' : ''}
-                                    ${getBadge(d.spanish, 'ES')}
-                                    ${getBadge(d.english, 'EN')}
-                                    ${getBadge(d.math, 'MA')}
+                                    <span style="display: flex; align-items: center; gap: 0.5rem;">
+                                        👤 ${m}
+                                        <span class="badge-group">${d.unique ? '⭐' : ''} ${d.helper ? '🤝' : ''}</span>
+                                        ${getBadge(d.spanish, 'ES')}
+                                        ${getBadge(d.english, 'EN')}
+                                        ${getBadge(d.math, 'MA')}
+                                    </span>
                                 </li>
                             `;
                 }).join('')}
-                    </ul>
+                    </ol>
                 `;
                 container.appendChild(card);
             });
 
             window.scrollTo({ top: document.getElementById('resultsSection').offsetTop - 20, behavior: 'smooth' });
+        }
+
+        function toggleStudentView() {
+            const section = document.getElementById('resultsSection');
+            section.classList.toggle('student-view-active');
         }
 
         function hideResults() {
