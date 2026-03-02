@@ -997,7 +997,26 @@
 
         function checkConflicts(groups, subjects) {
             let conflicts = 0;
+
+            // Identificar niveles globales para el balanceo
+            const allStudents = groups.flat();
+            const totalHighCount = allStudents.filter(n => getAveragedLevel(n, subjects) > 0.3).length;
+            const totalLowCount = allStudents.filter(n => getAveragedLevel(n, subjects) < -0.3).length;
+
             groups.forEach(group => {
+                const groupHigh = group.filter(n => getAveragedLevel(n, subjects) > 0.3);
+                const groupLow = group.filter(n => getAveragedLevel(n, subjects) < -0.3);
+
+                // REGLA: Evitar múltiples '+' si hay '-' sin pareja
+                if (groupHigh.length > 1 && totalLowCount > 0) {
+                    conflicts += (groupHigh.length - 1) * 4;
+                }
+
+                // REGLA: Los '+' deben acompañar a los '-' (prioridad)
+                if (groupHigh.length > 0 && groupLow.length === 0 && totalLowCount > 0) {
+                    conflicts += 3;
+                }
+
                 group.forEach(student => {
                     const data = classifications[student];
                     if (!data) return;
@@ -1011,7 +1030,6 @@
 
                     // Verificar "Juntos"
                     if (data.partner && !group.includes(data.partner)) {
-                        // Solo sumamos conflicto si la pareja está seleccionada para participar
                         const partnerData = classifications[data.partner];
                         if (!partnerData || partnerData.selected !== false) {
                             conflicts += 1;
@@ -1027,14 +1045,14 @@
                     // Verificar "Helper" (Ayuda)
                     if (data.helper) {
                         const otherHelpers = group.filter(m => m !== student && classifications[m]?.helper).length;
-                        conflicts += otherHelpers * 3; // Penalización fuerte por tener más de un helper
+                        conflicts += otherHelpers * 3;
 
                         const needyInGroup = group.filter(m => {
                             const md = classifications[m];
                             if (!md) return false;
                             return subjects.some(s => md[s] === '-');
                         }).length;
-                        if (needyInGroup === 0) conflicts += 1; // Un helper sin nadie a quien ayudar
+                        if (needyInGroup === 0) conflicts += 1;
                     }
                 });
 
@@ -1072,9 +1090,9 @@
             const medium = pool.filter(n => !high.includes(n) && !low.includes(n));
 
             const groups = Array.from({ length: numGroups }, () => []);
-
-            // Primero: Forzar parejas (Partners)
             const processed = new Set();
+
+            // 1. Forzar parejas específicas (Partners)
             students.forEach(name => {
                 if (processed.has(name)) return;
                 const partner = classifications[name]?.partner;
@@ -1086,12 +1104,33 @@
                 }
             });
 
-            const remainingPool = pool.filter(n => !processed.has(n));
-            const rHigh = remainingPool.filter(n => high.includes(n));
-            const rLow = remainingPool.filter(n => low.includes(n));
-            const rMed = remainingPool.filter(n => medium.includes(n));
+            // 2. Distribuir 'High' (+) uno por grupo
+            const rHigh = high.filter(n => !processed.has(n));
+            rHigh.forEach((s, i) => {
+                groups[i % numGroups].push(s);
+                processed.add(s);
+            });
 
-            [...rHigh, ...rLow, ...rMed].forEach(s => {
+            // 3. Intentar emparejar 'Low' (-) con los 'High' (+) ya asignados
+            const rLow = low.filter(n => !processed.has(n));
+            rLow.forEach(s => {
+                // Buscar grupo que tenga un HIGH pero NO tenga todavía un LOW
+                let targetGroup = groups.find(g =>
+                    g.some(m => high.includes(m)) && !g.some(m => low.includes(m)) && g.length < 4
+                );
+
+                // Si no hay, al grupo con menos gente
+                if (!targetGroup) {
+                    targetGroup = groups.reduce((prev, curr) => prev.length <= curr.length ? prev : curr);
+                }
+
+                targetGroup.push(s);
+                processed.add(s);
+            });
+
+            // 4. Rellenar el resto con estudiantes 'Medium' y los que falten
+            const remainingPool = pool.filter(n => !processed.has(n));
+            remainingPool.forEach(s => {
                 let bestG = 0;
                 for (let i = 0; i < numGroups; i++) {
                     if (groups[i].length < groups[bestG].length) bestG = i;
