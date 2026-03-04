@@ -595,6 +595,8 @@
             <div class="box-header">
                 <div class="box-title">Estudiantes (<span id="teacherName">...</span>)</div>
                 <div class="actions">
+                    <button id="importBtn" class="btn" style="background: #fef3c7; color: #92400e; display: none;"
+                        onclick="importOldScores()">📦 Importar Puntuaciones Antiguas</button>
                     <button class="btn btn-clear" onclick="clearClassifications()">🧹 Limpiar</button>
                     <button class="btn btn-generate" onclick="openConfig()">🚀 Generar Grupos</button>
                 </div>
@@ -761,10 +763,16 @@
                 .single();
 
             if (data) {
+                // Cloud data exists, pull it
                 classifications = data.classifications || {};
                 history = data.history || [];
                 localStorage.setItem('group_classifications', JSON.stringify(classifications));
                 localStorage.setItem('group_history', JSON.stringify(history));
+            } else {
+                // No data in cloud, if we have local data, push it now!
+                if (Object.keys(classifications).length > 0 || history.length > 0) {
+                    pushToCloud();
+                }
             }
 
             renderStudents();
@@ -773,6 +781,14 @@
 
         async function selectTeacher(teacher) {
             currentTeacher = teacher;
+
+            // Mostrar botón de importar solo para Poncelas y García (Zubieta ya lo hizo)
+            const importBtn = document.getElementById('importBtn');
+            if (teacher === 'poncelas' || teacher === 'garcia') {
+                importBtn.style.display = 'inline-block';
+            } else {
+                importBtn.style.display = 'none';
+            }
 
             // UI Updates
             document.querySelectorAll('.teacher-option').forEach(opt => opt.classList.remove('active'));
@@ -793,6 +809,66 @@
             // Re-render just in case something didn't fire
             if (document.getElementById('studentTableBody').innerHTML === '') {
                 renderStudents();
+            }
+        }
+
+        async function importOldScores() {
+            if (!confirm("¿Deseas importar todas tus puntuaciones antiguas desde Google Sheets?")) return;
+
+            const btn = document.getElementById('importBtn');
+            const originalText = btn.innerText;
+            btn.disabled = true;
+            btn.innerText = '⏳ Importando...';
+
+            const WEBHOOK = "https://script.google.com/macros/s/AKfycbwq5nLTHd5eY02ULQH7A6mEu0E1xLQjMN6-bH74HJamGWxhIDrAnNb6l_ovYI2watZXMQ/exec";
+
+            try {
+                const response = await fetch(WEBHOOK);
+                const rawData = await response.json();
+
+                if (!Array.isArray(rawData)) throw new Error("Datos inválidos");
+
+                const toInsert = rawData.map(item => {
+                    let d = item.date;
+                    let parsedDate = new Date();
+                    if (d && typeof d === 'string' && d.includes('/') && d.includes(',')) {
+                        try {
+                            const [datePart, timePart] = d.split(', ');
+                            const [day, month, year] = datePart.split('/');
+                            const cleanTime = timePart.replace(/\./g, '').toUpperCase();
+                            parsedDate = new Date(`${month}/${day}/${year} ${cleanTime}`);
+                        } catch (e) { parsedDate = new Date(d); }
+                    } else if (d) {
+                        parsedDate = new Date(d);
+                    }
+
+                    if (isNaN(parsedDate.getTime())) parsedDate = new Date();
+
+                    return {
+                        name: item.name || item.nombre || "",
+                        app: item.app || item.aplicacion || "",
+                        score: parseInt(item.score) || 0,
+                        time: typeof item.time === 'string' && item.time.includes('T') ? item.time.split('T')[1].substring(0, 5) : (item.time || ""),
+                        date: parsedDate.toISOString(),
+                        class: item.class || ""
+                    };
+                });
+
+                // Insert into Supabase 'scores' table (50 by 50)
+                for (let i = 0; i < toInsert.length; i += 50) {
+                    const chunk = toInsert.slice(i, i + 50);
+                    const { error } = await supabaseClient.from('scores').insert(chunk);
+                    if (error) throw error;
+                }
+
+                alert(`¡Éxito! Se han importado ${toInsert.length} registros. Ya puedes verlos en el Libro de Calificaciones.`);
+                btn.style.display = 'none'; // Desaparece tras el éxito
+            } catch (err) {
+                console.error("Import Error:", err);
+                alert("Error al importar: " + err.message);
+                btn.innerText = originalText;
+            } finally {
+                btn.disabled = false;
             }
         }
 
@@ -1087,7 +1163,8 @@
 
             history.unshift(result);
             if (history.length > 10) history.pop();
-            localStorage.setItem('group_history', JSON.stringify(history));
+
+            save(); // This updates local storage AND cloud
 
             closeModal();
             showResults(result);

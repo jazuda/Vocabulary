@@ -116,20 +116,6 @@
             letter-spacing: -0.02em;
         }
 
-        .sync-btn {
-            position: absolute;
-            top: 0;
-            right: 0;
-            background: var(--accent);
-            color: white;
-            border: none;
-            padding: 0.6rem 1rem;
-            border-radius: 0.5rem;
-            font-size: 0.85rem;
-            font-weight: 600;
-            cursor: pointer;
-        }
-
         #debugBtn {
             position: fixed;
             bottom: 10px;
@@ -400,9 +386,6 @@
             <a href="admin.html" class="back-link">← Volver al Admin</a>
             <h1>Libro de Calificaciones</h1>
             <p style="color: var(--text-muted);">Registro de puntuaciones en tiempo real.</p>
-            <button id="syncBtn" class="sync-btn" onclick="syncFromCloud()">🔄 Sincronizar</button>
-            <button id="migrateBtn" class="sync-btn" style="right: 140px; background: #f59e0b;"
-                onclick="migrateOldData()">📦 Migrar Antiguos</button>
         </header>
 
         <div class="stats-grid">
@@ -511,79 +494,7 @@
             syncFromCloud();
         }
 
-        async function migrateOldData() {
-            if (!confirm("¿Seguro que quieres importar todos los datos antiguos de Google Sheets? Esto podría crear duplicados si ya los migraste.")) return;
-
-            const btn = document.getElementById('migrateBtn');
-            const OLD_WEBHOOK = "https://script.google.com/macros/s/AKfycbwq5nLTHd5eY02ULQH7A6mEu0E1xLQjMN6-bH74HJamGWxhIDrAnNb6l_ovYI2watZXMQ/exec";
-
-            btn.disabled = true;
-            btn.innerText = '⏳ Migrando...';
-
-            try {
-                const response = await fetch(OLD_WEBHOOK);
-                const rawData = await response.json();
-
-                if (!Array.isArray(rawData)) throw new Error("Formato de datos inválido");
-
-                const client = getSupabase();
-                const toInsert = rawData.map(item => {
-                    let d = item.date;
-                    let parsedDate = new Date();
-
-                    if (d) {
-                        // Manejar formato local español: DD/MM/YYYY, HH:MM:SS p.m.
-                        if (typeof d === 'string' && d.includes('/') && d.includes(',')) {
-                            try {
-                                const [datePart, timePart] = d.split(', ');
-                                const [day, month, year] = datePart.split('/');
-                                // Limpiar a.m./p.m. -> AM/PM para que JS lo entienda
-                                const cleanTime = timePart.replace(/\./g, '').toUpperCase();
-                                // Re-formatear a MM/DD/YYYY (formato estándar de JS)
-                                parsedDate = new Date(`${month}/${day}/${year} ${cleanTime}`);
-                            } catch (e) { parsedDate = new Date(d); }
-                        } else {
-                            parsedDate = new Date(d);
-                        }
-                    }
-
-                    // Si el parseo falló, usar fecha actual como fallback
-                    if (isNaN(parsedDate.getTime())) parsedDate = new Date();
-
-                    return {
-                        name: item.name || item.nombre || "",
-                        app: item.app || item.aplicacion || "",
-                        score: parseInt(item.score) || 0,
-                        time: typeof item.time === 'string' && item.time.includes('T') ? item.time.split('T')[1].substring(0, 5) : (item.time || ""),
-                        date: parsedDate.toISOString(),
-                        class: item.class || ""
-                    };
-                });
-
-                // Insertar en bloques de 50 para evitar límites
-                for (let i = 0; i < toInsert.length; i += 50) {
-                    const chunk = toInsert.slice(i, i + 50);
-                    const { error } = await client.from('scores').insert(chunk);
-                    if (error) throw error;
-                }
-
-                alert(`¡Éxito! Se han migrado ${toInsert.length} registros.`);
-                btn.innerText = '✅ Migrado';
-                syncFromCloud();
-            } catch (err) {
-                console.error("Error en migración:", err);
-                alert("Error: " + err.message);
-                btn.innerText = '❌ Error';
-            } finally {
-                btn.disabled = false;
-            }
-        }
-
         async function syncFromCloud() {
-            const btn = document.getElementById('syncBtn');
-            btn.disabled = true;
-            btn.innerText = '⏳ Sincronizando...';
-
             try {
                 const client = getSupabase();
                 const { data, error } = await client
@@ -599,15 +510,9 @@
                     populateAppDropdown();
                     updateStats(allScores);
                     applyFilters();
-                    btn.innerText = '✅ Sincronizado';
-                    setTimeout(() => { btn.innerText = '🔄 Sincronizar'; }, 2000);
                 }
             } catch (err) {
                 console.error("Error en sincronización:", err);
-                btn.innerText = '❌ Error';
-                setTimeout(() => { btn.innerText = '🔄 Sincronizar'; }, 2000);
-            } finally {
-                btn.disabled = false;
             }
         }
 
