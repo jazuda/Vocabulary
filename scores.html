@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vocabulary Lab | Registro Maestro</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
             --bg-color: #ffffff;
@@ -413,6 +414,8 @@
             <h1>Libro de Calificaciones</h1>
             <p style="color: var(--text-muted);">Registro de puntuaciones en tiempo real.</p>
             <button id="syncBtn" class="sync-btn" onclick="syncFromCloud()">🔄 Sincronizar</button>
+            <button id="migrateBtn" class="sync-btn" style="right: 140px; background: #f59e0b;"
+                onclick="migrateOldData()">📦 Migrar Antiguos</button>
         </header>
 
         <div class="stats-grid">
@@ -490,9 +493,18 @@
     </div>
 
     <script>
-        const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbwq5nLTHd5eY02ULQH7A6mEu0E1xLQjMN6-bH74HJamGWxhIDrAnNb6l_ovYI2watZXMQ/exec";
+        const SUPABASE_URL = "https://xcpxhrmdjkqcdhhghizn.supabase.co";
+        const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhjcHhocm1kamtxY2RoaGdoaXpuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI2MzUxMjEsImV4cCI6MjA4ODIxMTEyMX0.YggPQSNoVkZunc_Dh7fIRrDSw4nTrGmVfaPq-7Bb1vY";
+        let supabaseClient = null;
+
+        function getSupabase() {
+            if (!supabaseClient) {
+                supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+            }
+            return supabaseClient;
+        }
+
         let allScores = [];
-        let rawDataFromServer = null; // Para debugging
 
         function checkPassword() {
             const pass = document.getElementById('passInput').value;
@@ -517,88 +529,78 @@
             populateAppDropdown();
             updateStats(allScores);
             applyFilters();
-            if (WEBHOOK_URL) syncFromCloud();
+            syncFromCloud();
+        }
+
+        async function migrateOldData() {
+            if (!confirm("¿Seguro que quieres importar todos los datos antiguos de Google Sheets? Esto podría crear duplicados si ya los migraste.")) return;
+
+            const btn = document.getElementById('migrateBtn');
+            const OLD_WEBHOOK = "https://script.google.com/macros/s/AKfycbwq5nLTHd5eY02ULQH7A6mEu0E1xLQjMN6-bH74HJamGWxhIDrAnNb6l_ovYI2watZXMQ/exec";
+
+            btn.disabled = true;
+            btn.innerText = '⏳ Migrando...';
+
+            try {
+                const response = await fetch(OLD_WEBHOOK);
+                const rawData = await response.json();
+
+                if (!Array.isArray(rawData)) throw new Error("Formato de datos inválido");
+
+                const client = getSupabase();
+                const toInsert = rawData.map(item => ({
+                    name: item.name || item.nombre || "",
+                    app: item.app || item.aplicacion || "",
+                    score: parseInt(item.score) || 0,
+                    time: item.time || "",
+                    date: item.date || new Date().toISOString(),
+                    class: item.class || ""
+                }));
+
+                // Insertar en bloques de 50 para evitar límites
+                for (let i = 0; i < toInsert.length; i += 50) {
+                    const chunk = toInsert.slice(i, i + 50);
+                    const { error } = await client.from('scores').insert(chunk);
+                    if (error) throw error;
+                }
+
+                alert(`¡Éxito! Se han migrado ${toInsert.length} registros.`);
+                btn.innerText = '✅ Migrado';
+                syncFromCloud();
+            } catch (err) {
+                console.error("Error en migración:", err);
+                alert("Error: " + err.message);
+                btn.innerText = '❌ Error';
+            } finally {
+                btn.disabled = false;
+            }
         }
 
         async function syncFromCloud() {
-            if (!WEBHOOK_URL) return;
             const btn = document.getElementById('syncBtn');
             btn.disabled = true;
             btn.innerText = '⏳ Sincronizando...';
 
             try {
-                const response = await fetch(WEBHOOK_URL);
-                const rawData = await response.json();
-                rawDataFromServer = rawData; // Guardar para debugging
-                console.log("Datos recibidos del servidor:", rawData);
+                const client = getSupabase();
+                const { data, error } = await client
+                    .from('scores')
+                    .select('*')
+                    .order('date', { ascending: false });
 
-                if (rawData.error) {
-                    console.error("Error del servidor:", rawData.error);
-                    alert("Error al cargar datos: " + rawData.error);
-                    return;
-                }
+                if (error) throw error;
 
-                if (Array.isArray(rawData) && rawData.length > 0) {
-                    allScores = rawData.map(item => {
-                        // Si el item es un array (fila de Excel), mapeamos por posición
-                        if (Array.isArray(item)) {
-                            return {
-                                name: item[0] || "",
-                                app: item[1] || "",
-                                score: item[2] || "0",
-                                time: item[3] || "",
-                                date: item[4] || "",
-                                class: item[5] || "",
-                                details: item[6] || ""
-                            };
-                        }
-
-                        // Si es un objeto, buscamos por llaves
-                        const find = (keys) => {
-                            for (let k of keys) {
-                                if (item[k] !== undefined && item[k] !== null && item[k] !== '') return item[k];
-                                let lower = k.toLowerCase();
-                                if (item[lower] !== undefined && item[lower] !== null && item[lower] !== '') return item[lower];
-                                let cap = k.charAt(0).toUpperCase() + k.slice(1);
-                                if (item[cap] !== undefined && item[cap] !== null && item[cap] !== '') return item[cap];
-                            }
-                            return "";
-                        };
-
-                        return {
-                            name: find(['name', 'nombre', 'estudiante', 'Nombre', 'Estudiante']),
-                            class: find(['class', 'clase', 'salón', 'salon', 'Clase', 'Salón', 'Salon']),
-                            app: find(['app', 'aplicación', 'aplicacion', 'tema', 'App', 'Aplicación', 'Tema']),
-                            score: find(['score', 'puntos', 'puntuación', 'puntuacion', 'Score', 'Puntos', 'Puntuación']),
-                            time: find(['time', 'tiempo', 'Time', 'Tiempo']),
-                            date: find(['date', 'fecha', 'Date', 'Fecha']),
-                            details: find(['details', 'detalles', 'detalle', 'Details', 'Detalles', 'Detalle'])
-                        };
-                    });
-
-                    console.log("Datos procesados:", allScores);
-
-                    // Solo guardar y actualizar si realmente hay datos válidos
-                    if (allScores.length > 0) {
-                        localStorage.setItem('vocabulary_lab_scores', JSON.stringify(allScores));
-                        populateAppDropdown();
-                        updateStats(allScores);
-                        applyFilters();
-                        btn.innerText = '✅ Sincronizado';
-                        setTimeout(() => { btn.innerText = '🔄 Sincronizar'; }, 2000);
-                    } else {
-                        console.warn("No se encontraron datos válidos");
-                        btn.innerText = '⚠️ Sin datos';
-                        setTimeout(() => { btn.innerText = '🔄 Sincronizar'; }, 2000);
-                    }
-                } else {
-                    console.warn("Respuesta vacía o no es un array:", rawData);
-                    btn.innerText = '⚠️ Sin datos';
+                if (data) {
+                    allScores = data;
+                    localStorage.setItem('vocabulary_lab_scores', JSON.stringify(allScores));
+                    populateAppDropdown();
+                    updateStats(allScores);
+                    applyFilters();
+                    btn.innerText = '✅ Sincronizado';
                     setTimeout(() => { btn.innerText = '🔄 Sincronizar'; }, 2000);
                 }
             } catch (err) {
                 console.error("Error en sincronización:", err);
-                alert("Error de conexión: " + err.message);
                 btn.innerText = '❌ Error';
                 setTimeout(() => { btn.innerText = '🔄 Sincronizar'; }, 2000);
             } finally {
@@ -714,9 +716,9 @@
                     <td style="color: var(--text-muted); font-size: 0.85rem;">${s.app || '---'}</td>
                     <td class="score-val">${s.score !== "" ? s.score : '0'}%</td>
                     <td>${s.time || '---'}</td>
-                    <td style="color: #a1a19f; font-size: 0.8rem;">${s.date || '---'}</td>
+                    <td style="color: #a1a19f; font-size: 0.8rem;">${s.date ? new Date(s.date).toLocaleString() : '---'}</td>
                     <td>
-                        <button class="view-details-btn" onclick="showDetails(${allScores.indexOf(s)})">Ver más</button>
+                        <button class="view-details-btn" onclick="showDetails(${filtered.indexOf(s)}, true)">Ver más</button>
                     </td>
                 </tr>
             `).join('');
@@ -731,37 +733,9 @@
             document.getElementById('uniqueStudents').innerText = uniqueNames.size;
         }
 
-        window.showDetails = function (index) {
-            const score = allScores[index];
-            if (!score || !score.details) {
-                alert("No hay detalles disponibles para este intento.");
-                return;
-            }
-
-            let details = score.details;
-            // Parse if it's a string from the sheet
-            if (typeof details === 'string') {
-                try { details = JSON.parse(details); } catch (e) { console.error("Error parsing details", e); }
-            }
-
-            const modal = document.getElementById('detailsModal');
-            const studentNameSpan = document.getElementById('studentNameDetails');
-            const body = document.getElementById('detailsBody');
-
-            studentNameSpan.innerText = score.name;
-            body.innerHTML = details.map(d => `
-                <div class="detail-item">
-                    <div class="detail-q">
-                        <span>Pregunta ${d.id}: ${d.question}</span>
-                        <span class="points-badge ${d.points === d.maxPoints ? 'points-correct' : 'points-wrong'}">
-                            ${d.points}/${d.maxPoints} pts
-                        </span>
-                    </div>
-                    <div class="detail-a">Respuesta: ${d.answer || '(Vacío)'}</div>
-                </div>
-            `).join('');
-
-            modal.style.display = 'flex';
+        window.showDetails = function (index, isFiltered = false) {
+            // Placeholder: currently the backend only saves the score, not the full breakdown
+            alert("Los detalles específicos de este intento se añadirán en futuras actualizaciones del motor.");
         };
 
         window.closeDetails = function () {

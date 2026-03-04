@@ -5,6 +5,17 @@ let studentClass = "";
 let userRole = null;
 let answeredQuestions = new Set();
 
+// Configuración de Supabase
+const SUPABASE_URL = "https://xcpxhrmdjkqcdhhghizn.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhjcHhocm1kamtxY2RoaGdoaXpuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI2MzUxMjEsImV4cCI6MjA4ODIxMTEyMX0.YggPQSNoVkZunc_Dh7fIRrDSw4nTrGmVfaPq-7Bb1vY";
+
+// Cargar SDK si no existe
+if (typeof supabase === 'undefined') {
+    const script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+    document.head.appendChild(script);
+}
+
 const CLASSES = {
     "Mr Zubieta": ["Alvarado Kevin", "Cordova Thiago", "Diaz Zoe", "Fernandez Richard", "Garcia David", "Gomez Salvador Judit", "Jacho Ayala Ashley", "Jacho Vega Kimberly", "Marin Delgado Isaac", "Martinez Garcia Iker", "Mercado Sapon Arianna", "Orozco Mia", "Perez-Larios Milan", "Ramirez Lauren", "Ruiz Contreras Daviana", "Tocte Condor Keylor", "Torres Pedroza Itzayana", "Valentin Mata Bryan", "Villalobos Emmanuel", "Zuniga Soto Wilson"],
     "Ms Poncelas": ["Beristain Loyo Angel", "Campos Eylin", "Cervantes Casarrubias Sergio", "Diaz Mateo", "Dorantes Lurmarelia", "Escobar Natasha", "Garcia David", "Garcia Sophia", "Guanotuna Sharline", "Landi Denise", "Lutuala Quishpe Erick", "Ortega Mathyas", "Paniagua Edgar", "Pilaguano Choloquinga Sheyla", "Prada Edymar", "Rios Iam", "Salinas Elena", "Valladares Jesus", "Vallecillo Ana", "Veliz Gomez Carlismar"],
@@ -354,14 +365,16 @@ window.submitAssessment = async function (force = false) {
         document.querySelector('.submit-btn').style.display = 'none';
 
         try {
-            const webhookUrl = "https://script.google.com/macros/s/AKfycbwq5nLTHd5eY02ULQH7A6mEu0E1xLQjMN6-bH74HJamGWxhIDrAnNb6l_ovYI2watZXMQ/exec";
-            await fetch(webhookUrl, {
-                method: 'POST',
-                mode: 'no-cors',
-                cache: 'no-cache',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
+            const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+            const { error } = await client.from('scores').insert([{
+                name: studentName,
+                class: studentClass,
+                app: MATH_CONFIG.title,
+                score: percentage,
+                time: payload.time
+            }]);
+
+            if (error) throw error;
 
             output.innerHTML = `
                 <div class="validation-msg" style="color: var(--notion-green); background: rgba(46, 204, 113, 0.05); border-color: var(--notion-green);">
@@ -371,8 +384,8 @@ window.submitAssessment = async function (force = false) {
                 <button class="nav-btn" style="margin-top: 1rem; width: 100%; justify-content: center;" onclick="location.reload()">Terminar sesión</button>
             `;
         } catch (err) {
-            console.error("Error al enviar:", err);
-            output.innerHTML = `<div class="validation-msg">❌ Error al conectar. Inténtalo de nuevo.</div>`;
+            console.error("Error al enviar a Supabase:", err);
+            output.innerHTML = `<div class="validation-msg">❌ Error al conectar con la nube. Inténtalo de nuevo.</div>`;
             document.querySelector('.submit-btn').style.display = 'block';
         }
     }

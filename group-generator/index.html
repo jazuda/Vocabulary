@@ -4,8 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Generador de Grupos | Vocabulary Lab</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <title>Generador de Grupos - Propyos</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
             --primary: #6366f1;
@@ -694,10 +695,28 @@
                     placeholder="Ej: 5 (Opcional)" style="margin-top: 0.5rem;">
             </div>
 
+            <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 1.5rem 0;">
+
+            <div class="modal-field">
+                <label style="color: var(--accent); display: flex; align-items: center; gap: 0.5rem;">
+                    ☁️ Sincronización en la Nube
+                </label>
+                <p style="font-size: 0.75rem; color: var(--secondary); margin-bottom: 0.8rem;">
+                    Introduce tus credenciales de Supabase para guardar los datos permanentemente.
+                </p>
+                <input type="text" id="dbUrl" class="input-text" placeholder="Supabase URL"
+                    style="width: 100%; padding: 0.5rem; border: 1px solid #e2e8f0; border-radius: 0.4rem; font-size: 0.8rem; margin-bottom: 0.5rem;">
+                <input type="password" id="dbKey" class="input-text" placeholder="Supabase API Key (service_role)"
+                    style="width: 100%; padding: 0.5rem; border: 1px solid #e2e8f0; border-radius: 0.4rem; font-size: 0.8rem;">
+                <div id="syncStatus" style="font-size: 0.7rem; margin-top: 0.5rem; color: var(--secondary);">
+                    Estado: No configurado (usando memoria local)
+                </div>
+            </div>
+
             <div class="modal-buttons" style="display: flex; gap: 1rem; margin-top: 2rem;">
                 <button class="btn btn-clear" style="flex: 1;" onclick="closeModal()">Cancelar</button>
                 <button class="btn btn-generate" style="flex: 1; justify-content: center;"
-                    onclick="generateGroups()">¡Generar!</button>
+                    onclick="applyConfig()">Guardar y Generar</button>
             </div>
         </div>
     </div>
@@ -712,8 +731,79 @@
         let currentTeacher = null;
         let classifications = JSON.parse(localStorage.getItem('group_classifications') || '{}');
         let history = JSON.parse(localStorage.getItem('group_history') || '[]');
+        let supabase = null;
 
-        function selectTeacher(teacher) {
+        // Initialize Cloud Config (Prefilled with global credentials)
+        const DEFAULT_URL = "https://xcpxhrmdjkqcdhhghizn.supabase.co";
+        const DEFAULT_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhjcHhocm1kamtxY2RoaGdoaXpuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI2MzUxMjEsImV4cCI6MjA4ODIxMTEyMX0.YggPQSNoVkZunc_Dh7fIRrDSw4nTrGmVfaPq-7Bb1vY";
+
+        const cloudConfig = JSON.parse(localStorage.getItem('supabase_config') || `{ "url": "${DEFAULT_URL}", "key": "${DEFAULT_KEY}" }`);
+        document.getElementById('dbUrl').value = cloudConfig.url;
+        document.getElementById('dbKey').value = cloudConfig.key;
+
+        async function initCloud() {
+            const url = document.getElementById('dbUrl').value.trim();
+            const key = document.getElementById('dbKey').value.trim();
+
+            if (url && key) {
+                try {
+                    supabase = supabase.createClient(url, key);
+                    localStorage.setItem('supabase_config', JSON.stringify({ url, key }));
+                    document.getElementById('syncStatus').innerText = "Estado: Conectando...";
+                    await pullFromCloud();
+                } catch (e) {
+                    document.getElementById('syncStatus').innerText = "Estado: Error de configuración";
+                    console.error(e);
+                }
+            }
+        }
+
+        async function pushToCloud() {
+            if (!supabase || !currentTeacher) return;
+            document.getElementById('syncStatus').innerText = "Estado: Guardando en la nube...";
+
+            const data = {
+                teacher: currentTeacher,
+                classifications: classifications,
+                history: history,
+                last_updated: new Date().toISOString()
+            };
+
+            const { error } = await supabase
+                .from('teacher_data')
+                .upsert([data], { onConflict: 'teacher' });
+
+            if (error) {
+                document.getElementById('syncStatus').innerText = "Estado: Error al guardar";
+                console.error(error);
+            } else {
+                document.getElementById('syncStatus').innerText = "Estado: Sincronizado ✅";
+            }
+        }
+
+        async function pullFromCloud() {
+            if (!supabase || !currentTeacher) return;
+
+            const { data, error } = await supabase
+                .from('teacher_data')
+                .select('*')
+                .eq('teacher', currentTeacher)
+                .single();
+
+            if (data) {
+                classifications = data.classifications || {};
+                history = data.history || [];
+                localStorage.setItem('group_classifications', JSON.stringify(classifications));
+                localStorage.setItem('group_history', JSON.stringify(history));
+                renderStudents();
+                renderHistory();
+                document.getElementById('syncStatus').innerText = "Estado: Datos cargados ✅";
+            } else if (!error) {
+                document.getElementById('syncStatus').innerText = "Estado: Sin datos previos en la nube";
+            }
+        }
+
+        async function selectTeacher(teacher) {
             currentTeacher = teacher;
 
             // UI Updates
@@ -723,12 +813,18 @@
             document.getElementById('teacherName').innerText = teacher.charAt(0).toUpperCase() + teacher.slice(1);
             document.getElementById('studentSection').style.display = 'block';
 
-            renderStudents();
-            renderHistory();
+            if (supabase) {
+                await pullFromCloud();
+            } else {
+                renderStudents();
+                renderHistory();
+            }
         }
 
         function save() {
             localStorage.setItem('group_classifications', JSON.stringify(classifications));
+            localStorage.setItem('group_history', JSON.stringify(history));
+            if (supabase) pushToCloud();
         }
 
         function renderStudents() {
@@ -932,6 +1028,11 @@
 
         function closeModal() {
             document.getElementById('configModal').style.display = 'none';
+        }
+
+        async function applyConfig() {
+            await initCloud();
+            generateGroups();
         }
 
         function generateGroups() {
@@ -1255,6 +1356,10 @@
             const item = history.find(h => h.id === id);
             if (item) showResults(item);
         }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initCloud();
+        });
     </script>
 </body>
 

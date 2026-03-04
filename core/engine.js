@@ -39,8 +39,24 @@ const CLASSES = {
     ]
 };
 
-// URL de tu Web App de Google (Hoja de Cálculo)
-const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbwq5nLTHd5eY02ULQH7A6mEu0E1xLQjMN6-bH74HJamGWxhIDrAnNb6l_ovYI2watZXMQ/exec";
+// Configuración de Supabase
+const SUPABASE_URL = "https://xcpxhrmdjkqcdhhghizn.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhjcHhocm1kamtxY2RoaGdoaXpuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI2MzUxMjEsImV4cCI6MjA4ODIxMTEyMX0.YggPQSNoVkZunc_Dh7fIRrDSw4nTrGmVfaPq-7Bb1vY";
+
+// Cargar librería de Supabase dinámicamente si no está presente
+if (typeof supabase === 'undefined') {
+    const script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+    document.head.appendChild(script);
+}
+
+let _supabaseClient = null;
+function getSupabase() {
+    if (!_supabaseClient && typeof supabase !== 'undefined') {
+        _supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    }
+    return _supabaseClient;
+}
 
 // Global functions attached to window for HTML onclick compatibility
 window.selectRole = function (role) {
@@ -485,15 +501,23 @@ function saveGameResult() {
     const scores = JSON.parse(localStorage.getItem('vocabulary_lab_scores') || '[]');
     scores.push(result);
     localStorage.setItem('vocabulary_lab_scores', JSON.stringify(scores));
-    if (WEBHOOK_URL) {
-        fetch(WEBHOOK_URL, {
-            method: 'POST',
-            mode: 'no-cors',
-            cache: 'no-cache',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(result)
-        }).then(() => console.log("Resultado enviado a la nube"))
-            .catch(err => console.error("Error enviando a la nube:", err));
+
+    // Enviar a Supabase
+    const client = getSupabase();
+    if (client) {
+        client.from('scores').insert([{
+            name: studentName,
+            class: studentClass,
+            app: _currentConfig.title,
+            score: score,
+            time: formatTime(elapsedSeconds)
+        }]).then(({ error }) => {
+            if (error) console.error("Error al guardar en Supabase:", error);
+            else console.log("Resultado guardado en la nube con éxito");
+        });
+    } else {
+        // Reintentar en un segundo si la librería aún no cargó
+        setTimeout(saveGameResult, 1000);
     }
 }
 
