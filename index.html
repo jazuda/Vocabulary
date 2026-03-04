@@ -555,122 +555,72 @@
                 <h1>Vocabulary Lab</h1>
                 <p class="subtitle">Experiencias de aprendizaje interactivas..</p>
             </div>
-            <div class="header-actions">
-                <button onclick="openAdmin()" class="admin-btn">
-                    ⚙️ Admin
-                </button>
-            </div>
-        </header>
+            <a href="admin.html" class="admin-btn">
+                ⚙️ Admin
+            </a>
+    </div>
+    </header>
 
-        <div id="passwordModal">
-            <div class="modal-content">
-                <div id="step-password">
-                    <h2>Acceso Protegido</h2>
-                    <p>Introduce la contraseña para continuar</p>
-                    <input type="password" id="passwordInput" class="password-input" placeholder="Contraseña">
-                    <div class="modal-buttons">
-                        <button class="cancel-btn" onclick="closeModal()">Cancelar</button>
-                        <button class="confirm-btn" onclick="verifyPassword()">Entrar</button>
-                    </div>
-                    <div id="passwordError" class="error-msg">Contraseña incorrecta</div>
-                </div>
+    <div class="search-container">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="searchInput" class="search-input" placeholder="Buscar un tema o historia..."
+            autocomplete="off">
+    </div>
 
-                <div id="step-teacher" style="display: none;">
-                    <h2>Seleccionar Maestro</h2>
-                    <p>Elige tu perfil para personalizar la experiencia</p>
-                    <div class="teacher-grid">
-                        <button class="teacher-btn" onclick="selectTeacher('Mr Zubieta')">👨‍🏫 Mr Zubieta</button>
-                        <button class="teacher-btn" onclick="selectTeacher('Ms Poncelas')">👩‍🏫 Ms Poncelas</button>
-                        <button class="teacher-btn" onclick="selectTeacher('Mr García')">👨‍🏫 Mr García</button>
-                    </div>
-                    <button class="cancel-btn" style="margin-top: 1.5rem; width: 100%;" onclick="resetAdminFlow()">←
-                        Volver al Login</button>
-                </div>
+    <div class="section-label">Mini-Apps</div>
+    <div class="grid" id="appGrid">
+        <a href="wants-and-needs/index.html" class="card" data-title="Wants and Needs"
+            data-desc="Aprende la diferencia entre deseos y necesidades reales.">
+            <h2>Wants and Needs</h2>
+            <p>Aprende la diferencia entre deseos y necesidades reales.</p>
+        </a>
 
-                <div id="step-admin" style="display: none;">
-                    <h2>Panel de Control</h2>
-                    <p>Gestionar <span id="activeTeacherName" style="font-weight: 700; color: var(--accent);"></span>
-                    </p>
-                    <div class="admin-menu"
-                        style="display: flex; flex-direction: column; gap: 1rem; margin-top: 1.5rem;">
-                        <button onclick="window.location.href='scores.html'" class="scores-btn"
-                            style="width: 100%; justify-content: center; padding: 1rem;">
-                            📊 Ver Puntuaciones
-                        </button>
-                        <button onclick="window.location.href='group-generator/index.html'" class="group-btn"
-                            style="width: 100%; justify-content: center; padding: 1rem; margin-top: 0; background-color: #34a853; color: white; border-radius: 0.5rem; border: none; font-weight: 600; display: flex; align-items: center; gap: 0.6rem; cursor: pointer;">
-                            👥 Generar grupos
-                        </button>
-                        <button class="cancel-btn" onclick="showTeacherSelection()"
-                            style="margin-top: 1rem; background: none; border: 1px dashed var(--border-color); color: var(--text-muted); font-size: 0.85rem;">🔄
-                            Cambiar Maestro</button>
-                    </div>
-                    <button class="cancel-btn" style="margin-top: 2rem; width: 100%;" onclick="closeModal()">Cerrar
-                        Panel</button>
-                </div>
-            </div>
+        <a href="import-and-export/index.html" class="card" data-title="Import and Export"
+            data-desc="Explora cómo funcionan el comercio, los productores y los consumidores.">
+            <h2>Import and Export</h2>
+            <p>Explora cómo funcionan el comercio, los productores y los consumidores.</p>
+        </a>
+
+        <a href="chicago-culture/index.html" class="card" data-title="Culture and Identity in Chicago"
+            data-desc="Explora la rica diversidad cultural y las tradiciones de Chicago.">
+            <h2>Chicago Culture</h2>
+            <p>Explora la rica diversidad cultural y las tradiciones de Chicago.</p>
+        </a>
+
+        <a href="my-house/index.html" class="card" data-title="My House"
+            data-desc="Descubre los objetos y espacios que hacen de una casa un hogar.">
+            <h2>My House</h2>
+            <p>Descubre los objetos y espacios que hacen de una casa un hogar.</p>
+        </a>
+
+        <a href="the-youngest-marcher/index.html" class="card" data-title="The Youngest Marcher"
+            data-desc="La inspiradora historia de Audrey Faye Hendricks.">
+            <h2>The Youngest Marcher</h2>
+            <p>La inspiradora historia de Audrey Faye Hendricks.</p>
+        </a>
+
+        <a href="math-assessment/index.html" class="card" data-title="Math Assessment: Topic 16"
+            data-desc="Evaluación interactiva del Tema 16 de Matemáticas.">
+            <h2>Math Assessment: Topic 16</h2>
+            <p>Evaluación interactiva del Tema 16 de Matemáticas.</p>
+        </a>
+
+        <a href="math-assessment-practice/index.html" class="card" data-title="Práctica Tema 16"
+            data-desc="Práctica de repaso con nuevos números del Tema 16 de Matemáticas.">
+            <h2>Práctica Tema 16</h2>
+            <p>Práctica de repaso con nuevos números del Tema 16 de Matemáticas.</p>
+        </a>
+    </div>
+
+    <div class="section-label">Juegos matemáticos</div>
+    <div class="grid">
+        <div class="card" onclick="openGameModal()" style="cursor: pointer; border-color: #34a853;">
+            <h2 style="color: #2d8143;">Cifras y letras</h2>
+            <p>Entrena tu agilidad mental con este clásico desafío de números y palabras.</p>
         </div>
+    </div>
 
-        <div class="search-container">
-            <span class="search-icon">🔍</span>
-            <input type="text" id="searchInput" class="search-input" placeholder="Buscar un tema o historia..."
-                autocomplete="off">
-        </div>
-
-        <div class="section-label">Mini-Apps</div>
-        <div class="grid" id="appGrid">
-            <a href="wants-and-needs/index.html" class="card" data-title="Wants and Needs"
-                data-desc="Aprende la diferencia entre deseos y necesidades reales.">
-                <h2>Wants and Needs</h2>
-                <p>Aprende la diferencia entre deseos y necesidades reales.</p>
-            </a>
-
-            <a href="import-and-export/index.html" class="card" data-title="Import and Export"
-                data-desc="Explora cómo funcionan el comercio, los productores y los consumidores.">
-                <h2>Import and Export</h2>
-                <p>Explora cómo funcionan el comercio, los productores y los consumidores.</p>
-            </a>
-
-            <a href="chicago-culture/index.html" class="card" data-title="Culture and Identity in Chicago"
-                data-desc="Explora la rica diversidad cultural y las tradiciones de Chicago.">
-                <h2>Chicago Culture</h2>
-                <p>Explora la rica diversidad cultural y las tradiciones de Chicago.</p>
-            </a>
-
-            <a href="my-house/index.html" class="card" data-title="My House"
-                data-desc="Descubre los objetos y espacios que hacen de una casa un hogar.">
-                <h2>My House</h2>
-                <p>Descubre los objetos y espacios que hacen de una casa un hogar.</p>
-            </a>
-
-            <a href="the-youngest-marcher/index.html" class="card" data-title="The Youngest Marcher"
-                data-desc="La inspiradora historia de Audrey Faye Hendricks.">
-                <h2>The Youngest Marcher</h2>
-                <p>La inspiradora historia de Audrey Faye Hendricks.</p>
-            </a>
-
-            <a href="math-assessment/index.html" class="card" data-title="Math Assessment: Topic 16"
-                data-desc="Evaluación interactiva del Tema 16 de Matemáticas.">
-                <h2>Math Assessment: Topic 16</h2>
-                <p>Evaluación interactiva del Tema 16 de Matemáticas.</p>
-            </a>
-
-            <a href="math-assessment-practice/index.html" class="card" data-title="Práctica Tema 16"
-                data-desc="Práctica de repaso con nuevos números del Tema 16 de Matemáticas.">
-                <h2>Práctica Tema 16</h2>
-                <p>Práctica de repaso con nuevos números del Tema 16 de Matemáticas.</p>
-            </a>
-        </div>
-
-        <div class="section-label">Juegos matemáticos</div>
-        <div class="grid">
-            <div class="card" onclick="openGameModal()" style="cursor: pointer; border-color: #34a853;">
-                <h2 style="color: #2d8143;">Cifras y letras</h2>
-                <p>Entrena tu agilidad mental con este clásico desafío de números y palabras.</p>
-            </div>
-        </div>
-
-        <div id="noResults" class="no-results">No se encontraron temas que coincidan con tu búsqueda.</div>
+    <div id="noResults" class="no-results">No se encontraron temas que coincidan con tu búsqueda.</div>
     </div>
 
     <!-- Game Modal -->
@@ -755,64 +705,6 @@
     </div>
 
     <script>
-        function openAdmin() {
-            document.getElementById('passwordModal').style.display = 'flex';
-
-            if (sessionStorage.getItem('admin_logged_in') === 'true') {
-                const activeTeacher = localStorage.getItem('vocabulary_active_teacher');
-                if (activeTeacher) {
-                    selectTeacher(activeTeacher);
-                } else {
-                    showTeacherSelection();
-                }
-            } else {
-                resetAdminFlow();
-            }
-        }
-
-        function resetAdminFlow() {
-            document.getElementById('step-password').style.display = 'block';
-            document.getElementById('step-teacher').style.display = 'none';
-            document.getElementById('step-admin').style.display = 'none';
-            document.getElementById('passwordInput').focus();
-            document.getElementById('passwordInput').value = '';
-            document.getElementById('passwordError').style.display = 'none';
-        }
-
-        function showTeacherSelection() {
-            document.getElementById('step-password').style.display = 'none';
-            document.getElementById('step-teacher').style.display = 'block';
-            document.getElementById('step-admin').style.display = 'none';
-        }
-
-        function closeModal() {
-            document.getElementById('passwordModal').style.display = 'none';
-            document.getElementById('passwordInput').value = '';
-        }
-
-        function verifyPassword() {
-            const pass = document.getElementById('passwordInput').value;
-            if (pass === "Nixon2026") {
-                sessionStorage.setItem('admin_logged_in', 'true');
-                showTeacherSelection();
-            } else {
-                document.getElementById('passwordError').style.display = 'block';
-                document.getElementById('passwordInput').value = '';
-            }
-        }
-
-        function selectTeacher(teacher) {
-            localStorage.setItem('vocabulary_active_teacher', teacher);
-            document.getElementById('activeTeacherName').innerText = teacher;
-            document.getElementById('step-password').style.display = 'none';
-            document.getElementById('step-teacher').style.display = 'none';
-            document.getElementById('step-admin').style.display = 'block';
-        }
-
-        document.getElementById('passwordInput').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') verifyPassword();
-        });
-
         const searchInput = document.getElementById('searchInput');
         const cards = document.querySelectorAll('.card');
         const noResults = document.getElementById('noResults');

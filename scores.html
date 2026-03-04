@@ -394,23 +394,10 @@
 </head>
 
 <body>
-    <!-- Pantalla de Bloqueo -->
-    <div id="lockScreen">
-        <div class="lock-card">
-            <h2>Acceso Restringido</h2>
-            <p style="color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.9rem;">Por favor, introduce la
-                contraseña de maestro para continuar.</p>
-            <input type="password" id="passInput" class="lock-input" placeholder="Contraseña">
-            <button class="lock-btn" onclick="checkPassword()">Entrar</button>
-            <p id="lockError" style="color: #eb5757; font-size: 0.8rem; margin-top: 1rem; display: none;">Contraseña
-                incorrecta</p>
-        </div>
-    </div>
-
     <!-- Contenido Principal -->
-    <div class="container" id="mainContainer">
+    <div class="container" id="mainContainer" style="display: block;">
         <header>
-            <a href="index.html" class="back-link">← Volver al Portal</a>
+            <a href="admin.html" class="back-link">← Volver al Admin</a>
             <h1>Libro de Calificaciones</h1>
             <p style="color: var(--text-muted);">Registro de puntuaciones en tiempo real.</p>
             <button id="syncBtn" class="sync-btn" onclick="syncFromCloud()">🔄 Sincronizar</button>
@@ -506,23 +493,15 @@
 
         let allScores = [];
 
-        function checkPassword() {
-            const pass = document.getElementById('passInput').value;
-            const error = document.getElementById('lockError');
-            if (pass === "Nixon2026") {
-                document.getElementById('lockScreen').style.display = 'none';
-                document.getElementById('mainContainer').style.display = 'block';
+        function checkAuth() {
+            if (sessionStorage.getItem('admin_logged_in') === 'true') {
                 loadScores();
             } else {
-                error.style.display = 'block';
-                document.getElementById('passInput').value = "";
+                window.location.href = 'admin.html';
             }
         }
 
-        // Permitir entrar con la tecla Enter
-        document.getElementById('passInput').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') checkPassword();
-        });
+        checkAuth();
 
         function loadScores() {
             allScores = JSON.parse(localStorage.getItem('vocabulary_lab_scores') || '[]');

@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Administración | Vocabulary Lab</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --accent: #2563eb;
+            --accent-hover: #1d4ed8;
+            --success: #16a34a;
+            --max-width: 600px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .admin-card {
+            background-color: var(--card-bg);
+            width: 100%;
+            max-width: var(--max-width);
+            padding: 2.5rem;
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border-color);
+            text-align: center;
+        }
+
+        .header-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover {
+            color: var(--text-main);
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        p {
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        input[type="password"] {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border-radius: 0.75rem;
+            border: 1px solid var(--border-color);
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+            text-align: center;
+        }
+
+        input[type="password"]:focus {
+            border-color: var(--accent);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background-color: var(--accent);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--accent-hover);
+            transform: translateY(-1px);
+        }
+
+        .btn-success {
+            background-color: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: #15803d;
+            transform: translateY(-1px);
+        }
+
+        .error-msg {
+            color: #dc2626;
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+            display: none;
+        }
+
+        .teacher-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 0.75rem;
+        }
+
+        .teacher-btn {
+            padding: 1.2rem;
+            border: 1px solid var(--border-color);
+            border-radius: 1rem;
+            background: white;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .teacher-btn:hover {
+            border-color: var(--accent);
+            background: #f0f7ff;
+            transform: scale(1.02);
+        }
+
+        .menu-grid {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .change-teacher {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px dashed var(--border-color);
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .change-teacher:hover {
+            color: var(--accent);
+        }
+
+        [hidden] {
+            display: none !important;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="admin-card">
+        <div class="header-nav" id="headerNav">
+            <a href="index.html" class="back-link">← Volver al Portal</a>
+        </div>
+
+        <!-- Step 1: Login -->
+        <div id="section-login">
+            <h1>Acceso Administrador</h1>
+            <p>Introduce la contraseña para continuar</p>
+            <div class="form-group">
+                <input type="password" id="passwordInput" placeholder="Contraseña">
+                <div id="passwordError" class="error-msg">Contraseña incorrecta</div>
+            </div>
+            <button class="btn btn-primary" onclick="verifyPassword()">Entrar</button>
+        </div>
+
+        <!-- Step 2: Teacher Selection -->
+        <div id="section-teacher" hidden>
+            <h1>Seleccionar Maestro</h1>
+            <p>Elige tu perfil para personalizar la experiencia</p>
+            <div class="teacher-grid">
+                <button class="teacher-btn" onclick="selectTeacher('Mr Zubieta')"><span>👨‍🏫</span> Mr Zubieta</button>
+                <button class="teacher-btn" onclick="selectTeacher('Ms Poncelas')"><span>👩‍🏫</span> Ms
+                    Poncelas</button>
+                <button class="teacher-btn" onclick="selectTeacher('Mr García')"><span>👨‍🏫</span> Mr García</button>
+            </div>
+            <div class="change-teacher" onclick="logout()">Cerrar Sesión</div>
+        </div>
+
+        <!-- Step 3: Admin Dashboard -->
+        <div id="section-dashboard" hidden>
+            <h1>Panel de Control</h1>
+            <p>Gestionando como <span id="activeTeacherName" style="font-weight: 700; color: var(--accent);"></span></p>
+            <div class="menu-grid">
+                <a href="scores.html" class="btn btn-primary">📊 Ver Puntuaciones</a>
+                <a href="group-generator/index.html" class="btn btn-success">👥 Generar Grupos</a>
+            </div>
+            <div class="change-teacher" onclick="showTeacherSelection()">🔄 Cambiar Maestro</div>
+        </div>
+    </div>
+
+    <script>
+        const PASS = "Nixon2026";
+
+        function checkAuth() {
+            if (sessionStorage.getItem('admin_logged_in') === 'true') {
+                const activeTeacher = localStorage.getItem('vocabulary_active_teacher');
+                if (activeTeacher) {
+                    showDashboard(activeTeacher);
+                } else {
+                    showTeacherSelection();
+                }
+            } else {
+                showLogin();
+            }
+        }
+
+        function showLogin() {
+            document.getElementById('section-login').hidden = false;
+            document.getElementById('section-teacher').hidden = true;
+            document.getElementById('section-dashboard').hidden = true;
+            document.getElementById('passwordInput').focus();
+        }
+
+        function verifyPassword() {
+            const val = document.getElementById('passwordInput').value;
+            if (val === PASS) {
+                sessionStorage.setItem('admin_logged_in', 'true');
+                showTeacherSelection();
+            } else {
+                document.getElementById('passwordError').style.display = 'block';
+                document.getElementById('passwordInput').value = '';
+            }
+        }
+
+        function showTeacherSelection() {
+            document.getElementById('section-login').hidden = true;
+            document.getElementById('section-teacher').hidden = false;
+            document.getElementById('section-dashboard').hidden = true;
+        }
+
+        function selectTeacher(teacher) {
+            localStorage.setItem('vocabulary_active_teacher', teacher);
+            showDashboard(teacher);
+        }
+
+        function showDashboard(teacher) {
+            document.getElementById('section-login').hidden = true;
+            document.getElementById('section-teacher').hidden = true;
+            document.getElementById('section-dashboard').hidden = false;
+            document.getElementById('activeTeacherName').innerText = teacher;
+        }
+
+        function logout() {
+            sessionStorage.removeItem('admin_logged_in');
+            showLogin();
+        }
+
+        document.getElementById('passwordInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') verifyPassword();
+        });
+
+        // Initialize
+        checkAuth();
+    </script>
+</body>
+
+</html>

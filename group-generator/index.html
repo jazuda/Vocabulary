@@ -580,7 +580,7 @@
 <body>
     <div class="container">
         <header>
-            <a href="../index.html" class="back-link">← Volver al Portal</a>
+            <a href="../admin.html" class="back-link">← Volver al Admin</a>
             <h1>Generador de Grupos</h1>
         </header>
 
@@ -1338,6 +1338,11 @@
         }
 
         document.addEventListener('DOMContentLoaded', async () => {
+            if (sessionStorage.getItem('admin_logged_in') !== 'true') {
+                window.location.href = '../admin.html';
+                return;
+            }
+
             const globalTeacher = localStorage.getItem('vocabulary_active_teacher');
             if (globalTeacher) {
                 // Map portal names to local keys
