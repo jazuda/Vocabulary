@@ -293,6 +293,168 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        /* Game Modal Specific Styles */
+        .game-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #ffffff;
+            z-index: 2000;
+            padding: 2rem;
+            overflow-y: auto;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .game-close {
+            position: absolute;
+            top: 1.5rem;
+            right: 2rem;
+            font-size: 1.5rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-muted);
+        }
+
+        .game-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .big-target {
+            font-size: 6rem;
+            font-weight: 800;
+            color: var(--accent);
+            line-height: 1;
+            margin: 1rem 0;
+        }
+
+        .resources-display {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: nowrap;
+            margin: 2rem 0;
+            overflow-x: auto;
+            width: 100%;
+        }
+
+        .resource-chip {
+            background: white;
+            border: 3px solid var(--border-color);
+            width: 5rem;
+            height: 5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 1rem;
+            font-size: 2.2rem;
+            font-weight: 800;
+            transition: all 0.2s;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .resource-chip.used {
+            opacity: 0.3;
+            background: #fee2e2;
+            border-color: #fca5a5;
+            text-decoration: line-through;
+        }
+
+        .timer-panel {
+            background: var(--text-main);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 1rem;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .timer-display {
+            font-family: monospace;
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        .solution-area {
+            width: 100%;
+            max-width: 1000px;
+            background: #ffffff;
+            border: 2px solid #e2e8f0;
+            border-radius: 1rem;
+            padding: 1.5rem;
+        }
+
+        .solution-area h3 {
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .solution-input {
+            width: 100%;
+            height: 100px;
+            border: 1px solid #dfe4ea;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            font-size: 1.2rem;
+            resize: none;
+            margin-bottom: 1rem;
+        }
+
+        .validator-feedback {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            min-height: 1.5rem;
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.6rem;
+            border-radius: 0.4rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            background: #f1f5f9;
+        }
+
+        /* Letter Slots */
+        .slot-container {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+
+        .letter-slot {
+            width: 3.5rem;
+            height: 4.5rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 0.5rem;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        .letter-slot.error {
+            border-color: #ef4444;
+            color: #ef4444;
+            background: #fef2f2;
+        }
+
+        .letter-slot.active {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(35, 131, 226, 0.1);
+        }
     </style>
 </head>
 
