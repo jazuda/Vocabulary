@@ -548,14 +548,38 @@
                 if (!Array.isArray(rawData)) throw new Error("Formato de datos inválido");
 
                 const client = getSupabase();
-                const toInsert = rawData.map(item => ({
-                    name: item.name || item.nombre || "",
-                    app: item.app || item.aplicacion || "",
-                    score: parseInt(item.score) || 0,
-                    time: item.time || "",
-                    date: item.date || new Date().toISOString(),
-                    class: item.class || ""
-                }));
+                const toInsert = rawData.map(item => {
+                    let d = item.date;
+                    let parsedDate = new Date();
+
+                    if (d) {
+                        // Manejar formato local español: DD/MM/YYYY, HH:MM:SS p.m.
+                        if (typeof d === 'string' && d.includes('/') && d.includes(',')) {
+                            try {
+                                const [datePart, timePart] = d.split(', ');
+                                const [day, month, year] = datePart.split('/');
+                                // Limpiar a.m./p.m. -> AM/PM para que JS lo entienda
+                                const cleanTime = timePart.replace(/\./g, '').toUpperCase();
+                                // Re-formatear a MM/DD/YYYY (formato estándar de JS)
+                                parsedDate = new Date(`${month}/${day}/${year} ${cleanTime}`);
+                            } catch (e) { parsedDate = new Date(d); }
+                        } else {
+                            parsedDate = new Date(d);
+                        }
+                    }
+
+                    // Si el parseo falló, usar fecha actual como fallback
+                    if (isNaN(parsedDate.getTime())) parsedDate = new Date();
+
+                    return {
+                        name: item.name || item.nombre || "",
+                        app: item.app || item.aplicacion || "",
+                        score: parseInt(item.score) || 0,
+                        time: typeof item.time === 'string' && item.time.includes('T') ? item.time.split('T')[1].substring(0, 5) : (item.time || ""),
+                        date: parsedDate.toISOString(),
+                        class: item.class || ""
+                    };
+                });
 
                 // Insertar en bloques de 50 para evitar límites
                 for (let i = 0; i < toInsert.length; i += 50) {
