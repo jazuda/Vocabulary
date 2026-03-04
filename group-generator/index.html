@@ -71,6 +71,7 @@
             font-weight: 800;
             background: linear-gradient(to right, #4f46e5, #9333ea);
             -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
@@ -695,28 +696,10 @@
                     placeholder="Ej: 5 (Opcional)" style="margin-top: 0.5rem;">
             </div>
 
-            <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 1.5rem 0;">
-
-            <div class="modal-field">
-                <label style="color: var(--accent); display: flex; align-items: center; gap: 0.5rem;">
-                    ☁️ Sincronización en la Nube
-                </label>
-                <p style="font-size: 0.75rem; color: var(--secondary); margin-bottom: 0.8rem;">
-                    Introduce tus credenciales de Supabase para guardar los datos permanentemente.
-                </p>
-                <input type="text" id="dbUrl" class="input-text" placeholder="Supabase URL"
-                    style="width: 100%; padding: 0.5rem; border: 1px solid #e2e8f0; border-radius: 0.4rem; font-size: 0.8rem; margin-bottom: 0.5rem;">
-                <input type="password" id="dbKey" class="input-text" placeholder="Supabase API Key (service_role)"
-                    style="width: 100%; padding: 0.5rem; border: 1px solid #e2e8f0; border-radius: 0.4rem; font-size: 0.8rem;">
-                <div id="syncStatus" style="font-size: 0.7rem; margin-top: 0.5rem; color: var(--secondary);">
-                    Estado: No configurado (usando memoria local)
-                </div>
-            </div>
-
-            <div class="modal-buttons" style="display: flex; gap: 1rem; margin-top: 2rem;">
+            <div class="modal-buttons" style="display: flex; gap: 1rem; margin-top: 1rem;">
                 <button class="btn btn-clear" style="flex: 1;" onclick="closeModal()">Cancelar</button>
                 <button class="btn btn-generate" style="flex: 1; justify-content: center;"
-                    onclick="applyConfig()">Guardar y Generar</button>
+                    onclick="applyConfig()">Generar Grupos</button>
             </div>
         </div>
     </div>
@@ -731,36 +714,28 @@
         let currentTeacher = null;
         let classifications = JSON.parse(localStorage.getItem('group_classifications') || '{}');
         let history = JSON.parse(localStorage.getItem('group_history') || '[]');
-        let supabase = null;
+        let supabaseClient = null;
 
         // Initialize Cloud Config (Prefilled with global credentials)
         const DEFAULT_URL = "https://xcpxhrmdjkqcdhhghizn.supabase.co";
         const DEFAULT_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhjcHhocm1kamtxY2RoaGdoaXpuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI2MzUxMjEsImV4cCI6MjA4ODIxMTEyMX0.YggPQSNoVkZunc_Dh7fIRrDSw4nTrGmVfaPq-7Bb1vY";
 
         const cloudConfig = JSON.parse(localStorage.getItem('supabase_config') || `{ "url": "${DEFAULT_URL}", "key": "${DEFAULT_KEY}" }`);
-        document.getElementById('dbUrl').value = cloudConfig.url;
-        document.getElementById('dbKey').value = cloudConfig.key;
 
         async function initCloud() {
-            const url = document.getElementById('dbUrl').value.trim();
-            const key = document.getElementById('dbKey').value.trim();
-
-            if (url && key) {
+            if (cloudConfig.url && cloudConfig.key) {
                 try {
-                    supabase = supabase.createClient(url, key);
-                    localStorage.setItem('supabase_config', JSON.stringify({ url, key }));
-                    document.getElementById('syncStatus').innerText = "Estado: Conectando...";
-                    await pullFromCloud();
+                    if (window.supabase && !supabaseClient) {
+                        supabaseClient = window.supabase.createClient(cloudConfig.url, cloudConfig.key);
+                    }
                 } catch (e) {
-                    document.getElementById('syncStatus').innerText = "Estado: Error de configuración";
-                    console.error(e);
+                    console.error("Cloud Error:", e);
                 }
             }
         }
 
         async function pushToCloud() {
-            if (!supabase || !currentTeacher) return;
-            document.getElementById('syncStatus').innerText = "Estado: Guardando en la nube...";
+            if (!supabaseClient || !currentTeacher) return;
 
             const data = {
                 teacher: currentTeacher,
@@ -769,22 +744,17 @@
                 last_updated: new Date().toISOString()
             };
 
-            const { error } = await supabase
+            const { error } = await supabaseClient
                 .from('teacher_data')
                 .upsert([data], { onConflict: 'teacher' });
 
-            if (error) {
-                document.getElementById('syncStatus').innerText = "Estado: Error al guardar";
-                console.error(error);
-            } else {
-                document.getElementById('syncStatus').innerText = "Estado: Sincronizado ✅";
-            }
+            if (error) console.error("Push Error:", error);
         }
 
         async function pullFromCloud() {
-            if (!supabase || !currentTeacher) return;
+            if (!supabaseClient || !currentTeacher) return;
 
-            const { data, error } = await supabase
+            const { data, error } = await supabaseClient
                 .from('teacher_data')
                 .select('*')
                 .eq('teacher', currentTeacher)
@@ -795,12 +765,10 @@
                 history = data.history || [];
                 localStorage.setItem('group_classifications', JSON.stringify(classifications));
                 localStorage.setItem('group_history', JSON.stringify(history));
-                renderStudents();
-                renderHistory();
-                document.getElementById('syncStatus').innerText = "Estado: Datos cargados ✅";
-            } else if (!error) {
-                document.getElementById('syncStatus').innerText = "Estado: Sin datos previos en la nube";
             }
+
+            renderStudents();
+            renderHistory();
         }
 
         async function selectTeacher(teacher) {
@@ -808,28 +776,40 @@
 
             // UI Updates
             document.querySelectorAll('.teacher-option').forEach(opt => opt.classList.remove('active'));
-            document.getElementById(`btn-${teacher}`).classList.add('active');
+            const btn = document.getElementById(`btn-${teacher}`);
+            if (btn) btn.classList.add('active');
 
-            document.getElementById('teacherName').innerText = teacher.charAt(0).toUpperCase() + teacher.slice(1);
+            const displayTeacher = teacher === 'garcia' ? 'García' : teacher.charAt(0).toUpperCase() + teacher.slice(1);
+            document.getElementById('teacherName').innerText = displayTeacher;
             document.getElementById('studentSection').style.display = 'block';
 
-            if (supabase) {
+            if (supabaseClient) {
                 await pullFromCloud();
             } else {
                 renderStudents();
                 renderHistory();
+            }
+
+            // Re-render just in case something didn't fire
+            if (document.getElementById('studentTableBody').innerHTML === '') {
+                renderStudents();
             }
         }
 
         function save() {
             localStorage.setItem('group_classifications', JSON.stringify(classifications));
             localStorage.setItem('group_history', JSON.stringify(history));
-            if (supabase) pushToCloud();
+            if (supabaseClient) pushToCloud();
         }
 
         function renderStudents() {
             const body = document.getElementById('studentTableBody');
             body.innerHTML = '';
+
+            if (!currentTeacher || !STUDENTS[currentTeacher]) {
+                console.warn("No hay estudiantes para el maestro:", currentTeacher);
+                return;
+            }
 
             const teacherStudents = STUDENTS[currentTeacher];
 
@@ -1357,8 +1337,38 @@
             if (item) showResults(item);
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            initCloud();
+        document.addEventListener('DOMContentLoaded', async () => {
+            const globalTeacher = localStorage.getItem('vocabulary_active_teacher');
+            if (globalTeacher) {
+                // Map portal names to local keys
+                const mapper = {
+                    'Mr Zubieta': 'zubieta',
+                    'Ms Poncelas': 'poncelas',
+                    'Mr García': 'garcia',
+                    'Mr Garcia': 'garcia'
+                };
+
+                let mappedKey = mapper[globalTeacher];
+                if (!mappedKey) {
+                    // Limpieza agresiva: quitar acentos, pasar a minúsculas y quitar Mr/Ms
+                    mappedKey = globalTeacher.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+                        .toLowerCase()
+                        .replace('mr ', '')
+                        .replace('ms ', '')
+                        .trim();
+                }
+
+                if (STUDENTS[mappedKey]) {
+                    currentTeacher = mappedKey;
+                }
+            }
+
+            await initCloud();
+
+            // If teacher was already set by global or local, ensure UI is updated
+            if (currentTeacher) {
+                selectTeacher(currentTeacher);
+            }
         });
     </script>
 </body>
