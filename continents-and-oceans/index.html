@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Earth Explorer: Continents & Oceans</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div id="app">
+        <!-- Progress Bar -->
+        <div class="progress-container">
+            <div id="progressBar" class="progress-bar"></div>
+        </div>
+
+        <!-- Navigation Menu -->
+        <nav id="navMenu" class="nav-menu hide">
+            <button class="nav-btn" onclick="jumpToPhase(1)">1. Intro</button>
+            <button class="nav-btn" onclick="jumpToPhase(2)">2. Map</button>
+            <button class="nav-btn" onclick="jumpToPhase(3)">3. Practice</button>
+            <button class="nav-btn" onclick="jumpToPhase(4)">4. Challenge</button>
+        </nav>
+
+        <!-- Role Selection -->
+        <div id="roleOverlay" class="overlay active">
+            <div class="glass-card">
+                <h1>Earth Explorer</h1>
+                <p>Ready to explore the world? Choose your role!</p>
+                <div class="role-buttons">
+                    <button class="btn btn-primary" onclick="selectRole('student')">🎓 Student</button>
+                    <button class="btn btn-secondary" onclick="selectRole('teacher')">👨‍🏫 Teacher</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Name Selection -->
+        <div id="nameOverlay" class="overlay">
+            <div class="glass-card full-width">
+                <h2 id="nameSelectTitle">Choose your Class</h2>
+                <div id="classChoice" class="grid-options"></div>
+                <div id="nameChoice" class="grid-options hide"></div>
+                <button class="btn btn-link hide" id="backBtn" onclick="showClassSelection()">← Back</button>
+            </div>
+        </div>
+
+        <!-- Main Game Container -->
+        <div id="gameContainer" class="main-container hide">
+            <!-- Phase 1: Presentation -->
+            <div id="presentationPhase" class="phase">
+                <div class="content">
+                    <div class="card-layout-split">
+                        <div class="image-area-large">
+                            <img id="presImage" src="assets/hero.png" alt="Visual">
+                        </div>
+                        <div class="info-area-side">
+                            <div class="header-inline">
+                                <h1 id="presTitle">Continent Name</h1>
+                                <button class="audio-btn" onclick="playCurrentWord()"><svg viewBox="0 0 24 24"
+                                        width="24" height="24" stroke="currentColor" stroke-width="2" fill="none">
+                                        <path d="M11 5L6 9H2v6h4l5 4V5zM15.54 8.46a5 5 0 0 1 0 7.07" />
+                                    </svg></button>
+                            </div>
+                            <h3>Did you know?</h3>
+                            <p id="presFact">Fact here...</p>
+                            <button class="btn btn-audio-text" onclick="playCurrentFact()">
+                                <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2"
+                                    fill="none">
+                                    <path d="M11 5L6 9H2v6h4l5 4V5zM15.54 8.46a5 5 0 0 1 0 7.07" />
+                                </svg>
+                                Listen to fact
+                            </button>
+                        </div>
+                    </div>
+                    <div class="navigation">
+                        <button class="btn btn-nav" id="prevBtn" onclick="prevWord()">Previous</button>
+                        <button class="btn btn-primary" id="nextPhaseBtn" onclick="nextWord()">Next</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Phase 2: Map Matching -->
+            <div id="mapPhase" class="phase hide">
+                <div class="map-game-layout">
+                    <h2>Drag names to their correct place on the map</h2>
+                    <div class="map-container" id="mapSection">
+                        <img src="assets/blank_world_map.jpg" alt="World Map" class="world-svg">
+                        <div id="mapDropZones" class="drop-zones-layer"></div>
+                    </div>
+                    <div class="name-bank" id="mapNameBank"></div>
+                </div>
+                <div class="navigation center">
+                    <button class="btn btn-primary" onclick="jumpToPhase(3)">Skip to Practice →</button>
+                </div>
+            </div>
+
+            <!-- Phase 3 & 4: Game Modes -->
+            <div id="gamePhase" class="phase hide">
+                <div class="game-header">
+                    <div class="stats">
+                        <div class="stat-item"><span id="currentPhaseLabel">Phase</span></div>
+                        <div class="stat-item score-stat">Points: <span id="currentPoints">10</span></div>
+                        <div class="stat-item">Word: <span id="currentWordIndex">1/12</span></div>
+                    </div>
+                    <div class="timer-display" id="timerDisplay">5.0s</div>
+                </div>
+
+                <div class="game-layout-split">
+                    <div class="game-image-side">
+                        <img id="gameImage" src="assets/hero.png" alt="Visual">
+                    </div>
+
+                    <div class="game-interactive-side">
+                        <h2 id="phaseInstruction">Instruction</h2>
+                        <div class="fact-hint-box">
+                            <p id="gameFactHint"></p>
+                            <button class="audio-btn small" onclick="playCurrentFact()"><svg viewBox="0 0 24 24"
+                                    width="20" height="20" stroke="currentColor" stroke-width="2" fill="none">
+                                    <path d="M11 5L6 9H2v6h4l5 4V5zM15.54 8.46a5 5 0 0 1 0 7.07" />
+                                </svg></button>
+                        </div>
+
+                        <div id="wordContainer" class="word-container"></div>
+
+                        <div class="controls">
+                            <button class="audio-btn large" onclick="playCurrentWord()">
+                                <svg viewBox="0 0 24 24" width="32" height="32" stroke="currentColor" stroke-width="2"
+                                    fill="none">
+                                    <path d="M11 5L6 9H2v6h4l5 4V5zM15.54 8.46a5 5 0 0 1 0 7.07" />
+                                </svg>
+                                Listen name
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Phase -->
+            <div id="resultPhase" class="phase hide">
+                <div class="glass-card">
+                    <h1>Mission Accomplished!</h1>
+                    <div class="total-score" id="totalScore">0</div>
+                    <p>Total Points Earned in Challenge</p>
+                    <div class="results-meta">
+                        <p>Student: <span id="resStudentName">---</span></p>
+                        <p>Class: <span id="resClassName">---</span></p>
+                    </div>
+                    <div class="role-buttons">
+                        <button class="btn btn-primary" onclick="restartApp()">Play Again</button>
+                        <button class="btn btn-secondary" onclick="window.location.href='../'">Back to Portal</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Feedback Overlay -->
+        <div id="feedbackOverlay" class="feedback-overlay">
+            <div id="feedbackIcon"></div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
