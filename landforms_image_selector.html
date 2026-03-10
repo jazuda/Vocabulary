@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Selector de Imágenes: Landforms</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;800&family=Quicksand:wght@500;700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-light: #818cf8;
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --accent: #f59e0b;
+            --text: #1e293b;
+            --success: #22c55e;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg);
+            padding: 2rem;
+            color: var(--text);
+            padding-bottom: 10rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 4rem;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        h1 {
+            font-family: 'Quicksand', sans-serif;
+            color: var(--primary);
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            color: #64748b;
+        }
+
+        .word-section {
+            background: var(--card);
+            padding: 3rem;
+            border-radius: 3rem;
+            margin-bottom: 4rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            border: 1px solid #f1f5f9;
+        }
+
+        .word-title {
+            font-size: 2.5rem;
+            text-transform: capitalize;
+            margin-bottom: 2rem;
+            color: var(--primary);
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .word-title::after {
+            content: '';
+            flex: 1;
+            height: 4px;
+            background: #f1f5f9;
+            border-radius: 2px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .img-card {
+            cursor: pointer;
+            border: 6px solid transparent;
+            border-radius: 2rem;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            background: #f8fafc;
+        }
+
+        .img-card img {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.5s ease;
+        }
+
+        .img-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        .img-card:hover img {
+            transform: scale(1.05);
+        }
+
+        .img-card.selected {
+            border-color: var(--success);
+            box-shadow: 0 0 0 6px rgba(34, 197, 94, 0.2);
+        }
+
+        .selected-badge {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            background: var(--success);
+            color: white;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+            font-size: 1.5rem;
+            border: 3px solid white;
+        }
+
+        .img-card.selected .selected-badge {
+            display: flex;
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes popIn {
+            0% {
+                transform: scale(0);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .custom-url-container {
+            margin-top: 3rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            background: #f8fafc;
+            padding: 2rem;
+            border-radius: 2rem;
+            border: 2px dashed #e2e8f0;
+        }
+
+        .custom-url-label {
+            font-weight: 700;
+            color: #475569;
+            font-size: 1.1rem;
+        }
+
+        .custom-url-input {
+            width: 100%;
+            padding: 1.2rem 1.5rem;
+            border: 2px solid #cbd5e1;
+            border-radius: 1.2rem;
+            font-family: inherit;
+            font-size: 1.1rem;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .custom-url-input:focus {
+            border-color: var(--primary);
+            background: white;
+            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+        }
+
+        .floating-footer {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(20px);
+            padding: 1.2rem 2.5rem;
+            border-radius: 100px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            display: flex;
+            gap: 1.5rem;
+            z-index: 1000;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            width: fit-content;
+        }
+
+        .btn {
+            padding: 1rem 2.5rem;
+            border-radius: 50px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            border: none;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-light);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(79, 70, 229, 0.3);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+
+        .btn-secondary:hover {
+            background: #f8fafc;
+            transform: translateY(-3px);
+        }
+
+        #copy-toast {
+            position: fixed;
+            top: 2rem;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            background: var(--success);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 1rem;
+            font-weight: 700;
+            transition: transform 0.3s ease;
+            z-index: 2000;
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        #copy-toast.show {
+            transform: translateX(-50%) translateY(0);
+        }
+    </style>
+</head>
+
+<body>
+    <div id="copy-toast">¡Copiado al portapapeles! 🚀</div>
+
+    <div class="header">
+        <h1>¡Hola! Elige las mejores imágenes 📸</h1>
+        <p>He seleccionado 3 opciones para cada tipo de relieve terrestre. Elige la que más te guste o pega un enlace
+            directo si tienes una foto específica.</p>
+    </div>
+
+    <div id="sections-container"></div>
+
+    <div class="floating-footer">
+        <button class="btn btn-primary" onclick="copyResults()">
+            <span>📋</span> Copiar resultados
+        </button>
+        <button class="btn btn-secondary" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
+            <span>⬆</span> Arriba
+        </button>
+    </div>
+
+    <script>
+        const ids = {
+            "Beach": ["DH_u2aV3nGM", "TWoL-QCZubY", "d7M5Xramf8g"],
+            "Canyon": ["RWzPBcWVdpw", "L75D18aVal8", "_0aOFIW34rw"],
+            "Cave": ["h7rmStm_82Y", "Wvas_uTO8wQ", "rtOD6PdRAlU"],
+            "Cliff": ["xHpiqLgSKzA", "mpMaD_BzP8I", "MBo8nPR5laA"],
+            "Delta": ["xJlrK1GSwc4", "HbFhjsMPQy4", "4ZCA3xukIso"],
+            "Hill": ["doicC_ATzkQ", "fmOoOsc9Tn8", "jwdtI3H-4eg"],
+            "Island": ["bS6bgSp1f64", "9ZXHUr5aCwM", "DMC_n9Iu8_8"],
+            "Isthmus": ["J5OuRqwWoq8", "OGfIl1BeyaI", "XVrQyHvWINE"],
+            "Mountain": ["yIkD6xtaUgk", "g30P1zcOzXo", "9wg5jCEPBsw"],
+            "Plateau": ["dCgT96jYNu4", "93iTD1IH34I", "TveLZhcHjfk"],
+            "Peninsula": ["PtMzHWhig3w", "APu6-1sh8kE", "f14lggUbytE"],
+            "Plain": ["8ZyjxBAhKvw", "XjdlXeoaoKc", "5udn5Nhe4ek"],
+            "Sand dune": ["Xc6gtOwSMSA", "bN00NZvfA4E", "C5KF-FhoCwM"],
+            "Valley": ["K94HiVOKjZE", "PnMMd-lVIgE", "uvQmacxnfcE"],
+            "Volcano": ["_xmAPHUXXiU", "U6pLKRSQLis", "WQ5HOvrDZ6Y"]
+        };
+
+        const translations = {
+            "Beach": "Beach (Playa)",
+            "Canyon": "Canyon (Cañón)",
+            "Cave": "Cave (Cueva)",
+            "Cliff": "Cliff (Acantilado)",
+            "Delta": "Delta (Delta)",
+            "Hill": "Hill (Colina)",
+            "Island": "Island (Isla)",
+            "Isthmus": "Isthmus (Istmo)",
+            "Mountain": "Mountain (Montaña)",
+            "Plateau": "Plateau (Meseta)",
+            "Peninsula": "Peninsula (Península)",
+            "Plain": "Plain (Llanura)",
+            "Sand dune": "Sand Dune (Duna)",
+            "Valley": "Valley (Valle)",
+            "Volcano": "Volcano (Volcán)"
+        };
+
+        const selections = {};
+        const container = document.getElementById('sections-container');
+
+        Object.keys(ids).forEach(word => {
+            const section = document.createElement('div');
+            section.className = 'word-section';
+
+            const options = ids[word].map(id => `https://images.unsplash.com/photo-${id}?q=80&w=800&auto=format&fit=crop`);
+
+            section.innerHTML = `
+                <div class="word-title">${translations[word] || word}</div>
+                <div class="grid" id="grid-${word}"></div>
+                <div class="custom-url-container">
+                    <label class="custom-url-label">O usa tu propio enlace de imagen:</label>
+                    <input type="text" 
+                           class="custom-url-input" 
+                           placeholder="Pega el enlace directo aquí..." 
+                           oninput="handleCustomInput(this, '${word}')">
+                </div>
+            `;
+
+            const grid = section.querySelector(`#grid-${word}`);
+            options.forEach((url, i) => {
+                const card = document.createElement('div');
+                card.className = 'img-card';
+                // Select first one by default if not set
+                if (i === 0) {
+                    card.classList.add('selected');
+                    selections[word] = url;
+                }
+                card.innerHTML = `
+                    <img src="${url}" alt="${word} ${i}">
+                    <div class="selected-badge">✓</div>
+                `;
+                card.onclick = () => {
+                    section.querySelectorAll('.img-card').forEach(c => c.classList.remove('selected'));
+                    card.classList.add('selected');
+                    selections[word] = url;
+                    section.querySelector('.custom-url-input').value = "";
+                };
+                grid.appendChild(card);
+            });
+
+            container.appendChild(section);
+        });
+
+        function handleCustomInput(input, word) {
+            const val = input.value.trim();
+            const section = input.closest('.word-section');
+            if (val) {
+                section.querySelectorAll('.img-card').forEach(c => c.classList.remove('selected'));
+                selections[word] = val;
+            } else {
+                // If empty, re-select the first card
+                const firstCard = section.querySelector('.img-card');
+                firstCard.classList.add('selected');
+                selections[word] = firstCard.querySelector('img').src;
+            }
+        }
+
+        function copyResults() {
+            const results = Object.keys(selections).map(word => ({
+                word: word,
+                image: selections[word]
+            }));
+
+            const text = JSON.stringify(results, null, 2);
+            navigator.clipboard.writeText(text).then(() => {
+                const toast = document.getElementById('copy-toast');
+                toast.classList.add('show');
+                setTimeout(() => toast.classList.remove('show'), 3000);
+            });
+        }
+    </script>
+</body>
+
+</html>

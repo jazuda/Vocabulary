@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Landforms - Vocabulary Lab</title>
+    <link rel="stylesheet" href="../core/styles.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;800&family=Quicksand:wght@500;700&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <div class="progress-bar" id="progress"></div>
+    <div class="score-display" id="scoreDisplay">Score: 100</div>
+    <div class="timer-display" id="timerDisplay">Tiempo: 00:00</div>
+
+    <div class="slide-container" id="container">
+        <!-- Slides will be injected by engine.js -->
+    </div>
+
+    <div class="controls">
+        <div class="nav-buttons">
+            <button class="nav-btn" onclick="window.toggleMenu()">☰</button>
+            <button class="nav-btn" onclick="window.prevSlide()">←</button>
+            <button class="nav-btn" onclick="window.nextSlide()">→</button>
+        </div>
+        <div class="topic-label">Landforms</div>
+    </div>
+
+    <div class="menu-overlay" id="menuOverlay">
+        <button class="close-menu" onclick="window.toggleMenu()">✕</button>
+        <div class="menu-title">Landforms</div>
+        <div class="menu-item" onclick="window.goToSlide(0)">Inicio</div>
+        <div class="menu-item" onclick="window.goToSlide(1)">Vocabulario</div>
+        <div class="menu-divider"></div>
+        <div class="menu-item" onclick="window.goToSlide(17)">Adivina la palabra</div>
+        <div class="menu-item" onclick="window.goToSlide(33)">Escribe la palabra</div>
+        <div class="menu-divider"></div>
+        <div class="menu-item home-link" onclick="window.location.href='../index.html'">🏠 Volver al Portal</div>
+    </div>
+
+    <script>
+        const config = {
+            title: "Landforms",
+            vocab: [
+                {
+                    word: "Beach",
+                    image: "https://images.unsplash.com/photo-1590523741831-ab7e8b8f9c7f?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8cGxheWFzfGVufDB8fDB8fHww",
+                    sentence: "We like to build big sandcastles on the beach."
+                },
+                {
+                    word: "Canyon",
+                    image: "https://www.worldatlas.com/r/w1200/upload/8c/ee/69/shutterstock-97706066.jpg",
+                    sentence: "The Grand Canyon is a very deep valley with steep walls."
+                },
+                {
+                    word: "Cave",
+                    image: "https://i0.wp.com/patagoniadreaming.com/wp-content/uploads/2016/10/IMG_8063.jpg?resize=1024%2C768&ssl=1",
+                    sentence: "Bears sometimes sleep inside a dark cave."
+                },
+                {
+                    word: "Cliff",
+                    image: "https://lukegazzard.weebly.com/uploads/5/9/0/2/59020637/2762624_orig.jpg",
+                    sentence: "Be careful not to stand too close to the edge of the high cliff."
+                },
+                {
+                    word: "Delta",
+                    image: "https://www.eopugetsound.org/sites/default/files/topical_article/images/landforms_deltariver.jpg",
+                    sentence: "A delta looks like a green triangle where the river meets the sea."
+                },
+                {
+                    word: "Hill",
+                    image: "https://travellingacrosstime.com/wp-content/uploads/2015/08/hills.jpg",
+                    sentence: "We can run up the small hill and roll down the grass."
+                },
+                {
+                    word: "Island",
+                    image: "https://d2cvjmix0699s1.cloudfront.net/resources/elephango/_userimages/tropical-island-11733.jpg",
+                    sentence: "An island is a piece of land with water all around it."
+                },
+                {
+                    word: "Isthmus",
+                    image: "https://img.reverso.net/dict/isthmus-noun-geography-0f177842_1.webp",
+                    sentence: "An isthmus is like a narrow bridge of land between two oceans."
+                },
+                {
+                    word: "Mountain",
+                    image: "https://cdn.britannica.com/21/102121-050-DCA84B12/Mountains-Glacier-National-Park-Montana.jpg",
+                    sentence: "The top of the mountain is very high and cold."
+                },
+                {
+                    word: "Plateau",
+                    image: "https://socialstudieslandforms.weebly.com/uploads/6/0/7/0/60703939/174190458.jpg",
+                    sentence: "A plateau is a flat area of land that is higher than the land around it."
+                },
+                {
+                    word: "Peninsula",
+                    image: "https://images.nationalgeographic.org/image/upload/v1638884294/EducationHub/photos/montenegran-peninsula.jpg",
+                    sentence: "Florida is a peninsula because it has water on three sides."
+                },
+                {
+                    word: "Plain",
+                    image: "https://cdn.firstcry.com/education/2022/10/06123315/Plains.jpg",
+                    sentence: "The buffalo like to eat grass on the wide, flat plain."
+                },
+                {
+                    word: "Sand dune",
+                    image: "https://cdn.britannica.com/42/150942-050-242D5D33/Sand-dunes-Sahara-desert.jpg",
+                    sentence: "We can slide down the big sand dune in the desert."
+                },
+                {
+                    word: "Valley",
+                    image: "https://cdn.firstcry.com/education/2022/10/06122857/Valleys.jpg",
+                    sentence: "A valley is the low land between two high mountains."
+                },
+                {
+                    word: "Volcano",
+                    image: "https://outforia.com/wp-content/uploads/2021/12/Types-of-Volcanoes-1-0112.jpg",
+                    sentence: "A volcano is a mountain that can blow out hot lava."
+                }
+            ]
+        };
+    </script>
+    <script src="../core/engine.js"></script>
+</body>
+
+</html>

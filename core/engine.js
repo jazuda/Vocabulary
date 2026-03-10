@@ -9,6 +9,7 @@ let currentRole = null;
 let studentName = "";
 let studentClass = "";
 let wordStartTime = 0;
+let currentWordErrors = 0;
 let _listenersAdded = false;
 
 // Versión: 2026-02-18 - Lógica de Puntuación Estricta
@@ -220,9 +221,15 @@ window.checkLetter = function (input) {
         }
     } else if (val !== "") {
         input.classList.add('incorrect');
-        score = Math.max(0, score - 1); // Penalti por error (-1 punto)
-        const scoreDisp = document.getElementById('scoreDisplay');
-        if (scoreDisp) scoreDisp.innerText = `Score: ${score}`;
+
+        // Solo restamos si no hemos llegado al límite de 7 errores por palabra
+        if (currentWordErrors < 7) {
+            score = Math.max(0, score - 1);
+            currentWordErrors++;
+            const scoreDisp = document.getElementById('scoreDisplay');
+            if (scoreDisp) scoreDisp.innerText = `Score: ${score}`;
+        }
+
         setTimeout(() => {
             input.value = "";
             input.classList.remove('incorrect');
@@ -480,6 +487,7 @@ function updateSlide() {
             slide.classList.add('active');
             if (slide.classList.contains('slide-dynamic')) {
                 wordStartTime = Date.now();
+                currentWordErrors = 0; // Reset errores al empezar palabra
                 const firstInput = slide.querySelector('.letter-input');
                 if (firstInput) setTimeout(() => firstInput.focus(), 850);
             }
